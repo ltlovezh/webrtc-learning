@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #f7fafc;
+        color: #102033;
+      }
+
+      body {
+        font-family: sans-serif;
+      }
+
+      .mono,
+      code {
+        font-family: monospace;
+        font-variant-ligatures: none;
+      }
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #f7fafc;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #f7fafc;
+      }
+
+      .scene:not(#scene-intro) {
+        opacity: 0;
+      }
+
+      .paper-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(#d8e2ee 1px, transparent 1px),
+          linear-gradient(90deg, #d8e2ee 1px, transparent 1px);
+        background-size: 64px 64px;
+        opacity: 0.44;
+      }
+
+      .scene-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        padding: 70px 92px 142px;
+        gap: 34px;
+      }
+
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+
+      .eyebrow {
+        color: #53657a;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .title {
+        max-width: 1060px;
+        color: #102033;
+        font-size: 82px;
+        font-weight: 900;
+        line-height: 1.08;
+        letter-spacing: 0;
+      }
+
+      .subtitle {
+        max-width: 900px;
+        color: #53657a;
+        font-size: 34px;
+        font-weight: 500;
+        line-height: 1.55;
+      }
+
+      .node {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 230px;
+        height: 148px;
+        border: 4px solid #102033;
+        border-radius: 24px;
+        background: #ffffff;
+        box-shadow: 0 18px 45px rgba(16, 32, 51, 0.12);
+        color: #102033;
+        font-size: 34px;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      .node.server {
+        width: 310px;
+        border-color: #1b66d2;
+        color: #1b66d2;
+      }
+
+      .node.net {
+        border-color: #e07a1f;
+        color: #b45309;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 108px;
+        min-height: 42px;
+        padding: 8px 18px;
+        border-radius: 999px;
+        background: #eef4ff;
+        color: #1b66d2;
+        font-size: 22px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .pill.orange {
+        background: #fff2e5;
+        color: #b45309;
+      }
+
+      .pill.green {
+        background: #eaf8f1;
+        color: #139a63;
+      }
+
+      .card {
+        border: 3px solid #d8e2ee;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 16px 50px rgba(16, 32, 51, 0.1);
+      }
+
+      .protocol-card {
+        width: 760px;
+        padding: 34px 38px;
+      }
+
+      .protocol-card h2 {
+        margin-bottom: 12px;
+        font-size: 56px;
+        font-weight: 900;
+        letter-spacing: 0;
+      }
+
+      .protocol-card .summary {
+        margin-bottom: 28px;
+        color: #53657a;
+        font-size: 29px;
+        font-weight: 700;
+        line-height: 1.35;
+      }
+
+      .field-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .sdp-card .field-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .sdp-card .field {
+        min-height: 68px;
+        padding: 13px 15px;
+      }
+
+      .sdp-card .field code {
+        font-size: 23px;
+      }
+
+      .sdp-card .field span {
+        font-size: 19px;
+      }
+
+      .field {
+        min-height: 72px;
+        padding: 15px 17px;
+        border: 2px solid #d8e2ee;
+        border-radius: 16px;
+        background: #f7fafc;
+      }
+
+      .field code {
+        display: block;
+        margin-bottom: 5px;
+        color: #102033;
+        font-size: 25px;
+        font-weight: 800;
+      }
+
+      .field span {
+        color: #53657a;
+        font-size: 20px;
+        font-weight: 650;
+      }
+
+      .line {
+        position: absolute;
+        height: 5px;
+        border-radius: 999px;
+        background: #1b66d2;
+        transform-origin: left center;
+      }
+
+      .line.orange {
+        background: #e07a1f;
+      }
+
+      .line.green {
+        background: #139a63;
+      }
+
+      .line.dashed {
+        background: repeating-linear-gradient(
+          90deg,
+          currentColor 0 22px,
+          transparent 22px 34px
+        );
+        color: #1b66d2;
+      }
+
+      .arrow::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: -3px;
+        width: 0;
+        height: 0;
+        border-top: 13px solid transparent;
+        border-bottom: 13px solid transparent;
+        border-left: 20px solid currentColor;
+        transform: translateY(-50%);
+      }
+
+      .arrow-left::after {
+        left: -3px;
+        right: auto;
+        border-left: 0;
+        border-right: 20px solid currentColor;
+      }
+
+      .packet {
+        position: absolute;
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        background: #1b66d2;
+        box-shadow: 0 0 0 8px rgba(27, 102, 210, 0.14);
+      }
+
+      .packet.orange {
+        background: #e07a1f;
+        box-shadow: 0 0 0 8px rgba(224, 122, 31, 0.14);
+      }
+
+      .packet.green {
+        background: #139a63;
+        box-shadow: 0 0 0 8px rgba(19, 154, 99, 0.14);
+      }
+
+      .topology {
+        position: absolute;
+        left: 110px;
+        right: 110px;
+        top: 330px;
+        height: 360px;
+      }
+
+      .topology .node-a {
+        position: absolute;
+        left: 0;
+        top: 85px;
+      }
+
+      .topology .node-s {
+        position: absolute;
+        left: 710px;
+        top: 72px;
+      }
+
+      .topology .node-b {
+        position: absolute;
+        right: 0;
+        top: 85px;
+      }
+
+      .topology .signal-a {
+        left: 244px;
+        top: 154px;
+        width: 445px;
+        color: #1b66d2;
+      }
+
+      .topology .signal-b {
+        left: 1032px;
+        top: 154px;
+        width: 420px;
+        color: #1b66d2;
+      }
+
+      .callout {
+        width: fit-content;
+        max-width: 680px;
+        padding: 22px 28px;
+        border-left: 8px solid #1b66d2;
+        color: #102033;
+        font-size: 30px;
+        font-weight: 800;
+        line-height: 1.42;
+      }
+
+      .callout.orange {
+        border-left-color: #e07a1f;
+      }
+
+      .callout.green {
+        border-left-color: #139a63;
+      }
+
+      #scene-signaling .callout {
+        position: absolute;
+        left: 92px;
+        bottom: 188px;
+        max-width: 790px;
+        z-index: 3;
+      }
+
+      .caption-layer {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 28px;
+        z-index: 50;
+        height: 78px;
+        pointer-events: none;
+      }
+
+      .caption-cue {
+        position: absolute;
+        left: 260px;
+        right: 260px;
+        bottom: 0;
+        min-height: 58px;
+        padding: 9px 24px 11px;
+        border-radius: 16px;
+        background: rgba(16, 32, 51, 0.92);
+        color: #ffffff;
+        box-shadow: 0 10px 30px rgba(16, 32, 51, 0.22);
+        font-size: 26px;
+        font-weight: 750;
+        line-height: 1.32;
+        text-align: center;
+        opacity: 0;
+      }
+
+      .big-equation {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 22px;
+        width: 100%;
+      }
+
+      .summary-tile {
+        min-height: 250px;
+        padding: 28px 26px;
+        border-top: 9px solid #1b66d2;
+      }
+
+      .summary-tile h3 {
+        margin-bottom: 18px;
+        font-size: 44px;
+        font-weight: 900;
+      }
+
+      .summary-tile p {
+        color: #53657a;
+        font-size: 29px;
+        font-weight: 700;
+        line-height: 1.45;
+      }
+
+      .summary-tile.ice {
+        border-top-color: #e07a1f;
+      }
+
+      .summary-tile.dtls {
+        border-top-color: #102033;
+      }
+
+      .summary-tile.srtp {
+        border-top-color: #139a63;
+      }
+
+      .scene-intro-layout {
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .intro-board {
+        position: relative;
+        width: 770px;
+        height: 560px;
+      }
+
+      .intro-board .node {
+        position: absolute;
+      }
+
+      .intro-board .node-a {
+        left: 0;
+        top: 180px;
+      }
+
+      .intro-board .node-b {
+        right: 0;
+        top: 180px;
+      }
+
+      .intro-board .node-server {
+        left: 230px;
+        top: 20px;
+      }
+
+      .intro-board .question {
+        position: absolute;
+        left: 108px;
+        bottom: 6px;
+        width: 560px;
+        padding: 24px 30px;
+        font-size: 32px;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      #intro-line1 {
+        left: 250px;
+        top: 268px;
+        width: 220px;
+        color: #1b66d2;
+      }
+
+      .two-lanes {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 26px;
+        width: 860px;
+      }
+
+      .lane-card {
+        min-height: 210px;
+        padding: 32px;
+      }
+
+      .lane-card h3 {
+        margin-bottom: 18px;
+        font-size: 42px;
+        font-weight: 900;
+      }
+
+      .lane-card p {
+        color: #53657a;
+        font-size: 27px;
+        font-weight: 650;
+        line-height: 1.45;
+      }
+
+      .flow-label {
+        position: absolute;
+        padding: 10px 16px;
+        border-radius: 12px;
+        background: #ffffff;
+        border: 2px solid #d8e2ee;
+        color: #53657a;
+        font-size: 22px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .signal-list {
+        position: absolute;
+        left: 600px;
+        top: 258px;
+        display: grid;
+        grid-template-columns: repeat(4, max-content);
+        gap: 14px;
+      }
+
+      .sdp-layout,
+      .ice-layout,
+      .connect-layout,
+      .security-layout,
+      .summary-layout,
+      .glossary-layout {
+        flex-direction: column;
+      }
+
+      .stage-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .stage-head .title {
+        max-width: 1120px;
+      }
+
+      .stage-head .stage-number {
+        color: #73879f;
+        font-size: 108px;
+        font-weight: 900;
+        line-height: 0.85;
+      }
+
+      .sdp-main,
+      .ice-main,
+      .connect-main,
+      .security-main {
+        display: flex;
+        align-items: stretch;
+        gap: 34px;
+        width: 100%;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .diagram-panel {
+        position: relative;
+        flex: 1;
+        min-width: 0;
+        padding: 30px;
+      }
+
+      .mini-node {
+        position: absolute;
+        width: 150px;
+        height: 96px;
+        border: 3px solid #102033;
+        border-radius: 18px;
+        background: #ffffff;
+        color: #102033;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      .mini-node.blue {
+        border-color: #1b66d2;
+        color: #1b66d2;
+      }
+
+      .mini-node.orange {
+        border-color: #e07a1f;
+        color: #b45309;
+      }
+
+      .mini-node.green {
+        border-color: #139a63;
+        color: #139a63;
+      }
+
+      .sdp-code {
+        position: absolute;
+        left: 66px;
+        right: 66px;
+        bottom: 36px;
+        padding: 18px 24px;
+        border-radius: 18px;
+        background: #102033;
+        color: #e6f0ff;
+        font-size: 21px;
+        font-weight: 700;
+        line-height: 1.34;
+      }
+
+      .candidate-table {
+        display: grid;
+        gap: 16px;
+      }
+
+      .candidate-row {
+        display: grid;
+        grid-template-columns: 110px 1fr 110px;
+        align-items: center;
+        gap: 14px;
+        min-height: 78px;
+        padding: 14px 16px;
+        border: 2px solid #d8e2ee;
+        border-radius: 16px;
+        background: #ffffff;
+      }
+
+      .candidate-row strong {
+        color: #b45309;
+        font-size: 26px;
+        font-weight: 900;
+      }
+
+      .candidate-row span {
+        color: #53657a;
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .candidate-row code {
+        color: #102033;
+        font-size: 20px;
+        font-weight: 800;
+        text-align: right;
+      }
+
+      .path-card {
+        position: absolute;
+        width: 320px;
+        padding: 24px;
+        border-radius: 20px;
+        background: #ffffff;
+        border: 3px solid #d8e2ee;
+        box-shadow: 0 14px 32px rgba(16, 32, 51, 0.1);
+      }
+
+      .path-card h3 {
+        margin-bottom: 10px;
+        font-size: 32px;
+        font-weight: 900;
+      }
+
+      .path-card p {
+        color: #53657a;
+        font-size: 23px;
+        font-weight: 700;
+        line-height: 1.38;
+      }
+
+      .path-card.selected {
+        border-color: #139a63;
+      }
+
+      #scene-connect .diagram-panel {
+        min-height: 560px;
+      }
+
+      #scene-connect .path-card {
+        width: 260px;
+        padding: 20px 22px;
+        z-index: 3;
+      }
+
+      #scene-connect .path-card h3 {
+        font-size: 30px;
+      }
+
+      #scene-connect .path-card p {
+        font-size: 21px;
+      }
+
+      #scene-connect .mini-node {
+        z-index: 4;
+      }
+
+      #scene-connect .line,
+      #scene-connect .packet {
+        z-index: 1;
+      }
+
+      #scene-connect .flow-label {
+        z-index: 5;
+      }
+
+      #scene-security .title {
+        max-width: 1320px;
+        font-size: 76px;
+      }
+
+      .media-wave {
+        position: absolute;
+        height: 12px;
+        border-radius: 999px;
+        background: repeating-linear-gradient(
+          90deg,
+          #139a63 0 28px,
+          #90d6b7 28px 42px
+        );
+      }
+
+      .lock {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 92px;
+        height: 92px;
+        border-radius: 999px;
+        background: #102033;
+        color: #ffffff;
+        font-size: 45px;
+        font-weight: 900;
+      }
+
+      .final-line {
+        margin-top: 12px;
+        padding: 28px 36px;
+        border-radius: 22px;
+        background: #102033;
+        color: #ffffff;
+        font-size: 54px;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      .glossary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px 18px;
+        width: 100%;
+      }
+
+      #scene-glossary .title {
+        max-width: 1340px;
+        font-size: 72px;
+      }
+
+      .glossary-item {
+        display: grid;
+        grid-template-columns: 126px 1fr 220px;
+        align-items: center;
+        gap: 18px;
+        min-height: 76px;
+        padding: 14px 20px;
+        border: 2px solid #d8e2ee;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 10px 28px rgba(16, 32, 51, 0.08);
+      }
+
+      .glossary-item.wide {
+        grid-column: 1 / -1;
+      }
+
+      .abbr {
+        color: #1b66d2;
+        font-family: monospace;
+        font-size: 34px;
+        font-weight: 900;
+        font-variant-caps: normal;
+      }
+
+      .full-name {
+        color: #102033;
+        font-family: monospace;
+        font-size: 22px;
+        font-weight: 800;
+        line-height: 1.22;
+      }
+
+      .cn-name {
+        color: #53657a;
+        font-size: 24px;
+        font-weight: 800;
+        text-align: right;
+        line-height: 1.25;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-rqa0" id="root" data-composition-id="main" data-start="0" data-duration="232.5" data-width="1920" data-height="1080">
+      <audio data-hf-id="hf-d3ip" id="narration" data-start="0" data-duration="217.968" data-track-index="8" src="narration.wav" data-volume="1"></audio>
+
+      <section data-hf-id="hf-8rxz" id="scene-intro" class="scene">
+        <div data-hf-id="hf-7yqz" class="paper-grid"></div>
+        <div data-hf-id="hf-1fdg" class="scene-content scene-intro-layout">
+          <div data-hf-id="hf-d1zs" class="stack">
+            <div data-hf-id="hf-afol" class="eyebrow">WebRTC call setup</div>
+            <h1 data-hf-id="hf-bfsp" class="title">A 呼叫 B，浏览器如何真正连上？</h1>
+            <p data-hf-id="hf-ahar" class="subtitle">
+              这不是一次简单的按钮点击，而是信令协商和媒体连接两条线同时推进。
+            </p>
+            <div data-hf-id="hf-dsh0" class="two-lanes">
+              <div data-hf-id="hf-konp" class="lane-card card">
+                <h3 data-hf-id="hf-vtdw">信令协商</h3>
+                <p data-hf-id="hf-uwht">交换呼叫、Offer、Answer 和 Candidate。</p>
+              </div>
+              <div data-hf-id="hf-1zih" class="lane-card card">
+                <h3 data-hf-id="hf-yhk6">媒体连接</h3>
+                <p data-hf-id="hf-ofra">找到路径、完成加密，然后传输音视频。</p>
+              </div>
+            </div>
+          </div>
+          <div data-hf-id="hf-jo29" class="intro-board">
+            <div data-hf-id="hf-x6e6" class="node node-server server">信令服务器</div>
+            <div data-hf-id="hf-oui4" class="node node-a">用户 A</div>
+            <div data-hf-id="hf-ufjq" class="node node-b">用户 B</div>
+            <div data-hf-id="hf-7mni" id="intro-line1" class="line dashed arrow"></div>
+            <div data-hf-id="hf-4d0b" class="question card">问题：怎么从“呼叫”变成“通话”？</div>
+          </div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-9m5t" id="scene-signaling" class="scene">
+        <div data-hf-id="hf-me17" class="paper-grid"></div>
+        <div data-hf-id="hf-v1rk" class="scene-content stack">
+          <div data-hf-id="hf-t6i5" class="stage-head">
+            <div data-hf-id="hf-yeow">
+              <div data-hf-id="hf-c2so" class="eyebrow">Step 1</div>
+              <h2 data-hf-id="hf-3qpx" class="title">信令服务器只转发控制消息</h2>
+              <p data-hf-id="hf-d8bp" class="subtitle">
+                它帮助 A 和 B 交换呼叫、SDP、ICE Candidate；真正的音视频不会走这里。
+              </p>
+            </div>
+            <div data-hf-id="hf-602v" class="stage-number">01</div>
+          </div>
+          <div data-hf-id="hf-bj47" class="topology">
+            <div data-hf-id="hf-ik1w" class="node node-a">用户 A</div>
+            <div data-hf-id="hf-4log" class="node server node-s">信令服务器</div>
+            <div data-hf-id="hf-5evu" class="node node-b">用户 B</div>
+            <div data-hf-id="hf-p850" class="line dashed arrow signal-a"></div>
+            <div data-hf-id="hf-xw0v" class="line dashed arrow signal-b"></div>
+            <div data-hf-id="hf-7dd3" class="flow-label" style="left: 342px; top: 74px">呼叫 B</div>
+            <div data-hf-id="hf-mefz" class="flow-label" style="left: 1132px; top: 74px">通知来电</div>
+            <div data-hf-id="hf-dr01" class="signal-list">
+              <span data-hf-id="hf-lt5w" class="pill">Call</span>
+              <span data-hf-id="hf-nwki" class="pill">Offer</span>
+              <span data-hf-id="hf-ejue" class="pill">Answer</span>
+              <span data-hf-id="hf-idb7" class="pill orange">Candidate</span>
+            </div>
+          </div>
+          <div data-hf-id="hf-828t" class="callout">
+            A/B 各自创建 RTCPeerConnection，并加入麦克风、摄像头轨道。
+          </div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-ajv2" id="scene-sdp" class="scene">
+        <div data-hf-id="hf-lzq6" class="paper-grid"></div>
+        <div data-hf-id="hf-cql6" class="scene-content sdp-layout">
+          <div data-hf-id="hf-36jl" class="stage-head">
+            <div data-hf-id="hf-y7yw">
+              <div data-hf-id="hf-avvl" class="eyebrow">Step 2</div>
+              <h2 data-hf-id="hf-z4co" class="title">SDP：媒体能力协商</h2>
+              <p data-hf-id="hf-vgd7" class="subtitle">
+                SDP 决定传什么、怎么编码、如何加密。它是一份通话能力说明书，不是音视频数据。
+              </p>
+            </div>
+            <div data-hf-id="hf-5lru" class="stage-number">02</div>
+          </div>
+          <div data-hf-id="hf-75k7" class="sdp-main">
+            <div data-hf-id="hf-wa1r" class="protocol-card card sdp-card">
+              <h2 data-hf-id="hf-ugow" style="color: #1b66d2">SDP：媒体能力协商</h2>
+              <div data-hf-id="hf-e4y7" class="summary">决定传什么、怎么编码、如何加密</div>
+              <div data-hf-id="hf-wuw9" class="field-list">
+                <div data-hf-id="hf-0ztw" class="field"><code data-hf-id="hf-f06c">m=audio</code><span data-hf-id="hf-6m8i">音频媒体</span></div>
+                <div data-hf-id="hf-bxgc" class="field"><code data-hf-id="hf-5001">m=video</code><span data-hf-id="hf-yn6j">视频媒体</span></div>
+                <div data-hf-id="hf-aqj9" class="field"><code data-hf-id="hf-8bue">a=rtpmap</code><span data-hf-id="hf-pkd4">Opus / VP8 / H264</span></div>
+                <div data-hf-id="hf-b4ua" class="field"><code data-hf-id="hf-b9m4">a=sendrecv</code><span data-hf-id="hf-idm4">媒体方向</span></div>
+                <div data-hf-id="hf-d4df" class="field"><code data-hf-id="hf-l54e">a=fingerprint</code><span data-hf-id="hf-ezao">DTLS 指纹</span></div>
+                <div data-hf-id="hf-diog" class="field"><code data-hf-id="hf-nzmb">a=ice-ufrag</code><span data-hf-id="hf-5y31">ICE 用户片段</span></div>
+                <div data-hf-id="hf-cbrd" class="field"><code data-hf-id="hf-oluj">a=ice-pwd</code><span data-hf-id="hf-ki3r">ICE 临时密码</span></div>
+              </div>
+            </div>
+            <div data-hf-id="hf-lz60" class="diagram-panel card">
+              <div data-hf-id="hf-6ldo" class="mini-node" style="left: 54px; top: 110px">用户 A</div>
+              <div data-hf-id="hf-03po" class="mini-node blue" style="right: 54px; top: 110px">用户 B</div>
+              <div data-hf-id="hf-4lfm" class="line arrow" style="left: 220px; top: 150px; width: 430px; color: #1b66d2"></div>
+              <div data-hf-id="hf-7vp7" class="line arrow arrow-left" style="left: 220px; top: 260px; width: 430px; color: #1b66d2"></div>
+              <div data-hf-id="hf-j9u8" class="flow-label" style="left: 348px; top: 92px">Offer</div>
+              <div data-hf-id="hf-bgu7" class="flow-label" style="left: 352px; top: 188px">Answer</div>
+              <pre data-hf-id="hf-vdnm" class="sdp-code mono">v=0
+m=audio 9 UDP/TLS/RTP/SAVPF 111
+a=rtpmap:111 opus/48000/2
+m=video 9 UDP/TLS/RTP/SAVPF 96
+a=rtpmap:96 VP8/90000
+a=sendrecv
+a=fingerprint:sha-256 ...
+a=ice-ufrag:abc
+a=ice-pwd:xyz</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-le2c" id="scene-ice" class="scene">
+        <div data-hf-id="hf-llf5" class="paper-grid"></div>
+        <div data-hf-id="hf-57vk" class="scene-content ice-layout">
+          <div data-hf-id="hf-4dgo" class="stage-head">
+            <div data-hf-id="hf-x11t">
+              <div data-hf-id="hf-ba6m" class="eyebrow">Step 3</div>
+              <h2 data-hf-id="hf-v6e0" class="title">ICE：寻找可用网络路径</h2>
+              <p data-hf-id="hf-m5it" class="subtitle">
+                ICE 收集候选地址，测试连通性，选出最佳路径。它解决的是网络怎么连。
+              </p>
+            </div>
+            <div data-hf-id="hf-57gt" class="stage-number">03</div>
+          </div>
+          <div data-hf-id="hf-0bot" class="ice-main">
+            <div data-hf-id="hf-d94j" class="protocol-card card">
+              <h2 data-hf-id="hf-640s" style="color: #b45309">ICE：寻找可用网络路径</h2>
+              <div data-hf-id="hf-s0wo" class="summary">收集候选地址，测试连通性，选出最佳路径</div>
+              <div data-hf-id="hf-fb3o" class="candidate-table">
+                <div data-hf-id="hf-mirg" class="candidate-row">
+                  <strong data-hf-id="hf-w7x0">host</strong>
+                  <span data-hf-id="hf-3m3l">本机或局域网地址</span>
+                  <code data-hf-id="hf-1r9x">typ host</code>
+                </div>
+                <div data-hf-id="hf-5jhw" class="candidate-row">
+                  <strong data-hf-id="hf-45a3">srflx</strong>
+                  <span data-hf-id="hf-zeeb">STUN 看到的公网映射地址</span>
+                  <code data-hf-id="hf-seto">typ srflx</code>
+                </div>
+                <div data-hf-id="hf-4ckt" class="candidate-row">
+                  <strong data-hf-id="hf-mucb">relay</strong>
+                  <span data-hf-id="hf-9jl9">TURN 分配的中继地址</span>
+                  <code data-hf-id="hf-pja8">typ relay</code>
+                </div>
+              </div>
+            </div>
+            <div data-hf-id="hf-an5s" class="diagram-panel card">
+              <div data-hf-id="hf-bhmk" class="mini-node" style="left: 60px; top: 92px">用户 A</div>
+              <div data-hf-id="hf-umld" class="mini-node orange" style="left: 332px; top: 48px">STUN</div>
+              <div data-hf-id="hf-7m94" class="mini-node orange" style="left: 332px; top: 196px">TURN</div>
+              <div data-hf-id="hf-k63m" class="mini-node" style="right: 60px; top: 92px">用户 B</div>
+              <div data-hf-id="hf-s79p" class="line orange arrow" style="left: 206px; top: 142px; width: 138px; color: #e07a1f"></div>
+              <div data-hf-id="hf-3vxj" class="line orange arrow" style="left: 484px; top: 142px; width: 176px; color: #e07a1f"></div>
+              <div data-hf-id="hf-l6ay" class="field" style="position: absolute; left: 62px; right: 62px; bottom: 42px; min-height: 176px">
+                <code data-hf-id="hf-95bz">candidate:842163049 1 udp 1677729535 192.168.1.10 54321 typ host</code>
+                <code data-hf-id="hf-kole">candidate:123456789 1 udp 1677724415 203.0.113.20 62000 typ srflx</code>
+                <code data-hf-id="hf-ock9">candidate:987654321 1 udp 16777215 10.0.0.5 50000 typ relay</code>
+                <span data-hf-id="hf-4f12">核心字段：candidate / udp/tcp / priority / ip / port / typ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-7t3z" id="scene-connect" class="scene">
+        <div data-hf-id="hf-l744" class="paper-grid"></div>
+        <div data-hf-id="hf-36ll" class="scene-content connect-layout">
+          <div data-hf-id="hf-3z5n" class="stage-head">
+            <div data-hf-id="hf-xfcu">
+              <div data-hf-id="hf-a39j" class="eyebrow">Step 4</div>
+              <h2 data-hf-id="hf-c497" class="title">ICE 连通性检测：多条路径竞争</h2>
+              <p data-hf-id="hf-1fkx" class="subtitle">
+                双方尝试候选地址组合。能直连就直连，失败时走 TURN 中继。
+              </p>
+            </div>
+            <div data-hf-id="hf-7zm0" class="stage-number">04</div>
+          </div>
+            <div data-hf-id="hf-6484" class="connect-main">
+            <div data-hf-id="hf-9g8p" class="diagram-panel card">
+              <div data-hf-id="hf-g2i9" class="mini-node" style="left: 58px; top: 350px">用户 A</div>
+              <div data-hf-id="hf-5635" class="mini-node" style="right: 58px; top: 350px">用户 B</div>
+              <div data-hf-id="hf-xewl" class="path-card" style="left: 52px; top: 56px">
+                <h3 data-hf-id="hf-8ciy">直连</h3>
+                <p data-hf-id="hf-refe">host 到 host，最快但不总是可达。</p>
+              </div>
+              <div data-hf-id="hf-f5nm" class="path-card selected" style="left: 342px; top: 56px">
+                <h3 data-hf-id="hf-s32a">STUN 穿透</h3>
+                <p data-hf-id="hf-9wos">通过公网映射地址连通，优先使用。</p>
+              </div>
+              <div data-hf-id="hf-wf10" class="path-card" style="right: 52px; top: 56px">
+                <h3 data-hf-id="hf-wtqx">TURN 中继</h3>
+                <p data-hf-id="hf-33q3">直连失败时兜底转发。</p>
+              </div>
+              <div data-hf-id="hf-lidz" class="line green arrow" style="left: 226px; right: 226px; top: 400px; color: #139a63"></div>
+              <div data-hf-id="hf-7tki" class="packet green" style="left: 236px; top: 392px"></div>
+              <div data-hf-id="hf-5ub5" class="flow-label" style="left: 390px; top: 468px">selected candidate pair</div>
+            </div>
+            <div data-hf-id="hf-i6dv" class="protocol-card card">
+              <h2 data-hf-id="hf-4tc9" style="color: #139a63">最佳路径</h2>
+              <div data-hf-id="hf-h9et" class="summary">ICE 检测完成后，WebRTC 才知道真正可用的传输路径。</div>
+              <div data-hf-id="hf-0axp" class="field-list">
+                <div data-hf-id="hf-cq2e" class="field"><code data-hf-id="hf-maok">priority</code><span data-hf-id="hf-mt1w">候选优先级</span></div>
+                <div data-hf-id="hf-8cp3" class="field"><code data-hf-id="hf-9jw3">connectivity check</code><span data-hf-id="hf-kdwr">连通性检测</span></div>
+                <div data-hf-id="hf-8r04" class="field"><code data-hf-id="hf-kcs3">nominated pair</code><span data-hf-id="hf-hi16">最终路径</span></div>
+                <div data-hf-id="hf-gthg" class="field"><code data-hf-id="hf-7msn">TURN fallback</code><span data-hf-id="hf-hu9g">失败兜底</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-5amd" id="scene-security" class="scene">
+        <div data-hf-id="hf-kst3" class="paper-grid"></div>
+        <div data-hf-id="hf-chmp" class="scene-content security-layout">
+          <div data-hf-id="hf-1zmi" class="stage-head">
+            <div data-hf-id="hf-w8fr">
+              <div data-hf-id="hf-ahkk" class="eyebrow">Step 5</div>
+              <h2 data-hf-id="hf-d990" class="title">DTLS 握手，然后 SRTP 传媒体</h2>
+              <p data-hf-id="hf-v9uc" class="subtitle">
+                指纹验证通过后生成密钥。音视频通过 SRTP 加密发送，RTCP 负责质量反馈。
+              </p>
+            </div>
+            <div data-hf-id="hf-7laz" class="stage-number">05</div>
+          </div>
+          <div data-hf-id="hf-nb18" class="security-main">
+            <div data-hf-id="hf-9ujq" class="diagram-panel card">
+              <div data-hf-id="hf-k811" class="mini-node" style="left: 70px; top: 236px">用户 A</div>
+              <div data-hf-id="hf-npzt" class="mini-node" style="right: 70px; top: 236px">用户 B</div>
+              <div data-hf-id="hf-pekc" class="lock" style="position: absolute; left: 50%; top: 214px; transform: translateX(-50%)">✓</div>
+              <div data-hf-id="hf-djgl" class="line arrow" style="left: 234px; top: 284px; width: 450px; color: #102033"></div>
+              <div data-hf-id="hf-1j1c" class="flow-label" style="left: 354px; top: 150px">DTLS fingerprint 验证</div>
+              <div data-hf-id="hf-rfbd" class="media-wave" style="left: 234px; top: 405px; width: 584px"></div>
+              <div data-hf-id="hf-ryoc" class="packet green" style="left: 248px; top: 400px"></div>
+              <div data-hf-id="hf-1tkj" class="flow-label" style="left: 442px; top: 438px">SRTP 音视频流</div>
+            </div>
+            <div data-hf-id="hf-hs2u" class="protocol-card card">
+              <h2 data-hf-id="hf-zcna" style="color: #139a63">加密媒体</h2>
+              <div data-hf-id="hf-2vq8" class="summary">SRTP 承载音视频；RTCP 持续反馈网络质量。</div>
+              <div data-hf-id="hf-1hus" class="field-list">
+                <div data-hf-id="hf-gf6f" class="field"><code data-hf-id="hf-1xxt">DTLS</code><span data-hf-id="hf-9suj">握手与密钥生成</span></div>
+                <div data-hf-id="hf-g0ve" class="field"><code data-hf-id="hf-uqnl">SRTP</code><span data-hf-id="hf-vk9x">加密音视频</span></div>
+                <div data-hf-id="hf-fmkd" class="field"><code data-hf-id="hf-1rj5">RTCP</code><span data-hf-id="hf-q4wj">丢包/延迟反馈</span></div>
+                <div data-hf-id="hf-iepk" class="field"><code data-hf-id="hf-gcg9">PLI / NACK</code><span data-hf-id="hf-xprf">关键帧和重传请求</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-ehz1" id="scene-summary" class="scene">
+        <div data-hf-id="hf-kei2" class="paper-grid"></div>
+        <div data-hf-id="hf-667z" class="scene-content summary-layout">
+          <div data-hf-id="hf-1lbh" class="stage-head">
+            <div data-hf-id="hf-wmqs">
+              <div data-hf-id="hf-0jcc" class="eyebrow">Recap</div>
+              <h2 data-hf-id="hf-0brw" class="title">四句话记住 WebRTC 建连</h2>
+              <p data-hf-id="hf-2lxa" class="subtitle">信令交换消息，协议定规则，网络找路径，安全通道上传媒体。</p>
+            </div>
+            <div data-hf-id="hf-76zy" class="stage-number">06</div>
+          </div>
+          <div data-hf-id="hf-cdhp" class="big-equation">
+            <div data-hf-id="hf-opox" class="summary-tile card">
+              <h3 data-hf-id="hf-yqjt">SDP</h3>
+              <p data-hf-id="hf-9oi4">决定传什么、怎么编码、如何加密。</p>
+            </div>
+            <div data-hf-id="hf-4kec" class="summary-tile card ice">
+              <h3 data-hf-id="hf-0bqz">ICE</h3>
+              <p data-hf-id="hf-8i4t">收集候选地址、测试连通性、选出最佳路径。</p>
+            </div>
+            <div data-hf-id="hf-66r0" class="summary-tile card dtls">
+              <h3 data-hf-id="hf-etg9">DTLS</h3>
+              <p data-hf-id="hf-b2sn">验证指纹，生成安全密钥。</p>
+            </div>
+            <div data-hf-id="hf-582w" class="summary-tile card srtp">
+              <h3 data-hf-id="hf-ypbd">SRTP</h3>
+              <p data-hf-id="hf-onta">真正承载加密后的音视频媒体。</p>
+            </div>
+          </div>
+          <div data-hf-id="hf-748u" class="final-line">SDP 定规则，ICE 找路径，DTLS 加密，SRTP 传媒体。</div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-glos" id="scene-glossary" class="scene">
+        <div data-hf-id="hf-ggrid" class="paper-grid"></div>
+        <div data-hf-id="hf-gbody" class="scene-content glossary-layout">
+          <div data-hf-id="hf-ghead" class="stage-head">
+            <div data-hf-id="hf-gcopy">
+              <div data-hf-id="hf-geye" class="eyebrow">Glossary</div>
+              <h2 data-hf-id="hf-gtitle" class="title">缩写速查：英文全称与中文名称</h2>
+              <p data-hf-id="hf-gsub" class="subtitle">看懂 WebRTC 建连，先把这些协议名对上。</p>
+            </div>
+            <div data-hf-id="hf-gnum" class="stage-number">07</div>
+          </div>
+          <div data-hf-id="hf-glist" class="glossary-grid">
+            <div data-hf-id="hf-g01" class="glossary-item card"><div data-hf-id="hf-g01a" class="abbr">WebRTC</div><div data-hf-id="hf-g01b" class="full-name">Web Real-Time Communication</div><div data-hf-id="hf-g01c" class="cn-name">网页实时通信</div></div>
+            <div data-hf-id="hf-g02" class="glossary-item card"><div data-hf-id="hf-g02a" class="abbr">SDP</div><div data-hf-id="hf-g02b" class="full-name">Session Description Protocol</div><div data-hf-id="hf-g02c" class="cn-name">会话描述协议</div></div>
+            <div data-hf-id="hf-g03" class="glossary-item card"><div data-hf-id="hf-g03a" class="abbr">ICE</div><div data-hf-id="hf-g03b" class="full-name">Interactive Connectivity Establishment</div><div data-hf-id="hf-g03c" class="cn-name">交互式连接建立</div></div>
+            <div data-hf-id="hf-g04" class="glossary-item card"><div data-hf-id="hf-g04a" class="abbr">STUN</div><div data-hf-id="hf-g04b" class="full-name">Session Traversal Utilities for NAT</div><div data-hf-id="hf-g04c" class="cn-name">NAT 会话穿越工具</div></div>
+            <div data-hf-id="hf-g05" class="glossary-item card"><div data-hf-id="hf-g05a" class="abbr">TURN</div><div data-hf-id="hf-g05b" class="full-name">Traversal Using Relays around NAT</div><div data-hf-id="hf-g05c" class="cn-name">NAT 中继穿越</div></div>
+            <div data-hf-id="hf-g06" class="glossary-item card"><div data-hf-id="hf-g06a" class="abbr">NAT</div><div data-hf-id="hf-g06b" class="full-name">Network Address Translation</div><div data-hf-id="hf-g06c" class="cn-name">网络地址转换</div></div>
+            <div data-hf-id="hf-g07" class="glossary-item card"><div data-hf-id="hf-g07a" class="abbr">DTLS</div><div data-hf-id="hf-g07b" class="full-name">Datagram Transport Layer Security</div><div data-hf-id="hf-g07c" class="cn-name">数据报传输层安全</div></div>
+            <div data-hf-id="hf-g08" class="glossary-item card"><div data-hf-id="hf-g08a" class="abbr">RTP</div><div data-hf-id="hf-g08b" class="full-name">Real-time Transport Protocol</div><div data-hf-id="hf-g08c" class="cn-name">实时传输协议</div></div>
+            <div data-hf-id="hf-g09" class="glossary-item card"><div data-hf-id="hf-g09a" class="abbr">SRTP</div><div data-hf-id="hf-g09b" class="full-name">Secure Real-time Transport Protocol</div><div data-hf-id="hf-g09c" class="cn-name">安全实时传输协议</div></div>
+            <div data-hf-id="hf-g10" class="glossary-item card"><div data-hf-id="hf-g10a" class="abbr">RTCP</div><div data-hf-id="hf-g10b" class="full-name">RTP Control Protocol</div><div data-hf-id="hf-g10c" class="cn-name">RTP 控制协议</div></div>
+            <div data-hf-id="hf-g12" class="glossary-item card wide"><div data-hf-id="hf-g12a" class="abbr">NACK</div><div data-hf-id="hf-g12b" class="full-name">Negative Acknowledgement</div><div data-hf-id="hf-g12c" class="cn-name">否定确认/重传请求</div></div>
+          </div>
+        </div>
+      </section>
+
+      <div data-hf-id="hf-29jm" id="caption-layer" class="caption-layer"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      var CAPTION_CUES = [
+        { start: 0.1, end: 3.788, text: "用户 A 想和用户 B 进行音视频通话。" },
+        { start: 3.738, end: 15.904, text: "表面上看，是 A 点了一下呼叫，B 点了一下接听；但在 WebRTC 里面，真正发生的是两条线同时推进：一条是信令协商，另一条是媒体连接。" },
+        { start: 15.904, end: 20.571, text: "第一步，A 通过业务信令服务器通知 B：我要呼叫你。" },
+        { start: 20.571, end: 29.833, text: "B 接听后，双方开始创建 RTCPeerConnection，并把本地麦克风和摄像头采集到的音视频轨道加入连接。" },
+        { start: 29.833, end: 37.083, text: "注意，信令服务器通常只负责传递控制消息，它不直接传输真正的音视频数据。" },
+        { start: 37.083, end: 39.678, text: "接下来进入 SDP 阶段。" },
+        { start: 39.678, end: 42.75, text: "SDP 的作用是媒体能力协商。" },
+        { start: 42.75, end: 47.928, text: "SDP 不是音视频数据本身，它是一份通话能力说明书。" },
+        { start: 47.928, end: 58.059, text: "它告诉对方：我要传音频还是视频，支持哪些编解码器，媒体方向是什么，以及 DTLS 加密需要的指纹信息。" },
+        { start: 58.059, end: 83.071, text: "画面里的 m 等于 audio，m 等于 video，表示媒体类型；a 等于 rtpmap，描述 Opus、VP8、H264 这类编解码器；a 等于 sendrecv，说明双方都可以发送和接收；a 等于 fingerprint，是后续安全握手要验证的指纹；a 等于 ice-ufrag 和 ice-pwd，则是 ICE 检查时使用的临时凭据。" },
+        { start: 83.071, end: 86.773, text: "A 先创建 Offer，B 收到后创建 Answer。" },
+        { start: 86.773, end: 93.095, text: "Offer 和 Answer 交换完成后，双方才知道这次通话应该按什么规则传。" },
+        { start: 93.095, end: 97.297, text: "但是，知道怎么传，还不等于网络上已经连通。" },
+        { start: 97.297, end: 103.214, text: "浏览器可能在局域网里，也可能在 NAT 后面，还可能被防火墙隔开。" },
+        { start: 103.214, end: 106.095, text: "所以接下来要进入 ICE 阶段。" },
+        { start: 106.095, end: 109.142, text: "ICE 解决的是网络怎么连的问题。" },
+        { start: 109.142, end: 114.988, text: "双方会收集多种 Candidate，也就是可以尝试连接的 IP 和端口。" },
+        { start: 114.988, end: 126.5, text: "host 表示本机或局域网地址；srflx 表示通过 STUN 服务器看到的公网映射地址；relay 表示通过 TURN 服务器分配的中继地址。" },
+        { start: 126.5, end: 141.595, text: "一个 Candidate 里通常会包含 candidate 标识、udp 或 tcp 协议、priority 优先级、ip、port，以及 typ host、typ srflx 或 typ relay 这样的类型信息。" },
+        { start: 141.595, end: 148.785, text: "收集完候选地址后，A 和 B 会互相交换 Candidate，并进行 ICE 连通性检测。" },
+        { start: 148.785, end: 159.761, text: "它们会尝试多组路径：能局域网直连就用局域网；能通过 NAT 穿透成功，就优先直连；如果失败，就通过 TURN 中继转发。" },
+        { start: 159.761, end: 164.952, text: "ICE 检测完成后，WebRTC 才知道真正可用的传输路径。" },
+        { start: 164.952, end: 170.523, text: "当路径选定以后，双方会在这条路径上进行 DTLS 握手。" },
+        { start: 170.523, end: 176.535, text: "DTLS 握手验证 SDP 里交换过的指纹，并生成加密密钥。" },
+        { start: 176.535, end: 190.095, text: "最后，音频和视频不会裸奔传输，而是通过 SRTP 加密发送；RTCP 则持续反馈丢包、延迟、码率和关键帧请求，帮助通话保持稳定。" },
+        { start: 190.095, end: 210.547, text: "所以总结一下：信令服务器负责帮 A 和 B 交换消息；SDP 负责决定传什么、怎么编码、如何加密；ICE 负责收集候选地址、测试连通性、选出最佳路径；DTLS 建立安全通道；SRTP 才是真正承载音视频的传输层。" },
+        { start: 210.547, end: 217.964, text: "记住一句话：SDP 定规则，ICE 找路径，DTLS 加密，SRTP 传媒体。" },
+      ];
+
+      function splitCaptionText(text, maxChars) {
+        var pieces = [];
+        var current = "";
+        var breaks = "，；。！？、：";
+        for (var i = 0; i < text.length; i += 1) {
+          current += text[i];
+          if (current.length >= maxChars || breaks.indexOf(text[i]) >= 0) {
+            if (current.trim()) pieces.push(current.trim());
+            current = "";
+          }
+        }
+        if (current.trim()) pieces.push(current.trim());
+
+        var compact = [];
+        pieces.forEach(function (piece) {
+          if (piece.length <= maxChars + 8) {
+            compact.push(piece);
+            return;
+          }
+          for (var i = 0; i < piece.length; i += maxChars) {
+            compact.push(piece.slice(i, i + maxChars));
+          }
+        });
+        return compact;
+      }
+
+      function buildCaptionGroups(cues) {
+        var groups = [];
+        cues.forEach(function (cue) {
+          var chunks = splitCaptionText(cue.text, 24);
+          var totalChars = chunks.reduce(function (sum, chunk) {
+            return sum + Math.max(chunk.length, 6);
+          }, 0);
+          var cursor = cue.start;
+          chunks.forEach(function (chunk, index) {
+            var weight = Math.max(chunk.length, 6) / totalChars;
+            var duration = (cue.end - cue.start) * weight;
+            var nextEnd = index === chunks.length - 1 ? cue.end : cursor + duration;
+            groups.push({ start: cursor, end: nextEnd, text: chunk });
+            cursor = nextEnd;
+          });
+        });
+        return groups;
+      }
+
+      var captionLayer = document.getElementById("caption-layer");
+      var captionGroups = buildCaptionGroups(CAPTION_CUES);
+      captionGroups.forEach(function (group, index) {
+        var el = document.createElement("div");
+        el.className = "caption-cue";
+        el.id = "cap-" + index;
+        el.textContent = group.text;
+        captionLayer.appendChild(el);
+      });
+
+      var tl = gsap.timeline({ paused: true });
+
+      function enter(selector, t) {
+        tl.from(selector + " .eyebrow", { y: 24, opacity: 0, duration: 0.44, ease: "power3.out" }, t + 0.18);
+        tl.from(selector + " .title", { x: -48, opacity: 0, duration: 0.62, ease: "expo.out" }, t + 0.28);
+        tl.from(selector + " .subtitle", { y: 32, opacity: 0, duration: 0.54, ease: "power2.out" }, t + 0.52);
+      }
+
+      function pushScene(oldScene, newScene, t) {
+        tl.set(newScene, { opacity: 1, x: 1920 }, t);
+        tl.to(oldScene, { x: -1920, duration: 0.5, ease: "power3.inOut" }, t);
+        tl.to(newScene, { x: 0, duration: 0.5, ease: "power3.inOut" }, t);
+        tl.set(oldScene, { opacity: 0, x: 0 }, t + 0.52);
+      }
+
+      function drawLine(selector, t, duration) {
+        tl.from(selector, { scaleX: 0, opacity: 0, duration: duration || 0.48, ease: "power4.out" }, t);
+      }
+
+      enter("#scene-intro", 0);
+      tl.from("#scene-intro .lane-card", { y: 36, opacity: 0, scale: 0.96, duration: 0.52, stagger: 0.13, ease: "back.out(1.4)" }, 1.0);
+      tl.from("#scene-intro .node", { scale: 0.82, opacity: 0, duration: 0.54, stagger: 0.11, ease: "back.out(1.7)" }, 1.38);
+      drawLine("#intro-line1", 1.98, 0.55);
+      tl.from("#scene-intro .question", { y: 34, opacity: 0, duration: 0.5, ease: "power2.out" }, 2.34);
+
+      pushScene("#scene-intro", "#scene-signaling", 15.45);
+      enter("#scene-signaling", 15.7);
+      tl.from("#scene-signaling .node", { y: 44, opacity: 0, scale: 0.92, duration: 0.54, stagger: 0.12, ease: "back.out(1.35)" }, 16.55);
+      drawLine("#scene-signaling .signal-a", 17.25, 0.45);
+      drawLine("#scene-signaling .signal-b", 17.55, 0.45);
+      tl.from("#scene-signaling .flow-label", { y: -16, opacity: 0, duration: 0.36, stagger: 0.1, ease: "power2.out" }, 17.85);
+      tl.from("#scene-signaling .pill", { y: 20, opacity: 0, duration: 0.34, stagger: 0.08, ease: "expo.out" }, 18.48);
+      tl.from("#scene-signaling .callout", { x: -36, opacity: 0, duration: 0.48, ease: "power3.out" }, 21.2);
+
+      pushScene("#scene-signaling", "#scene-sdp", 36.6);
+      enter("#scene-sdp", 36.85);
+      tl.from("#scene-sdp .protocol-card", { x: -62, opacity: 0, scale: 0.97, duration: 0.62, ease: "expo.out" }, 38.0);
+      tl.from("#scene-sdp .field", { y: 24, opacity: 0, duration: 0.34, stagger: 0.07, ease: "power3.out" }, 38.62);
+      tl.from("#scene-sdp .diagram-panel", { x: 68, opacity: 0, scale: 0.97, duration: 0.62, ease: "power4.out" }, 39.2);
+      tl.from("#scene-sdp .mini-node", { scale: 0.85, opacity: 0, duration: 0.4, stagger: 0.13, ease: "back.out(1.6)" }, 39.75);
+      drawLine("#scene-sdp .line", 40.3, 0.55);
+      tl.from("#scene-sdp .sdp-code", { y: 44, opacity: 0, duration: 0.58, ease: "power2.out" }, 41.0);
+
+      pushScene("#scene-sdp", "#scene-ice", 92.6);
+      enter("#scene-ice", 92.85);
+      tl.from("#scene-ice .protocol-card", { x: -60, opacity: 0, scale: 0.97, duration: 0.58, ease: "expo.out" }, 94.0);
+      tl.from("#scene-ice .candidate-row", { x: -34, opacity: 0, duration: 0.4, stagger: 0.13, ease: "power3.out" }, 94.7);
+      tl.from("#scene-ice .diagram-panel", { y: 42, opacity: 0, scale: 0.97, duration: 0.62, ease: "power4.out" }, 95.45);
+      tl.from("#scene-ice .mini-node", { scale: 0.86, opacity: 0, duration: 0.38, stagger: 0.1, ease: "back.out(1.5)" }, 96.05);
+      drawLine("#scene-ice .line", 96.65, 0.48);
+      tl.from("#scene-ice .diagram-panel .field", { y: 34, opacity: 0, duration: 0.5, ease: "power2.out" }, 97.25);
+
+      pushScene("#scene-ice", "#scene-connect", 141.1);
+      enter("#scene-connect", 141.35);
+      tl.from("#scene-connect .diagram-panel", { x: -62, opacity: 0, scale: 0.97, duration: 0.58, ease: "expo.out" }, 142.4);
+      tl.from("#scene-connect .path-card", { y: 38, opacity: 0, scale: 0.94, duration: 0.44, stagger: 0.16, ease: "back.out(1.45)" }, 143.0);
+      tl.from("#scene-connect .mini-node", { scale: 0.86, opacity: 0, duration: 0.38, stagger: 0.12, ease: "power3.out" }, 143.72);
+      drawLine("#scene-connect .line", 144.25, 0.6);
+      tl.from("#scene-connect .packet", { x: -20, opacity: 0, duration: 0.34, ease: "power2.out" }, 144.8);
+      tl.to("#scene-connect .packet", { x: 380, duration: 3.2, repeat: 4, ease: "sine.inOut" }, 145.25);
+      tl.from("#scene-connect .protocol-card", { x: 58, opacity: 0, scale: 0.97, duration: 0.58, ease: "power4.out" }, 146.0);
+      tl.from("#scene-connect .field", { y: 24, opacity: 0, duration: 0.34, stagger: 0.08, ease: "power3.out" }, 146.52);
+
+      pushScene("#scene-connect", "#scene-security", 164.45);
+      enter("#scene-security", 164.7);
+      tl.from("#scene-security .diagram-panel", { x: -62, opacity: 0, scale: 0.97, duration: 0.58, ease: "expo.out" }, 165.72);
+      tl.from("#scene-security .mini-node", { y: 34, opacity: 0, duration: 0.42, stagger: 0.1, ease: "power3.out" }, 166.22);
+      tl.from("#scene-security .lock", { scale: 0.55, opacity: 0, duration: 0.46, ease: "back.out(1.9)" }, 166.65);
+      drawLine("#scene-security .line", 167.06, 0.55);
+      tl.from("#scene-security .media-wave", { scaleX: 0, opacity: 0, duration: 0.55, ease: "power4.out", transformOrigin: "left center" }, 168.2);
+      tl.from("#scene-security .packet", { x: -22, opacity: 0, duration: 0.34, ease: "power2.out" }, 168.62);
+      tl.to("#scene-security .packet", { x: 520, duration: 2.4, repeat: 7, ease: "sine.inOut" }, 169.0);
+      tl.from("#scene-security .protocol-card", { x: 58, opacity: 0, scale: 0.97, duration: 0.58, ease: "power4.out" }, 170.0);
+      tl.from("#scene-security .field", { y: 24, opacity: 0, duration: 0.34, stagger: 0.08, ease: "power3.out" }, 170.55);
+
+      pushScene("#scene-security", "#scene-summary", 189.6);
+      enter("#scene-summary", 189.85);
+      tl.from("#scene-summary .summary-tile", { y: 44, opacity: 0, scale: 0.96, duration: 0.54, stagger: 0.14, ease: "back.out(1.35)" }, 191.1);
+      tl.from("#scene-summary .final-line", { y: 36, opacity: 0, duration: 0.62, ease: "expo.out" }, 192.55);
+
+      pushScene("#scene-summary", "#scene-glossary", 218.15);
+      enter("#scene-glossary", 218.42);
+      tl.from("#scene-glossary .glossary-item", { y: 26, opacity: 0, scale: 0.98, duration: 0.36, stagger: 0.045, ease: "power3.out" }, 219.2);
+      tl.to("#scene-glossary", { opacity: 0, duration: 0.65, ease: "sine.inOut" }, 231.75);
+
+      captionGroups.forEach(function (group, index) {
+        var id = "#cap-" + index;
+        var inDur = Math.min(0.16, Math.max(0.08, (group.end - group.start) * 0.18));
+        var outDur = Math.min(0.14, Math.max(0.08, (group.end - group.start) * 0.14));
+        tl.fromTo(id, { opacity: 0, y: 14, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: inDur, ease: "power2.out" }, group.start);
+        tl.to(id, { opacity: 0, y: -8, scale: 0.985, duration: outDur, ease: "power1.in" }, Math.max(group.start + inDur + 0.05, group.end - outDur));
+      });
+
+      var initialSeek = 0;
+      var seekParam = new URLSearchParams(window.location.search).get("seek");
+      if (seekParam !== null) {
+        var parsedSeek = Number(seekParam);
+        if (Number.isFinite(parsedSeek)) {
+          initialSeek = Math.max(0, Math.min(232.5, parsedSeek));
+        }
+      }
+
+      tl.seek(initialSeek);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

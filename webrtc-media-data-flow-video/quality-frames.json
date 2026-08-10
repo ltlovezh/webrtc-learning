@@ -1,0 +1,27 @@
+{
+  "viewport": { "width": 1920, "height": 1080 },
+  "duration": 338,
+  "denseStep": 5,
+  "frames": [
+    { "time": 3, "label": "intro title and nodes enter" },
+    { "time": 18, "label": "intro held media packet" },
+    { "time": 27, "label": "media pipeline overview" },
+    { "time": 50, "label": "rtcp feedback visible" },
+    { "time": 60, "label": "p2p direct path" },
+    { "time": 76, "label": "p2p selected pair label" },
+    { "time": 88, "label": "turn failed direct path" },
+    { "time": 105, "label": "turn relay path" },
+    { "time": 116, "label": "sfu participants enter" },
+    { "time": 134, "label": "sfu selective forwarding" },
+    { "time": 160, "label": "sfu simulcast svc quality layers" },
+    { "time": 176, "label": "mcu cdn topology" },
+    { "time": 195, "label": "mcu tasks" },
+    { "time": 207, "label": "audience distribution" },
+    { "time": 216, "label": "summary comparison" },
+    { "time": 236, "label": "summary final line" },
+    { "time": 250, "label": "glossary topology terms" },
+    { "time": 284, "label": "glossary simulcast svc hold" },
+    { "time": 305, "label": "glossary media terms" },
+    { "time": 335, "label": "glossary final hold" }
+  ]
+}

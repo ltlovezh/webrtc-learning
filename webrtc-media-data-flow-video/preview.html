@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebRTC 媒体数据传输视频预览</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: #eaf0f7;
+        color: #102033;
+        font-family: sans-serif;
+        overflow: hidden;
+      }
+
+      .preview-stage {
+        position: relative;
+        width: 100vw;
+        height: calc(100vh - 92px);
+        overflow: hidden;
+        background: #d8e2ee;
+      }
+
+      .frame-wrap {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1920px;
+        height: 1080px;
+        transform-origin: top left;
+      }
+
+      iframe {
+        width: 1920px;
+        height: 1080px;
+        border: 0;
+        background: #f7fafc;
+      }
+
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        width: 100vw;
+        height: 92px;
+        padding: 16px 22px;
+        border-top: 1px solid #cbd7e6;
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 -12px 34px rgba(16, 32, 51, 0.12);
+      }
+
+      button {
+        flex: 0 0 auto;
+        min-width: 96px;
+        height: 46px;
+        border: 0;
+        border-radius: 12px;
+        background: #1b66d2;
+        color: #ffffff;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: 850;
+      }
+
+      input[type="range"] {
+        flex: 1;
+        min-width: 220px;
+        accent-color: #1b66d2;
+      }
+
+      .time {
+        flex: 0 0 auto;
+        width: 134px;
+        color: #102033;
+        font-size: 17px;
+        font-weight: 850;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      audio {
+        flex: 0 0 280px;
+        height: 38px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="preview-stage">
+      <div id="frameWrap" class="frame-wrap">
+        <iframe id="compositionFrame" src="index.html?seek=0.2" title="WebRTC 媒体数据传输视频"></iframe>
+      </div>
+    </main>
+    <nav class="controls" aria-label="视频预览控制">
+      <button id="playButton" type="button">播放</button>
+      <input id="scrubber" type="range" min="0" max="286" step="0.1" value="0.2" aria-label="视频时间轴">
+      <div id="timeLabel" class="time">00:00 / 04:46</div>
+      <audio id="previewAudio" src="narration.wav" controls preload="auto"></audio>
+    </nav>
+
+    <script>
+      var DURATION = 286;
+      var frame = document.getElementById("compositionFrame");
+      var frameWrap = document.getElementById("frameWrap");
+      var playButton = document.getElementById("playButton");
+      var scrubber = document.getElementById("scrubber");
+      var timeLabel = document.getElementById("timeLabel");
+      var audio = document.getElementById("previewAudio");
+      var playing = false;
+      var rafId = null;
+      var wallClockStart = 0;
+      var useAudioClock = false;
+
+      function resizeFrame() {
+        var stageHeight = window.innerHeight - 92;
+        var scale = Math.min(window.innerWidth / 1920, stageHeight / 1080);
+        frameWrap.style.transform = "scale(" + scale + ")";
+        frameWrap.style.left = Math.max(0, (window.innerWidth - 1920 * scale) / 2) + "px";
+        frameWrap.style.top = Math.max(0, (stageHeight - 1080 * scale) / 2) + "px";
+      }
+
+      function formatTime(seconds) {
+        var safe = Math.max(0, Math.min(DURATION, Number(seconds) || 0));
+        var minutes = Math.floor(safe / 60);
+        var remaining = Math.floor(safe % 60);
+        return String(minutes).padStart(2, "0") + ":" + String(remaining).padStart(2, "0");
+      }
+
+      function seekComposition(seconds) {
+        var safe = Math.max(0, Math.min(DURATION, Number(seconds) || 0));
+        var timeline = frame.contentWindow &&
+          frame.contentWindow.__timelines &&
+          frame.contentWindow.__timelines.main;
+        if (timeline && typeof timeline.seek === "function") {
+          timeline.seek(safe);
+        }
+        scrubber.value = String(safe);
+        timeLabel.textContent = formatTime(safe) + " / " + formatTime(DURATION);
+        return safe;
+      }
+
+      function stopPlayback() {
+        playing = false;
+        useAudioClock = false;
+        playButton.textContent = "播放";
+        if (rafId !== null) cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+
+      function tick() {
+        if (!playing) return;
+        var current = useAudioClock && !audio.paused
+          ? audio.currentTime
+          : (performance.now() / 1000) - wallClockStart;
+        seekComposition(current);
+        if (current >= DURATION || audio.ended) {
+          stopPlayback();
+          return;
+        }
+        rafId = requestAnimationFrame(tick);
+      }
+
+      function startPlayback() {
+        var current = seekComposition(scrubber.value);
+        audio.currentTime = current;
+        playing = true;
+        useAudioClock = false;
+        wallClockStart = (performance.now() / 1000) - current;
+        playButton.textContent = "暂停";
+        audio.play().then(function () {
+          if (playing) useAudioClock = true;
+        }).catch(function () {
+          useAudioClock = false;
+        });
+        tick();
+      }
+
+      playButton.addEventListener("click", function () {
+        if (playing) {
+          stopPlayback();
+          audio.pause();
+        } else {
+          startPlayback();
+        }
+      });
+
+      scrubber.addEventListener("input", function () {
+        var current = seekComposition(scrubber.value);
+        audio.currentTime = current;
+        if (playing) wallClockStart = (performance.now() / 1000) - current;
+      });
+
+      audio.addEventListener("play", function () {
+        playing = true;
+        useAudioClock = true;
+        wallClockStart = (performance.now() / 1000) - audio.currentTime;
+        playButton.textContent = "暂停";
+        if (rafId === null) tick();
+      });
+
+      audio.addEventListener("pause", function () {
+        if (audio.ended) return;
+        stopPlayback();
+        seekComposition(audio.currentTime);
+      });
+
+      audio.addEventListener("timeupdate", function () {
+        if (useAudioClock) seekComposition(audio.currentTime);
+      });
+
+      audio.addEventListener("ended", function () {
+        stopPlayback();
+        seekComposition(DURATION);
+      });
+
+      frame.addEventListener("load", function () {
+        seekComposition(scrubber.value);
+      });
+
+      window.addEventListener("resize", resizeFrame);
+      resizeFrame();
+    </script>
+  </body>
+</html>

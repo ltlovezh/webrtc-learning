@@ -1,0 +1,12 @@
+{
+  "name": "webrtc-media-data-flow-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.6.93 preview",
+    "preview:html": "npx --yes http-server . -p 3137 -a 127.0.0.1 -c-1",
+    "review:layout": "node scripts/layout-review.mjs",
+    "check": "npx --yes hyperframes@0.6.93 lint && npx --yes hyperframes@0.6.93 validate && npx --yes hyperframes@0.6.93 inspect --samples 30 && node scripts/layout-review.mjs",
+    "render": "HYPERFRAMES_BROWSER_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' npx --yes hyperframes@0.6.97 render --output renders/webrtc-media-data-flow.mp4 --quality high --fps 30 --workers 1 --low-memory-mode --protocol-timeout 600000 --player-ready-timeout 90000 --sdr"
+  }
+}

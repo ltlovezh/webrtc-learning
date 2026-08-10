@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #f7fafc;
+        color: #102033;
+      }
+
+      body {
+        font-family: sans-serif;
+      }
+
+      .mono,
+      code {
+        font-family: monospace;
+        font-variant-ligatures: none;
+      }
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #f7fafc;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #f7fafc;
+      }
+
+      .scene:not(#scene-intro) {
+        opacity: 0;
+      }
+
+      .paper-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(#d8e2ee 1px, transparent 1px),
+          linear-gradient(90deg, #d8e2ee 1px, transparent 1px);
+        background-size: 64px 64px;
+        opacity: 0.44;
+      }
+
+      .scene-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        padding: 66px 92px 150px;
+        gap: 28px;
+      }
+
+      .stage-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        width: 100%;
+        min-height: 138px;
+      }
+
+      .eyebrow {
+        color: #53657a;
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .title {
+        max-width: 1230px;
+        margin-top: 6px;
+        color: #102033;
+        font-size: 76px;
+        font-weight: 900;
+        line-height: 1.08;
+        letter-spacing: 0;
+      }
+
+      .subtitle {
+        max-width: 1120px;
+        margin-top: 12px;
+        color: #53657a;
+        font-size: 31px;
+        font-weight: 650;
+        line-height: 1.45;
+      }
+
+      .stage-number {
+        color: #73879f;
+        font-size: 104px;
+        font-weight: 900;
+        line-height: 0.85;
+      }
+
+      .body {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .card {
+        border: 3px solid #d8e2ee;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 16px 48px rgba(16, 32, 51, 0.1);
+      }
+
+      .node,
+      .flow-node {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 250px;
+        height: 132px;
+        border: 4px solid #102033;
+        border-radius: 24px;
+        background: #ffffff;
+        box-shadow: 0 18px 45px rgba(16, 32, 51, 0.11);
+        color: #102033;
+        font-size: 33px;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      .node.small {
+        width: 220px;
+        height: 118px;
+        font-size: 28px;
+      }
+
+      .node.green,
+      .flow-node.green {
+        border-color: #139a63;
+        color: #139a63;
+      }
+
+      .node.orange,
+      .flow-node.orange {
+        border-color: #e07a1f;
+        color: #b45309;
+      }
+
+      .node.blue,
+      .flow-node.blue {
+        border-color: #1b66d2;
+        color: #1b66d2;
+      }
+
+      .node.purple,
+      .flow-node.purple {
+        border-color: #7c3aed;
+        color: #6d28d9;
+      }
+
+      .line {
+        position: absolute;
+        z-index: 1;
+        height: 5px;
+        border-radius: 999px;
+        background: #1b66d2;
+        color: #1b66d2;
+        transform-origin: left center;
+      }
+
+      .line.green {
+        background: #139a63;
+        color: #139a63;
+      }
+
+      .line.orange {
+        background: #e07a1f;
+        color: #e07a1f;
+      }
+
+      .line.purple {
+        background: #7c3aed;
+        color: #7c3aed;
+      }
+
+      .line.red {
+        background: #dc2626;
+        color: #dc2626;
+      }
+
+      .line.dashed {
+        background: repeating-linear-gradient(90deg, currentColor 0 22px, transparent 22px 34px);
+      }
+
+      .arrow::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: -3px;
+        width: 0;
+        height: 0;
+        border-top: 13px solid transparent;
+        border-bottom: 13px solid transparent;
+        border-left: 20px solid currentColor;
+        transform: translateY(-50%);
+      }
+
+      .arrow-left::after {
+        left: -3px;
+        right: auto;
+        border-left: 0;
+        border-right: 20px solid currentColor;
+      }
+
+      .packet {
+        position: absolute;
+        z-index: 3;
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        background: #139a63;
+        box-shadow: 0 0 0 8px rgba(19, 154, 99, 0.16);
+      }
+
+      .packet.blue {
+        background: #1b66d2;
+        box-shadow: 0 0 0 8px rgba(27, 102, 210, 0.14);
+      }
+
+      .packet.orange {
+        background: #e07a1f;
+        box-shadow: 0 0 0 8px rgba(224, 122, 31, 0.14);
+      }
+
+      .packet.purple {
+        background: #7c3aed;
+        box-shadow: 0 0 0 8px rgba(124, 58, 237, 0.14);
+      }
+
+      .flow-label {
+        position: absolute;
+        z-index: 4;
+        padding: 10px 16px;
+        border: 2px solid #d8e2ee;
+        border-radius: 12px;
+        background: #ffffff;
+        color: #53657a;
+        font-size: 22px;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .pill,
+      .role-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 8px 18px;
+        border-radius: 999px;
+        background: #eef4ff;
+        color: #1b66d2;
+        font-size: 22px;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .pill.green,
+      .role-pill.green {
+        background: #eaf8f1;
+        color: #139a63;
+      }
+
+      .pill.orange,
+      .role-pill.orange {
+        background: #fff2e5;
+        color: #b45309;
+      }
+
+      .pill.purple,
+      .role-pill.purple {
+        background: #f3ecff;
+        color: #6d28d9;
+      }
+
+      .caption-layer {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 28px;
+        z-index: 50;
+        height: 78px;
+        pointer-events: none;
+      }
+
+      .caption-cue {
+        position: absolute;
+        left: 260px;
+        right: 260px;
+        bottom: 0;
+        min-height: 58px;
+        padding: 9px 24px 11px;
+        border-radius: 16px;
+        background: rgba(16, 32, 51, 0.92);
+        color: #ffffff;
+        box-shadow: 0 10px 30px rgba(16, 32, 51, 0.22);
+        font-size: 26px;
+        font-weight: 760;
+        line-height: 1.32;
+        text-align: center;
+        opacity: 0;
+      }
+
+      .intro-layout {
+        display: grid;
+        grid-template-columns: 640px 1fr;
+        gap: 60px;
+        align-items: center;
+        height: 100%;
+      }
+
+      .intro-copy {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .intro-copy .title {
+        font-size: 80px;
+      }
+
+      .intro-board {
+        position: relative;
+        height: 600px;
+      }
+
+      .intro-board .node-a {
+        left: 36px;
+        top: 260px;
+      }
+
+      .intro-board .node-b {
+        right: 36px;
+        top: 260px;
+      }
+
+      .intro-board .flow-node {
+        left: 355px;
+        top: 72px;
+        width: 360px;
+      }
+
+      #intro-line {
+        left: 312px;
+        top: 333px;
+        width: 420px;
+      }
+
+      #intro-packet {
+        left: 340px;
+        top: 324px;
+      }
+
+      .question {
+        position: absolute;
+        left: 200px;
+        right: 200px;
+        bottom: 18px;
+        padding: 24px 30px;
+        color: #102033;
+        font-size: 32px;
+        font-weight: 900;
+        line-height: 1.35;
+        text-align: center;
+      }
+
+      .pipeline {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 18px;
+        margin-top: 24px;
+      }
+
+      .pipeline-step {
+        min-height: 220px;
+        padding: 24px 22px;
+        border-top: 8px solid #139a63;
+      }
+
+      .pipeline-step h3 {
+        margin-bottom: 12px;
+        font-size: 36px;
+        font-weight: 900;
+      }
+
+      .pipeline-step p {
+        color: #53657a;
+        font-size: 24px;
+        font-weight: 650;
+        line-height: 1.38;
+      }
+
+      .pipeline-step.blue {
+        border-top-color: #1b66d2;
+      }
+
+      .pipeline-step.purple {
+        border-top-color: #7c3aed;
+      }
+
+      .feedback-card {
+        position: absolute;
+        left: 260px;
+        right: 260px;
+        bottom: 36px;
+        min-height: 122px;
+        padding: 25px 34px;
+        border-left: 9px solid #1b66d2;
+      }
+
+      .feedback-card h3 {
+        margin-bottom: 8px;
+        font-size: 34px;
+        font-weight: 900;
+      }
+
+      .feedback-card p {
+        color: #53657a;
+        font-size: 27px;
+        font-weight: 650;
+      }
+
+      .feedback-arrow {
+        left: 430px;
+        right: auto;
+        bottom: 205px;
+        width: 1020px;
+        color: #1b66d2;
+      }
+
+      .p2p-board,
+      .turn-board,
+      .sfu-board,
+      .mcu-board {
+        position: relative;
+        height: 100%;
+      }
+
+      .p2p-board .node-a {
+        left: 88px;
+        top: 270px;
+      }
+
+      .p2p-board .node-b {
+        right: 88px;
+        top: 270px;
+      }
+
+      #p2p-line {
+        left: 368px;
+        top: 334px;
+        width: 1000px;
+      }
+
+      #p2p-packet {
+        left: 410px;
+        top: 325px;
+      }
+
+      .path-card {
+        position: absolute;
+        min-height: 170px;
+        padding: 28px 32px;
+      }
+
+      .path-card h3 {
+        margin-bottom: 10px;
+        font-size: 40px;
+        font-weight: 900;
+      }
+
+      .path-card p {
+        color: #53657a;
+        font-size: 27px;
+        font-weight: 650;
+        line-height: 1.42;
+      }
+
+      .p2p-card {
+        left: 438px;
+        right: 438px;
+        bottom: 36px;
+        border-left: 9px solid #139a63;
+      }
+
+      .turn-board .node-a {
+        left: 88px;
+        top: 310px;
+      }
+
+      .turn-board .node-b {
+        right: 88px;
+        top: 310px;
+      }
+
+      .turn-board .turn-node {
+        left: 718px;
+        top: 224px;
+        width: 300px;
+      }
+
+      #turn-fail-line {
+        left: 372px;
+        top: 188px;
+        width: 1008px;
+      }
+
+      #turn-line-a {
+        left: 370px;
+        top: 376px;
+        width: 310px;
+      }
+
+      #turn-line-b {
+        left: 1056px;
+        top: 376px;
+        width: 310px;
+      }
+
+      #turn-packet-a {
+        left: 404px;
+        top: 367px;
+      }
+
+      #turn-packet-b {
+        left: 1086px;
+        top: 367px;
+      }
+
+      .turn-card {
+        left: 520px;
+        right: 520px;
+        bottom: 0;
+        min-height: 150px;
+        padding: 20px 30px;
+        border-left: 9px solid #e07a1f;
+      }
+
+      .sfu-board .participant {
+        width: 220px;
+        height: 84px;
+        font-size: 24px;
+      }
+
+      .sfu-board .publisher-a {
+        left: 18px;
+        top: 52px;
+      }
+
+      .sfu-board .publisher-b {
+        left: 18px;
+        top: 206px;
+      }
+
+      .sfu-board .publisher-c {
+        left: 18px;
+        top: 360px;
+      }
+
+      .sfu-board .subscriber-a {
+        right: 20px;
+        top: 52px;
+      }
+
+      .sfu-board .subscriber-b {
+        right: 20px;
+        top: 206px;
+      }
+
+      .sfu-board .subscriber-c {
+        right: 20px;
+        top: 360px;
+      }
+
+      .sfu-board .sfu-node {
+        left: 688px;
+        top: 54px;
+        width: 360px;
+        height: 380px;
+        flex-direction: column;
+        gap: 14px;
+        padding: 30px;
+        font-size: 40px;
+        line-height: 1.1;
+      }
+
+      .sfu-node .node-subtext {
+        color: #53657a;
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1.34;
+      }
+
+      .sfu-node .node-subtext span {
+        display: block;
+      }
+
+      #sfu-uplink-a,
+      #sfu-uplink-b,
+      #sfu-uplink-c {
+        left: 286px;
+        width: 360px;
+      }
+
+      #sfu-uplink-a {
+        top: 94px;
+      }
+
+      #sfu-uplink-b {
+        top: 248px;
+      }
+
+      #sfu-uplink-c {
+        top: 402px;
+      }
+
+      #sfu-downlink-a,
+      #sfu-downlink-b,
+      #sfu-downlink-c {
+        left: 1092px;
+        width: 330px;
+      }
+
+      #sfu-downlink-a {
+        top: 94px;
+      }
+
+      #sfu-downlink-b {
+        top: 248px;
+      }
+
+      #sfu-downlink-c {
+        top: 402px;
+      }
+
+      .stream-label,
+      .subscription-note {
+        position: absolute;
+        z-index: 4;
+        min-width: 160px;
+        padding: 8px 13px;
+        border: 2px solid #d8e2ee;
+        border-radius: 12px;
+        background: #ffffff;
+        color: #53657a;
+        font-size: 20px;
+        font-weight: 850;
+        line-height: 1.22;
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      .stream-label {
+        color: #139a63;
+      }
+
+      .stream-label span {
+        display: block;
+      }
+
+      .subscription-note {
+        color: #1b66d2;
+      }
+
+      .stream-a {
+        left: 384px;
+        top: 18px;
+      }
+
+      .stream-b {
+        left: 384px;
+        top: 172px;
+      }
+
+      .stream-c {
+        left: 384px;
+        top: 326px;
+      }
+
+      .subscription-a {
+        left: 1168px;
+        top: 18px;
+      }
+
+      .subscription-b {
+        left: 1168px;
+        top: 172px;
+      }
+
+      .subscription-c {
+        left: 1168px;
+        top: 326px;
+      }
+
+      .sfu-quality-strip {
+        position: absolute;
+        left: 250px;
+        right: 250px;
+        bottom: 2px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .sfu-quality-card {
+        min-height: 106px;
+        padding: 15px 20px;
+        border-top: 7px solid #1b66d2;
+      }
+
+      .sfu-quality-card.green {
+        border-top-color: #139a63;
+      }
+
+      .sfu-quality-card.purple {
+        border-top-color: #7c3aed;
+      }
+
+      .sfu-quality-card h3 {
+        margin-bottom: 6px;
+        font-size: 26px;
+        font-weight: 900;
+      }
+
+      .sfu-quality-card p {
+        color: #53657a;
+        font-size: 19px;
+        font-weight: 650;
+        line-height: 1.34;
+      }
+
+      .quality-chips {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .quality-chip {
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: #eef4ff;
+        color: #1b66d2;
+        font-size: 17px;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .mcu-board .live-zone {
+        left: 80px;
+        top: 252px;
+        width: 310px;
+      }
+
+      .mcu-board .mcu-node {
+        left: 520px;
+        top: 230px;
+        width: 360px;
+        height: 174px;
+      }
+
+      .mcu-board .cdn-node {
+        left: 1010px;
+        top: 252px;
+        width: 300px;
+      }
+
+      #mcu-line-a {
+        left: 424px;
+        top: 318px;
+        width: 62px;
+      }
+
+      #mcu-line-b {
+        left: 918px;
+        top: 318px;
+        width: 62px;
+      }
+
+      #mcu-line-c {
+        left: 1342px;
+        top: 178px;
+        width: 42px;
+      }
+
+      .viewer-cluster {
+        position: absolute;
+        right: 68px;
+        top: 200px;
+        display: grid;
+        grid-template-columns: repeat(3, 96px);
+        gap: 16px;
+      }
+
+      .viewer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 96px;
+        height: 76px;
+        border: 3px solid #d8e2ee;
+        border-radius: 18px;
+        background: #ffffff;
+        color: #53657a;
+        font-size: 21px;
+        font-weight: 850;
+      }
+
+      .mcu-tasks {
+        position: absolute;
+        left: 328px;
+        right: 328px;
+        bottom: 36px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .media-card {
+        min-height: 130px;
+        padding: 22px 18px;
+        border-top: 8px solid #7c3aed;
+        text-align: center;
+      }
+
+      .media-card h3 {
+        margin-bottom: 10px;
+        font-size: 32px;
+        font-weight: 900;
+      }
+
+      .media-card p {
+        color: #53657a;
+        font-size: 22px;
+        font-weight: 650;
+        line-height: 1.35;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 22px;
+        height: 430px;
+      }
+
+      .compare-card {
+        padding: 28px 24px;
+        border-top: 9px solid #139a63;
+      }
+
+      .compare-card h3 {
+        margin-bottom: 16px;
+        font-size: 42px;
+        font-weight: 900;
+      }
+
+      .compare-card .tag {
+        display: inline-flex;
+        margin-bottom: 20px;
+        padding: 7px 14px;
+        border-radius: 999px;
+        background: #eaf8f1;
+        color: #139a63;
+        font-size: 21px;
+        font-weight: 850;
+      }
+
+      .compare-card p {
+        color: #53657a;
+        font-size: 26px;
+        font-weight: 650;
+        line-height: 1.42;
+      }
+
+      .compare-card.turn {
+        border-top-color: #e07a1f;
+      }
+
+      .compare-card.turn .tag {
+        background: #fff2e5;
+        color: #b45309;
+      }
+
+      .compare-card.sfu {
+        border-top-color: #1b66d2;
+      }
+
+      .compare-card.sfu .tag {
+        background: #eef4ff;
+        color: #1b66d2;
+      }
+
+      .compare-card.mcu {
+        border-top-color: #7c3aed;
+      }
+
+      .compare-card.mcu .tag {
+        background: #f3ecff;
+        color: #6d28d9;
+      }
+
+      .final-line {
+        margin: 34px auto 0;
+        width: 1180px;
+        padding: 26px 34px;
+        color: #102033;
+        font-size: 34px;
+        font-weight: 900;
+        line-height: 1.36;
+        text-align: center;
+        border-left: 9px solid #1b66d2;
+      }
+
+      .glossary-grid {
+        display: grid;
+        grid-template-rows: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        height: 640px;
+      }
+
+      .glossary-grid.compact {
+        grid-template-rows: repeat(7, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .glossary-row {
+        display: grid;
+        grid-template-columns: 150px 510px 280px 1fr;
+        align-items: center;
+        gap: 18px;
+        min-height: 112px;
+        padding: 16px 22px;
+      }
+
+      .glossary-row .abbr {
+        color: #1b66d2;
+        font-size: 35px;
+        font-weight: 900;
+      }
+
+      .glossary-row .full {
+        color: #102033;
+        font-family: monospace;
+        font-size: 21px;
+        font-weight: 800;
+        line-height: 1.25;
+      }
+
+      .glossary-row .cn {
+        color: #102033;
+        font-size: 27px;
+        font-weight: 900;
+      }
+
+      .glossary-row .role {
+        color: #53657a;
+        font-size: 23px;
+        font-weight: 650;
+        line-height: 1.34;
+      }
+
+      .glossary-grid.compact .glossary-row {
+        grid-template-columns: 150px 480px 300px 1fr;
+        min-height: 82px;
+        padding: 12px 20px;
+      }
+
+      .glossary-grid.compact .glossary-row .abbr {
+        font-size: 30px;
+      }
+
+      .glossary-grid.compact .glossary-row .full {
+        font-size: 18px;
+      }
+
+      .glossary-grid.compact .glossary-row .cn {
+        font-size: 23px;
+      }
+
+      .glossary-grid.compact .glossary-row .role {
+        font-size: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="338" data-width="1920" data-height="1080">
+      <audio id="narration" data-start="0" data-duration="338" data-track-index="8" src="narration.wav" data-volume="1"></audio>
+
+      <section id="scene-intro" class="scene">
+        <div class="paper-grid"></div>
+        <div class="scene-content">
+          <div class="body intro-layout">
+            <div class="intro-copy">
+              <div class="eyebrow">Media Transport</div>
+              <h1 class="title">WebRTC 媒体数据怎么传？</h1>
+              <p class="subtitle">信令建连之后，真正的音视频会按不同场景选择不同的数据流动形态。</p>
+            </div>
+            <div class="intro-board">
+              <div class="flow-node blue">信令已完成</div>
+              <div class="node node-a">用户 A</div>
+              <div class="node node-b">用户 B</div>
+              <div id="intro-line" class="line green arrow"></div>
+              <div id="intro-packet" class="packet green"></div>
+              <div class="question card">接下来要看的是：媒体包到底走哪条路？</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-pipeline" class="scene">
+        <div class="paper-grid"></div>
+        <div class="scene-content">
+          <div class="stage-head">
+            <div>
+              <div class="eyebrow">Packet Basics</div>
+              <h2 class="title">先理解媒体包：RTP、SRTP、RTCP</h2>
+              <p class="subtitle">WebRTC 传的是实时媒体包，不是整段视频文件。</p>
+            </div>
+            <div class="stage-number">01</div>
+          </div>
+          <div class="body">
+            <div class="pipeline">
+              <div class="pipeline-step card"><h3>采集</h3><p>麦克风和摄像头产生音视频帧。</p></div>
+              <div class="pipeline-step card"><h3>编码</h3><p>Opus、H.264、VP8 等编码压缩。</p></div>
+              <div class="pipeline-step card blue"><h3>RTP</h3><p>把实时音视频切成连续媒体包。</p></div>
+              <div class="pipeline-step card"><h3>SRTP</h3><p>对 RTP 媒体包进行加密保护。</p></div>
+              <div class="pipeline-step card purple"><h3>网络路径</h3><p>由 ICE 选出的路径承载传输。</p></div>
+              <div class="pipeline-step card"><h3>解码播放</h3><p>接收端抖动缓冲、解密、解码后播放。</p></div>
+            </div>
+            <div class="line feedback-arrow arrow-left"></div>
+            <div class="feedback-card card">
+              <h3>RTCP：质量反馈</h3>
+              <p>反馈丢包、延迟、码率估计和关键帧请求，让发送端动态调整。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-p2p" class="scene">
+        <div class="paper-grid"></div>
+        <div class="scene-content">
+          <div class="stage-head">
+            <div>
+              <div class="eyebrow">One-to-One</div>
+              <h2 class="title">一对一：P2P 直连优先</h2>
+              <p class="subtitle">媒体数据直接在两个端之间走，业务服务器不转发音视频。</p>
+            </div>
+            <div class="stage-number">02</div>
+          </div>
+          <div class="body p2p-board">
+            <div class="node node-a">用户 A</div>
+            <div class="node node-b">用户 B</div>
+            <div id="p2p-line" class="line green arrow"></div>
+            <div id="p2p-packet" class="packet green"></div>
+            <div class="flow-label" style="left: 710px; top: 250px;">ICE selected candidate pair</div>
+            <div class="path-card p2p-card card">
+              <h3>P2P 直连：媒体数据直接在两端之间传输</h3>
+              <p>延迟低、链路短、服务器成本低；前提是 ICE 找到了可用直连路径。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-turn" class="scene">
+        <div class="paper-grid"></div>
+        <div class="scene-content">
+          <div class="stage-head">
+            <div>
+              <div class="eyebrow">Fallback Path</div>
+              <h2 class="title">直连失败：TURN 中继兜底</h2>
+              <p class="subtitle">TURN 解决的是网络连通问题，不负责理解或加工媒体内容。</p>
+            </div>
+            <div class="stage-number">03</div>
+          </div>
+          <div class="body turn-board">
+            <div class="node node-a">用户 A</div>
+            <div class="flow-node turn-node orange">TURN 中继</div>
+            <div class="node node-b">用户 B</div>
+            <div id="turn-fail-line" class="line red dashed arrow"></div>
+            <div class="flow-label" style="left: 782px; top: 126px; color: #dc2626;">P2P 失败</div>
+            <div id="turn-line-a" class="line orange arrow"></div>
+            <div id="turn-line-b" class="line orange arrow"></div>
+            <div id="turn-packet-a" class="packet orange"></div>
+            <div id="turn-packet-b" class="packet orange"></div>
+            <div class="path-card turn-card card">
+              <h3>TURN 中继：只转发加密后的媒体包</h3>
+              <p>转发 SRTP 和 RTCP；不解码、不混流、不理解画面内容。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-sfu" class="scene">
+        <div class="paper-grid"></div>
+        <div class="scene-content">
+          <div class="stage-head">
+            <div>
+              <div class="eyebrow">Interactive Multiparty</div>
+              <h2 class="title">多人连麦互动：主流走 SFU</h2>
+              <p class="subtitle">每个连麦用户上传一次，SFU 按需把多路 RTP 流转发给其他人。</p>
+            </div>
+            <div class="stage-number">04</div>
+          </div>
+          <div class="body sfu-board">
+            <div class="node participant publisher-a green">主播</div>
+            <div class="node participant publisher-b green">嘉宾 1</div>
+            <div class="node participant publisher-c green">嘉宾 2</div>
+            <div class="flow-node sfu-node blue">
+              <div>SFU</div>
+              <div class="node-subtext">
+                <span>订阅表</span>
+                <span>选择性转发 RTP 流</span>
+                <span>不解码、不混流</span>
+              </div>
+            </div>
+            <div class="node participant subscriber-a blue">主播端</div>
+            <div class="node participant subscriber-b blue">嘉宾端</div>
+            <div class="node participant subscriber-c blue">上麦观众</div>
+
+            <div id="sfu-uplink-a" class="line green arrow"></div>
+            <div id="sfu-uplink-b" class="line green arrow"></div>
+            <div id="sfu-uplink-c" class="line green arrow"></div>
+            <div id="sfu-downlink-a" class="line blue arrow"></div>
+            <div id="sfu-downlink-b" class="line blue arrow"></div>
+            <div id="sfu-downlink-c" class="line blue arrow"></div>
+
+            <div class="stream-label stream-a"><span>一路上行</span><span>主播 RTP</span></div>
+            <div class="stream-label stream-b"><span>一路上行</span><span>嘉宾 1 RTP</span></div>
+            <div class="stream-label stream-c"><span>一路上行</span><span>嘉宾 2 RTP</span></div>
+            <div class="subscription-note subscription-a">订阅所有嘉宾</div>
+            <div class="subscription-note subscription-b">订阅主播 + 发言人</div>
+            <div class="subscription-note subscription-c">订阅低清或音频</div>
+
+            <div class="sfu-quality-strip">
+              <div class="sfu-quality-card green card">
+                <h3>每人上传一路媒体流</h3>
+                <p>连麦端只把自己的音视频送到 SFU，避免 N 对 N 全互传。</p>
+              </div>
+              <div class="sfu-quality-card card">
+                <h3>Simulcast / SVC</h3>
+                <p>同一路内容提供多档清晰度，SFU 给不同接收端选择合适层。</p>
+                <div class="quality-chips">
+                  <span class="quality-chip">180p</span>
+                  <span class="quality-chip">360p</span>
+                  <span class="quality-chip">720p</span>
+                </div>
+              </div>
+              <div class="sfu-quality-card purple card">
+                <h3>RTCP 反馈控制</h3>
+                <p>根据丢包、带宽估计和设备能力，动态调整转发哪一层。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-mcu" class="scene">
+        <div class="paper-grid"></div>
+        <div class="scene-content">
+          <div class="stage-head">
+            <div>
+              <div class="eyebrow">Audience Distribution</div>
+              <h2 class="title">普通看播：MCU 合流 + CDN 分发</h2>
+              <p class="subtitle">连麦区保持互动，看播区使用更适合大规模分发的直播链路。</p>
+            </div>
+            <div class="stage-number">05</div>
+          </div>
+          <div class="body mcu-board">
+            <div class="flow-node live-zone blue">连麦区 SFU</div>
+            <div class="flow-node mcu-node purple">MCU / 合流服务</div>
+            <div class="flow-node cdn-node purple">传统 CDN</div>
+            <div id="mcu-line-a" class="line purple arrow"></div>
+            <div id="mcu-line-b" class="line purple arrow"></div>
+            <div id="mcu-line-c" class="line purple arrow"></div>
+            <div class="viewer-cluster">
+              <div class="viewer">观众</div>
+              <div class="viewer">观众</div>
+              <div class="viewer">观众</div>
+              <div class="viewer">观众</div>
+              <div class="viewer">观众</div>
+              <div class="viewer">观众</div>
+              <div class="viewer">观众</div>
+              <div class="viewer">观众</div>
+              <div class="viewer">观众</div>
+            </div>
+            <div class="mcu-tasks">
+              <div class="media-card card"><h3>解码</h3><p>读懂多路音视频</p></div>
+              <div class="media-card card"><h3>混音</h3><p>把多路声音合成</p></div>
+              <div class="media-card card"><h3>拼画面</h3><p>生成节目布局</p></div>
+              <div class="media-card card"><h3>重新编码</h3><p>输出一路直播流</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-summary" class="scene">
+        <div class="paper-grid"></div>
+        <div class="scene-content">
+          <div class="stage-head">
+            <div>
+              <div class="eyebrow">Summary</div>
+              <h2 class="title">入门先记住这四类</h2>
+              <p class="subtitle">路径选择和媒体分发不是同一个问题。</p>
+            </div>
+            <div class="stage-number">06</div>
+          </div>
+          <div class="body">
+            <div class="summary-grid">
+              <div class="compare-card card">
+                <h3>P2P</h3>
+                <div class="tag">一对一直连</div>
+                <p>优先让两端直接传输媒体，低延迟、低成本。</p>
+              </div>
+              <div class="compare-card turn card">
+                <h3>TURN</h3>
+                <div class="tag">直连兜底</div>
+                <p>直连失败时转发加密媒体包，解决连通性。</p>
+              </div>
+              <div class="compare-card sfu card">
+                <h3>SFU</h3>
+                <div class="tag">多人互动</div>
+                <p>按需转发多路 RTP 流，适合低延迟连麦。</p>
+              </div>
+              <div class="compare-card mcu card">
+                <h3>MCU + CDN</h3>
+                <div class="tag">大众看播</div>
+                <p>合流生成节目流，再交给 CDN 大规模分发。</p>
+              </div>
+            </div>
+            <div class="final-line card">一对一看路径，多人互动看 SFU，大规模看播看 MCU 合流和 CDN 分发。</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-glossary-a" class="scene">
+        <div class="paper-grid"></div>
+        <div class="scene-content">
+          <div class="stage-head">
+            <div>
+              <div class="eyebrow">Glossary 1/2</div>
+              <h2 class="title">缩写速查：拓扑、转发与清晰度</h2>
+              <p class="subtitle">先把视频里出现的架构名和清晰度控制概念对上。</p>
+            </div>
+            <div class="stage-number">07</div>
+          </div>
+          <div class="glossary-grid compact">
+            <div class="glossary-row card"><div class="abbr">P2P</div><div class="full">Peer to Peer</div><div class="cn">点对点</div><div class="role">两端直接传输媒体。</div></div>
+            <div class="glossary-row card"><div class="abbr">TURN</div><div class="full">Traversal Using Relays around NAT</div><div class="cn">通过中继穿越 NAT</div><div class="role">直连失败时转发加密媒体包。</div></div>
+            <div class="glossary-row card"><div class="abbr">SFU</div><div class="full">Selective Forwarding Unit</div><div class="cn">选择性转发单元</div><div class="role">多人互动中按需转发 RTP 流。</div></div>
+            <div class="glossary-row card"><div class="abbr">Simulcast</div><div class="full">Simultaneous Broadcast</div><div class="cn">同步多码流发送</div><div class="role">同时提供多档清晰度。</div></div>
+            <div class="glossary-row card"><div class="abbr">SVC</div><div class="full">Scalable Video Coding</div><div class="cn">可伸缩视频编码</div><div class="role">在同一路码流里提供可选层。</div></div>
+            <div class="glossary-row card"><div class="abbr">MCU</div><div class="full">Multipoint Control Unit</div><div class="cn">多点控制单元</div><div class="role">解码、混音、拼画面、重新编码。</div></div>
+            <div class="glossary-row card"><div class="abbr">CDN</div><div class="full">Content Delivery Network</div><div class="cn">内容分发网络</div><div class="role">把合流后的直播流分发给大量观众。</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-glossary-b" class="scene">
+        <div class="paper-grid"></div>
+        <div class="scene-content">
+          <div class="stage-head">
+            <div>
+              <div class="eyebrow">Glossary 2/2</div>
+              <h2 class="title">缩写速查：媒体与网络</h2>
+              <p class="subtitle">这些名词解释媒体包如何被承载、加密、反馈和选路。</p>
+            </div>
+            <div class="stage-number">08</div>
+          </div>
+          <div class="glossary-grid">
+            <div class="glossary-row card"><div class="abbr">RTP</div><div class="full">Real-time Transport Protocol</div><div class="cn">实时传输协议</div><div class="role">承载音视频媒体包。</div></div>
+            <div class="glossary-row card"><div class="abbr">SRTP</div><div class="full">Secure Real-time Transport Protocol</div><div class="cn">安全实时传输协议</div><div class="role">加密传输 RTP 媒体。</div></div>
+            <div class="glossary-row card"><div class="abbr">RTCP</div><div class="full">RTP Control Protocol</div><div class="cn">RTP 控制协议</div><div class="role">反馈丢包、延迟、码率和关键帧请求。</div></div>
+            <div class="glossary-row card"><div class="abbr">NAT</div><div class="full">Network Address Translation</div><div class="cn">网络地址转换</div><div class="role">会影响端到端连通性。</div></div>
+            <div class="glossary-row card"><div class="abbr">ICE</div><div class="full">Interactive Connectivity Establishment</div><div class="cn">交互式连接建立</div><div class="role">寻找可用网络路径。</div></div>
+          </div>
+        </div>
+      </section>
+
+      <div id="caption-layer" class="caption-layer"></div>
+    </div>
+
+    <script>
+(function () {
+  function toArray(selector) {
+    if (!selector) return [];
+    if (typeof selector === "string") return Array.prototype.slice.call(document.querySelectorAll(selector));
+    if (selector.nodeType === 1) return [selector];
+    if (Array.isArray(selector)) return selector;
+    return [];
+  }
+
+  function clone(vars) {
+    var out = {};
+    Object.keys(vars || {}).forEach(function (key) {
+      if (key !== "duration" && key !== "ease" && key !== "stagger" && key !== "repeat" && key !== "transformOrigin") {
+        out[key] = vars[key];
+      }
+    });
+    return out;
+  }
+
+  function parseTime(position) {
+    if (typeof position === "number") return position;
+    if (typeof position === "string") return Number(position) || 0;
+    return 0;
+  }
+
+  function defaultValue(prop, el) {
+    if (prop === "opacity") return Number(getComputedStyle(el).opacity || 1);
+    if (prop === "scale" || prop === "scaleX") return 1;
+    return 0;
+  }
+
+  function valueAt(prop, vars, el) {
+    if (!vars || vars[prop] === undefined) return defaultValue(prop, el);
+    return Number(vars[prop]);
+  }
+
+  function addProps(target, vars) {
+    Object.keys(vars || {}).forEach(function (prop) {
+      target[prop] = vars[prop];
+    });
+  }
+
+  function applyState(el, state) {
+    if (state.opacity !== undefined) el.style.opacity = String(state.opacity);
+    var x = state.x || 0;
+    var y = state.y || 0;
+    var scale = state.scale === undefined ? 1 : state.scale;
+    var scaleX = state.scaleX === undefined ? 1 : state.scaleX;
+    el.style.transform = "translate(" + x + "px, " + y + "px) scale(" + scaleX + ", " + scale + ")";
+    if (state.color !== undefined) el.style.color = state.color;
+    if (state.backgroundColor !== undefined) el.style.backgroundColor = state.backgroundColor;
+    if (state.borderRadius !== undefined) el.style.borderRadius = state.borderRadius;
+  }
+
+  function makeTimeline() {
+    var entries = [];
+    var controlled = new Set();
+    var bases = new Map();
+    var currentTime = 0;
+    var playbackRate = 1;
+    var paused = true;
+
+    function remember(elements) {
+      elements.forEach(function (el) {
+        controlled.add(el);
+        if (!bases.has(el)) {
+          bases.set(el, {
+            opacity: Number(getComputedStyle(el).opacity || 1),
+            x: 0,
+            y: 0,
+            scale: 1,
+            scaleX: 1
+          });
+        }
+      });
+    }
+
+    function add(type, selector, varsA, varsB, position) {
+      var elements = toArray(selector);
+      remember(elements);
+      entries.push({
+        type: type,
+        elements: elements,
+        start: parseTime(position),
+        duration: Number((varsB || varsA || {}).duration || 0),
+        repeat: Number((varsB || varsA || {}).repeat || 0),
+        from: clone(type === "fromTo" ? varsA : varsA),
+        to: clone(type === "fromTo" ? varsB : varsA)
+      });
+      return api;
+    }
+
+    function applyTween(entry, time, states) {
+      var total = entry.duration * (entry.repeat + 1 || 1);
+      entry.elements.forEach(function (el) {
+        var state = states.get(el) || Object.assign({}, bases.get(el));
+        states.set(el, state);
+        if (entry.type === "set") {
+          if (time >= entry.start) addProps(state, entry.to);
+          return;
+        }
+        var elapsed = time - entry.start;
+        if (elapsed < 0) {
+          if (entry.type === "from" || entry.type === "fromTo") addProps(state, entry.from);
+          return;
+        }
+        if (entry.duration <= 0) {
+          addProps(state, entry.to);
+          return;
+        }
+        if (elapsed > total) {
+          if (entry.type === "from") {
+            Object.keys(entry.from).forEach(function (prop) {
+              state[prop] = defaultValue(prop, el);
+            });
+          } else {
+            addProps(state, entry.to);
+          }
+          return;
+        }
+        var cycleElapsed = entry.duration ? elapsed % entry.duration : elapsed;
+        if (elapsed === total) cycleElapsed = entry.duration;
+        var p = Math.max(0, Math.min(1, cycleElapsed / entry.duration));
+        var props = {};
+        if (entry.type === "from") {
+          Object.keys(entry.from).forEach(function (prop) {
+            var a = valueAt(prop, entry.from, el);
+            var b = defaultValue(prop, el);
+            props[prop] = a + (b - a) * p;
+          });
+        } else {
+          var fromVars = entry.type === "fromTo" ? entry.from : {};
+          Object.keys(entry.to).forEach(function (prop) {
+            var a2 = valueAt(prop, fromVars, el);
+            var b2 = valueAt(prop, entry.to, el);
+            props[prop] = a2 + (b2 - a2) * p;
+          });
+        }
+        addProps(state, props);
+      });
+    }
+
+    function timelineDuration() {
+      var max = 0;
+      entries.forEach(function (entry) {
+        var total = entry.duration * (entry.repeat + 1 || 1);
+        max = Math.max(max, entry.start + total);
+      });
+      return max;
+    }
+
+    var api = {
+      from: function (selector, vars, position) {
+        return add("from", selector, vars, null, position);
+      },
+      to: function (selector, vars, position) {
+        return add("to", selector, vars, null, position);
+      },
+      fromTo: function (selector, fromVars, toVars, position) {
+        return add("fromTo", selector, fromVars, toVars, position);
+      },
+      set: function (selector, vars, position) {
+        return add("set", selector, vars, null, position);
+      },
+      seek: function (time) {
+        currentTime = Math.max(0, Number(time) || 0);
+        var states = new Map();
+        controlled.forEach(function (el) {
+          states.set(el, Object.assign({}, bases.get(el)));
+        });
+        entries
+          .slice()
+          .sort(function (a, b) { return a.start - b.start; })
+          .forEach(function (entry) { applyTween(entry, currentTime, states); });
+        states.forEach(function (state, el) { applyState(el, state); });
+        return api;
+      },
+      totalTime: function (time) {
+        if (arguments.length > 0) return api.seek(time);
+        return currentTime;
+      },
+      time: function (time) {
+        if (arguments.length > 0) return api.seek(time);
+        return currentTime;
+      },
+      duration: function () {
+        return timelineDuration();
+      },
+      totalDuration: function () {
+        return timelineDuration();
+      },
+      timeScale: function (value) {
+        if (arguments.length > 0) {
+          playbackRate = Number(value) || 1;
+          return api;
+        }
+        return playbackRate;
+      },
+      paused: function (value) {
+        if (arguments.length > 0) {
+          paused = Boolean(value);
+          return api;
+        }
+        return paused;
+      },
+      pause: function () {
+        paused = true;
+        return api;
+      },
+      play: function () {
+        paused = false;
+        return api;
+      },
+      getChildren: function () {
+        return [];
+      },
+      kill: function () {
+        return api;
+      }
+    };
+    return api;
+  }
+
+  window.gsap = {
+    timeline: function () { return makeTimeline(); }
+  };
+})();
+    </script>
+    <script src="gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      var CAPTION_CUES = [
+        { start: 0.1, end: 7.694, text: "上一集我们讲了 WebRTC 呼叫建立时，Offer、Answer、Candidate 是怎么交换的。" },
+        { start: 7.644, end: 12.328, text: "那连接建立以后，真正的音视频数据是怎么流动的？" },
+        { start: 12.328, end: 22.75, text: "这一集我们只抓住四个最常见的形态：P2P 直连、TURN 中继、SFU 转发，以及 MCU 合流加 CDN 分发。" },
+        { start: 22.75, end: 27.855, text: "WebRTC 里的音视频不是直接把一整段视频文件发过去。" },
+        { start: 27.855, end: 34.473, text: "浏览器会先采集麦克风和摄像头，经过编码后切成一个个 RTP 包。" },
+        { start: 34.473, end: 39.671, text: "真正上网传输时，这些 RTP 包会被 SRTP 加密。" },
+        { start: 39.671, end: 48.342, text: "与此同时，RTCP 会持续反馈网络质量，比如丢包、延迟、码率估计和关键帧请求。" },
+        { start: 48.342, end: 55.815, text: "所以可以先记住：RTP 承载媒体，SRTP 负责加密，RTCP 负责质量反馈。" },
+        { start: 55.815, end: 61.118, text: "一对一通话里，WebRTC 会优先尝试 P2P 直连。" },
+        { start: 61.118, end: 69.776, text: "也就是说，音视频媒体包直接在用户 A 和用户 B 之间传输，业务服务器不转发真正的音视频数据。" },
+        { start: 69.776, end: 73.802, text: "这个形态延迟低，链路短，成本也低。" },
+        { start: 73.802, end: 82.855, text: "前提是 ICE 能找到一条可用的直连路径，比如局域网路径，或者 NAT 穿透成功后的公网映射路径。" },
+        { start: 82.855, end: 85.868, text: "但现实网络不总是这么理想。" },
+        { start: 85.868, end: 92.289, text: "用户可能在复杂 NAT、公司防火墙或者运营商网络后面，直连可能失败。" },
+        { start: 92.289, end: 95.868, text: "这时 WebRTC 会使用 TURN 中继。" },
+        { start: 95.868, end: 105.789, text: "TURN 的职责很克制：它只转发加密后的 SRTP 和 RTCP 包，不解码音视频，不理解画面内容，也不做混流。" },
+        { start: 105.789, end: 111.657, text: "它解决的是“网络能不能连上”的问题，而不是“多人媒体怎么组织”的问题。" },
+        { start: 111.657, end: 116.657, text: "当进入多人连麦互动，主流架构通常是 SFU。" },
+        { start: 116.657, end: 125.157, text: "每个连麦用户只把自己的一路音视频上传到 SFU，其他人再按需从 SFU 拉取需要看的流。" },
+        { start: 125.157, end: 133.039, text: "它通常不把所有画面混成一张图，而是维护订阅关系，选择性转发多路 RTP 流。" },
+        { start: 133.039, end: 142.986, text: "比如主播需要看到所有嘉宾，嘉宾可能只需要看到主播和当前发言人，上麦观众可能只需要低清画面或音频。" },
+        { start: 142.986, end: 154.078, text: "为了适配不同网络和设备，发送端可以用 Simulcast 同时上传多档清晰度，也可以用 SVC 在同一路码流里分出可选择的层。" },
+        { start: 154.078, end: 163.894, text: "SFU 再结合 RTCP 反馈，根据丢包、带宽估计和设备能力，动态决定给每个接收端转发哪一层。" },
+        { start: 163.894, end: 172.631, text: "它的核心价值是：让多人互动保持低延迟，同时避免每个人都给所有人单独上传一份媒体流。" },
+        { start: 172.631, end: 176.539, text: "直播间里还有另一类用户：普通看播用户。" },
+        { start: 176.539, end: 182.684, text: "他们只看，不上麦，也不需要和每个嘉宾单独建立实时互动连接。" },
+        { start: 182.684, end: 189.276, text: "这个时候，系统常常会把连麦房间的多路音视频送到 MCU 或合流服务。" },
+        { start: 189.276, end: 198.473, text: "MCU 会解码多路音频和视频，完成混音、拼画面、重新编码，生成一条适合大众观看的节目流。" },
+        { start: 198.473, end: 203.776, text: "然后这条流再进入传统 CDN，分发给大量普通观众。" },
+        { start: 203.776, end: 211.447, text: "这样，连麦区仍然可以低延迟互动，而看播区可以用更适合大规模分发的直播链路。" },
+        { start: 211.447, end: 230.126, text: "总结一下：P2P 是一对一优先使用的直连路径；TURN 是直连失败时的网络兜底；SFU 负责多人连麦里的低延迟选择性转发；MCU 负责把多路连麦内容加工成一路节目流，再交给 CDN 分发给普通观众。" },
+        { start: 230.126, end: 242.994, text: "入门阶段不用一次记住所有复杂拓扑，只要先抓住这条主线：一对一看路径，多人互动看 SFU，大规模看播看 MCU 合流和 CDN 分发。" },
+        { start: 243.196, end: 247.251, text: "最后快速对一下视频里出现的缩写和概念。" },
+        { start: 247.201, end: 252.201, text: "P2P 是 Peer to Peer，点对点，用于两端直接传输媒体。" },
+        { start: 252.201, end: 260.582, text: "TURN 是 Traversal Using Relays around NAT，通过中继穿越 NAT，用于直连失败时转发加密媒体包。" },
+        { start: 260.582, end: 268.911, text: "SFU 是 Selective Forwarding Unit，选择性转发单元，用于多人互动中按需转发 RTP 流。" },
+        { start: 268.911, end: 274.359, text: "Simulcast 是同步多码流发送，用于同时提供多档清晰度。" },
+        { start: 274.359, end: 282.569, text: "SVC 是 Scalable Video Coding，可伸缩视频编码，用于在同一路码流里提供可选择的层。" },
+        { start: 282.569, end: 291.056, text: "MCU 是 Multipoint Control Unit，多点控制单元，用于解码、混音、拼画面和重新编码。" },
+        { start: 291.056, end: 299.24, text: "CDN 是 Content Delivery Network，内容分发网络，用于把合流后的直播流分发给大量观众。" },
+        { start: 299.24, end: 306.096, text: "RTP 是 Real-time Transport Protocol，实时传输协议，用于承载音视频媒体包。" },
+        { start: 306.096, end: 313.938, text: "SRTP 是 Secure Real-time Transport Protocol，安全实时传输协议，用于加密传输 RTP。" },
+        { start: 313.938, end: 323.477, text: "RTCP 是 RTP Control Protocol，RTP 控制协议，用于反馈丢包、延迟、码率和关键帧请求。" },
+        { start: 323.477, end: 330.122, text: "NAT 是 Network Address Translation，网络地址转换，会影响端到端连通性。" },
+        { start: 330.122, end: 337.924, text: "ICE 是 Interactive Connectivity Establishment，交互式连接建立，用于寻找可用网络路径。" }
+      ];
+
+      function splitCaptionText(text, maxChars) {
+        var pieces = [];
+        var current = "";
+        var breaks = "，；。！？、：";
+        for (var i = 0; i < text.length; i += 1) {
+          current += text[i];
+          if (current.length >= maxChars || breaks.indexOf(text[i]) >= 0) {
+            if (current.trim()) pieces.push(current.trim());
+            current = "";
+          }
+        }
+        if (current.trim()) pieces.push(current.trim());
+
+        var compact = [];
+        pieces.forEach(function (piece) {
+          if (piece.length <= maxChars + 8) {
+            compact.push(piece);
+            return;
+          }
+          for (var i = 0; i < piece.length; i += maxChars) {
+            compact.push(piece.slice(i, i + maxChars));
+          }
+        });
+        return compact;
+      }
+
+      function buildCaptionGroups(cues) {
+        var groups = [];
+        var lastEnd = 0;
+        cues.forEach(function (cue) {
+          var chunks = splitCaptionText(cue.text, 24);
+          var totalChars = chunks.reduce(function (sum, chunk) {
+            return sum + Math.max(chunk.length, 6);
+          }, 0);
+          var cursor = Math.max(cue.start, lastEnd + 0.02);
+          chunks.forEach(function (chunk, index) {
+            var weight = Math.max(chunk.length, 6) / totalChars;
+            var duration = (cue.end - cue.start) * weight;
+            var nextEnd = index === chunks.length - 1 ? cue.end : cursor + duration;
+            if (nextEnd <= cursor + 0.08) return;
+            groups.push({ start: cursor, end: nextEnd, text: chunk });
+            lastEnd = nextEnd;
+            cursor = nextEnd;
+          });
+        });
+        return groups;
+      }
+
+      var captionLayer = document.getElementById("caption-layer");
+      var captionGroups = buildCaptionGroups(CAPTION_CUES);
+      captionGroups.forEach(function (group, index) {
+        var el = document.createElement("div");
+        el.className = "caption-cue";
+        el.id = "cap-" + index;
+        el.textContent = group.text;
+        captionLayer.appendChild(el);
+      });
+
+      var tl = gsap.timeline({ paused: true });
+
+      var SCENE_WINDOWS = [
+        { id: "scene-intro", start: 0, end: 22.75 },
+        { id: "scene-pipeline", start: 22.75, end: 55.815 },
+        { id: "scene-p2p", start: 55.815, end: 82.855 },
+        { id: "scene-turn", start: 82.855, end: 111.657 },
+        { id: "scene-sfu", start: 111.657, end: 172.631 },
+        { id: "scene-mcu", start: 172.631, end: 211.447 },
+        { id: "scene-summary", start: 211.447, end: 242.994 },
+        { id: "scene-glossary-a", start: 242.994, end: 299.24 },
+        { id: "scene-glossary-b", start: 299.24, end: 338 }
+      ];
+
+      var RENDER_RESET_SELECTOR = [
+        ".eyebrow",
+        ".title",
+        ".subtitle",
+        ".stage-number",
+        ".node",
+        ".flow-node",
+        ".line",
+        ".packet",
+        ".flow-label",
+        ".stream-label",
+        ".subscription-note",
+        ".question",
+        ".pipeline-step",
+        ".feedback-card",
+        ".path-card",
+        ".role-pill",
+        ".sfu-quality-card",
+        ".quality-chip",
+        ".viewer",
+        ".media-card",
+        ".compare-card",
+        ".final-line",
+        ".glossary-row"
+      ].join(",");
+
+      function sceneForTime(time) {
+        var safeTime = Math.max(0, Math.min(338, Number(time) || 0));
+        for (var i = SCENE_WINDOWS.length - 1; i >= 0; i -= 1) {
+          if (safeTime >= SCENE_WINDOWS[i].start) return SCENE_WINDOWS[i].id;
+        }
+        return SCENE_WINDOWS[0].id;
+      }
+
+      function resetSceneContent(scene) {
+        scene.querySelectorAll(RENDER_RESET_SELECTOR).forEach(function (el) {
+          el.style.opacity = "1";
+          el.style.transform = "translate(0px, 0px) scale(1, 1)";
+        });
+      }
+
+      function applyRenderState(time) {
+        var activeId = sceneForTime(time);
+        SCENE_WINDOWS.forEach(function (sceneInfo) {
+          var scene = document.getElementById(sceneInfo.id);
+          if (!scene) return;
+          var active = sceneInfo.id === activeId;
+          scene.style.opacity = active ? "1" : "0";
+          scene.style.transform = "translate(0px, 0px) scale(1, 1)";
+          if (active) resetSceneContent(scene);
+        });
+      }
+
+      var nativeSeek = tl.seek.bind(tl);
+      var nativeTime = tl.time.bind(tl);
+      var nativeTotalTime = tl.totalTime.bind(tl);
+
+      tl.seek = function (time, suppressEvents) {
+        if (arguments.length === 0) return nativeSeek();
+        var result = nativeSeek(time, suppressEvents);
+        applyRenderState(time);
+        return result;
+      };
+
+      tl.time = function (time, suppressEvents) {
+        if (arguments.length === 0) return nativeTime();
+        var result = nativeTime(time, suppressEvents);
+        applyRenderState(nativeTotalTime());
+        return result;
+      };
+
+      tl.totalTime = function (time, suppressEvents) {
+        if (arguments.length === 0) return nativeTotalTime();
+        var result = nativeTotalTime(time, suppressEvents);
+        applyRenderState(time);
+        return result;
+      };
+
+      window.addEventListener("hf-seek", function (event) {
+        applyRenderState(event.detail && event.detail.time);
+      });
+
+      function enterHeader(selector, t) {
+        var eyebrow = selector + " .eyebrow";
+        var title = selector + " .title";
+        var subtitle = selector + " .subtitle";
+        var number = selector + " .stage-number";
+        if (document.querySelector(eyebrow)) tl.from(eyebrow, { y: 24, opacity: 0, duration: 0.42, ease: "power3.out" }, t + 0.16);
+        if (document.querySelector(title)) tl.from(title, { x: -48, opacity: 0, duration: 0.62, ease: "expo.out" }, t + 0.26);
+        if (document.querySelector(subtitle)) tl.from(subtitle, { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, t + 0.48);
+        if (document.querySelector(number)) tl.from(number, { y: -20, opacity: 0, duration: 0.44, ease: "power4.out" }, t + 0.36);
+      }
+
+      function pushScene(oldScene, newScene, t) {
+        tl.set(newScene, { opacity: 1, x: 1920 }, t);
+        tl.to(oldScene, { x: -1920, duration: 0.5, ease: "power3.inOut" }, t);
+        tl.to(newScene, { x: 0, duration: 0.5, ease: "power3.inOut" }, t);
+        tl.set(oldScene, { opacity: 0, x: 0 }, t + 0.52);
+      }
+
+      function drawLine(selector, t, duration) {
+        tl.from(selector, { scaleX: 0, opacity: 0, duration: duration || 0.48, ease: "power4.out" }, t);
+      }
+
+      enterHeader("#scene-intro", 0);
+      tl.from("#scene-intro .flow-node", { y: -28, opacity: 0, scale: 0.94, duration: 0.48, ease: "back.out(1.5)" }, 0.9);
+      tl.from("#scene-intro .node", { y: 36, opacity: 0, scale: 0.92, duration: 0.5, stagger: 0.12, ease: "back.out(1.6)" }, 1.28);
+      drawLine("#intro-line", 1.9, 0.55);
+      tl.from("#intro-packet", { scale: 0.5, opacity: 0, duration: 0.32, ease: "power2.out" }, 2.28);
+      tl.to("#intro-packet", { x: 360, duration: 2.3, repeat: 6, ease: "sine.inOut" }, 2.68);
+      tl.from("#scene-intro .question", { y: 32, opacity: 0, duration: 0.48, ease: "power3.out" }, 3.2);
+
+      pushScene("#scene-intro", "#scene-pipeline", 22.75);
+      enterHeader("#scene-pipeline", 23.0);
+      tl.from("#scene-pipeline .pipeline-step", { y: 44, opacity: 0, scale: 0.96, duration: 0.48, stagger: 0.09, ease: "back.out(1.25)" }, 23.95);
+      drawLine("#scene-pipeline .feedback-arrow", 24.75, 0.5);
+      tl.from("#scene-pipeline .feedback-card", { y: 38, opacity: 0, duration: 0.52, ease: "power3.out" }, 25.2);
+
+      pushScene("#scene-pipeline", "#scene-p2p", 55.815);
+      enterHeader("#scene-p2p", 56.07);
+      tl.from("#scene-p2p .node", { y: 36, opacity: 0, scale: 0.92, duration: 0.5, stagger: 0.12, ease: "back.out(1.6)" }, 57.17);
+      drawLine("#p2p-line", 57.82, 0.55);
+      tl.from("#scene-p2p .flow-label", { y: -18, opacity: 0, duration: 0.4, ease: "power3.out" }, 58.27);
+      tl.from("#p2p-packet", { scale: 0.5, opacity: 0, duration: 0.32, ease: "power2.out" }, 58.57);
+      tl.to("#p2p-packet", { x: 880, duration: 2.4, repeat: 8, ease: "sine.inOut" }, 58.92);
+      tl.from("#scene-p2p .path-card", { y: 42, opacity: 0, scale: 0.96, duration: 0.58, ease: "power4.out" }, 59.57);
+
+      pushScene("#scene-p2p", "#scene-turn", 82.855);
+      enterHeader("#scene-turn", 83.1);
+      tl.from("#scene-turn .node, #scene-turn .flow-node", { y: 38, opacity: 0, scale: 0.92, duration: 0.48, stagger: 0.11, ease: "back.out(1.55)" }, 84.2);
+      drawLine("#turn-fail-line", 85.0, 0.44);
+      tl.from("#scene-turn .flow-label", { y: -16, opacity: 0, duration: 0.36, ease: "power3.out" }, 85.4);
+      drawLine("#turn-line-a", 86.2, 0.5);
+      drawLine("#turn-line-b", 86.45, 0.5);
+      tl.from("#turn-packet-a, #turn-packet-b", { scale: 0.5, opacity: 0, duration: 0.32, stagger: 0.08, ease: "power2.out" }, 86.95);
+      tl.to("#turn-packet-a", { x: 260, duration: 1.7, repeat: 13, ease: "sine.inOut" }, 87.3);
+      tl.to("#turn-packet-b", { x: 260, duration: 1.7, repeat: 13, ease: "sine.inOut" }, 87.65);
+      tl.from("#scene-turn .path-card", { y: 42, opacity: 0, scale: 0.96, duration: 0.58, ease: "power4.out" }, 88.2);
+
+      pushScene("#scene-turn", "#scene-sfu", 111.657);
+      enterHeader("#scene-sfu", 111.9);
+      tl.from("#scene-sfu .node, #scene-sfu .flow-node", { y: 38, opacity: 0, scale: 0.92, duration: 0.48, stagger: 0.1, ease: "back.out(1.55)" }, 113.05);
+      drawLine("#scene-sfu .line", 114.0, 0.52);
+      tl.from("#scene-sfu .stream-label, #scene-sfu .subscription-note", { y: -18, opacity: 0, duration: 0.36, stagger: 0.08, ease: "power3.out" }, 114.55);
+      tl.from("#scene-sfu .sfu-quality-card", { y: 30, opacity: 0, scale: 0.96, duration: 0.42, stagger: 0.08, ease: "back.out(1.35)" }, 115.25);
+      tl.from("#scene-sfu .quality-chip", { y: 10, opacity: 0, scale: 0.94, duration: 0.28, stagger: 0.04, ease: "power3.out" }, 115.62);
+
+      pushScene("#scene-sfu", "#scene-mcu", 172.631);
+      enterHeader("#scene-mcu", 172.88);
+      tl.from("#scene-mcu .flow-node", { y: 40, opacity: 0, scale: 0.93, duration: 0.5, stagger: 0.14, ease: "back.out(1.45)" }, 174.03);
+      drawLine("#scene-mcu .line", 174.98, 0.5);
+      tl.from("#scene-mcu .viewer", { y: 20, opacity: 0, scale: 0.9, duration: 0.34, stagger: 0.035, ease: "power3.out" }, 175.63);
+      tl.from("#scene-mcu .media-card", { y: 36, opacity: 0, scale: 0.96, duration: 0.44, stagger: 0.09, ease: "back.out(1.35)" }, 176.38);
+
+      pushScene("#scene-mcu", "#scene-summary", 211.447);
+      enterHeader("#scene-summary", 211.7);
+      tl.from("#scene-summary .compare-card", { y: 44, opacity: 0, scale: 0.96, duration: 0.5, stagger: 0.1, ease: "back.out(1.35)" }, 212.9);
+      tl.from("#scene-summary .final-line", { y: 34, opacity: 0, duration: 0.58, ease: "expo.out" }, 214.2);
+
+      pushScene("#scene-summary", "#scene-glossary-a", 242.994);
+      enterHeader("#scene-glossary-a", 243.24);
+      tl.from("#scene-glossary-a .glossary-row", { y: 28, opacity: 0, scale: 0.98, duration: 0.36, stagger: 0.06, ease: "power3.out" }, 244.44);
+
+      pushScene("#scene-glossary-a", "#scene-glossary-b", 299.24);
+      enterHeader("#scene-glossary-b", 299.49);
+      tl.from("#scene-glossary-b .glossary-row", { y: 28, opacity: 0, scale: 0.98, duration: 0.36, stagger: 0.06, ease: "power3.out" }, 300.69);
+      tl.to("#scene-glossary-b", { opacity: 0, duration: 0.65, ease: "sine.inOut" }, 337.25);
+
+      captionGroups.forEach(function (group, index) {
+        var id = "#cap-" + index;
+        var inDur = Math.min(0.16, Math.max(0.08, (group.end - group.start) * 0.18));
+        var outDur = Math.min(0.14, Math.max(0.08, (group.end - group.start) * 0.14));
+        tl.fromTo(id, { opacity: 0, y: 14, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: inDur, ease: "power2.out" }, group.start);
+        tl.to(id, { opacity: 0, y: -8, scale: 0.985, duration: outDur, ease: "power1.in" }, Math.max(group.start + inDur + 0.05, group.end - outDur));
+      });
+
+      var initialSeek = 3;
+      var seekParam = new URLSearchParams(window.location.search).get("seek");
+      if (seekParam !== null) {
+        var parsedSeek = Number(seekParam);
+        if (Number.isFinite(parsedSeek)) {
+          initialSeek = Math.max(0, Math.min(338, parsedSeek));
+        }
+      }
+
+      tl.seek(initialSeek);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

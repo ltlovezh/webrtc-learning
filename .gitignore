@@ -1,0 +1,25 @@
+# Local credentials and deployment metadata
+.env*
+.vercel/
+
+# Local development environments and caches
+**/.venv/
+**/node_modules/
+**/.waveform-cache/
+**/__pycache__/
+**/*.py[cod]
+**/*.log
+
+# macOS metadata
+**/.DS_Store
+
+# Rendered video/audio and visual QA output
+**/renders/
+**/snapshots/
+**/*.mp4
+**/*.mov
+**/*.wav
+
+# Agent-specific local instructions
+**/AGENTS.md
+**/CLAUDE.md

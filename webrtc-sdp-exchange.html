@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SDP 交换 · 两台机器如何在开口之前谈妥一切</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+<meta name="theme-color" content="#47646F">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   tokens — 暖纸 · 棕墨 · 平涂插画
+   ───────────────────────────────────────────────────────────── */
+:root{
+  /* 中性色一律走暖陶色相（~26°），而不是奶黄（~40°）：有暖度，但不发黄 */
+  --paper:#F7EFE8;
+  --paper-2:#FFFAF6;
+  --paper-3:#EFE5DC;
+  --paper-4:#E1D5C8;
+
+  --ink:#33271E;
+  --ink-2:#6B5B4F;
+  --ink-3:#9C8B7E;
+  --rule:#D8CABD;
+  --rule-2:#EBE0D6;
+
+  --a:#C9502B;            /* Peer A · 发起方 · 陶橘 */
+  --a-soft:#F7E1D7;
+  --a-mid:#E9A183;
+  --b:#2F7A5F;            /* Peer B · 应答方 · 松绿 */
+  --b-soft:#DFEBE4;
+  --b-mid:#93BCA8;
+  --wire:#47646F;        /* 信令通道 · 不属于任何一端的那段路 */
+  --wire-soft:#E6EDEF;
+  --wire-ink:#3F5B66;
+  --berry:#A33B47;        /* 出错 */
+  --berry-soft:#F6E0E2;
+
+  --shadow:#E0D3C5;
+  --sh-s:2px 3px 0 var(--shadow);
+  --sh-m:4px 5px 0 var(--shadow);
+  --sh-l:6px 8px 0 var(--shadow);
+
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Helvetica Neue",sans-serif;
+  --serif:"Songti SC","STSong","Noto Serif SC","Source Han Serif SC",Georgia,serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"JetBrains Mono",Consolas,monospace;
+
+  --r:10px;
+  --r-s:6px;
+  --pad:clamp(20px,5vw,64px);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:16px;line-height:1.85;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+/* 纸纹 */
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:99;
+  mix-blend-mode:multiply;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.09'/%3E%3C/svg%3E");
+}
+main{position:relative;z-index:1}
+
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--wire);outline-offset:3px;border-radius:4px}
+
+.wrap{width:min(1140px,100% - var(--pad)*2);margin-inline:auto}
+.wrap-wide{width:min(1300px,100% - var(--pad)*2);margin-inline:auto}
+.sec{padding-block:clamp(58px,9vw,110px);position:relative}
+
+.eyebrow{
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-3);margin:0 0 14px;display:flex;align-items:center;gap:12px;
+}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--wire);border-radius:2px}
+
+h2.h{
+  font-family:var(--serif);font-weight:700;
+  font-size:clamp(1.65rem,3.5vw,2.55rem);line-height:1.32;letter-spacing:.02em;
+  margin:0 0 18px;
+}
+h3.sub{font-family:var(--serif);font-weight:700;font-size:1.14rem;letter-spacing:.03em;margin:0 0 10px}
+.lede{font-size:clamp(1rem,1.5vw,1.1rem);color:var(--ink-2);max-width:63ch;margin:0 0 8px}
+.lede strong{color:var(--ink);font-weight:600}
+p.note{color:var(--ink-2);font-size:.94rem;max-width:64ch}
+.tiny{font-family:var(--mono);font-size:.74rem;color:var(--ink-3);letter-spacing:.04em;line-height:1.7}
+
+code{font-family:var(--mono);font-size:.88em}
+/* 行内协议片段：默认中性，只有明确归属某一端时才上色 */
+.m{
+  font-family:var(--mono);font-size:.86em;color:#4A3B30;background:var(--paper-3);
+  padding:1.5px 6px;border-radius:4px;white-space:nowrap;
+}
+.m.a{color:#A8401F;background:var(--a-soft)}
+.m.b{color:#26644C;background:var(--b-soft)}
+
+/* ─────────────────────────────────────────────────────────────
+   HERO
+   ───────────────────────────────────────────────────────────── */
+.hero{padding-block:clamp(48px,8vw,88px) clamp(40px,6vw,72px);position:relative;overflow:hidden}
+.hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.95fr);gap:clamp(26px,4vw,60px);align-items:center}
+.hero h1{
+  font-family:var(--serif);font-weight:700;
+  font-size:clamp(2.5rem,7vw,4.6rem);line-height:1.08;letter-spacing:.03em;margin:0 0 20px;
+}
+.hero h1 .sdp{
+  display:block;font-family:var(--mono);font-weight:400;
+  font-size:clamp(.66rem,1.4vw,.8rem);letter-spacing:.36em;
+  color:var(--ink-3);margin-bottom:14px;text-transform:uppercase;
+}
+.hero-lede{font-size:clamp(1.02rem,1.7vw,1.18rem);color:var(--ink-2);max-width:44ch;margin:0 0 24px}
+.kicker{
+  position:relative;background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  box-shadow:var(--sh-m);padding:16px 20px;margin:0;max-width:44ch;font-size:1rem;
+}
+.kicker b{color:var(--a);font-weight:700}
+.hero-meta{
+  margin-top:34px;display:flex;flex-wrap:wrap;gap:8px;
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;color:var(--ink-2);
+}
+.hero-meta span{background:var(--paper-3);border:1px solid var(--rule);border-radius:20px;padding:4px 12px}
+.hero-art{width:100%;height:auto;overflow:visible}
+
+/* ─────────────────────────────────────────────────────────────
+   §1 解剖台
+   ───────────────────────────────────────────────────────────── */
+.anat{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:clamp(18px,2.6vw,32px);align-items:start;margin-top:30px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;
+  border:2px solid var(--rule);background:var(--paper-2);border-radius:20px;padding:5px 13px;color:var(--ink-2);
+  transition:transform .14s,box-shadow .14s,border-color .14s,color .14s,background .14s;
+}
+.chip:hover{border-color:var(--ink-3);transform:translateY(-1px)}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper-2);box-shadow:var(--sh-s)}
+
+.sdp-doc{
+  background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--sh-m);
+  padding:10px 0 14px;max-height:min(70vh,640px);overflow-y:auto;position:relative;
+}
+.sdp-doc::-webkit-scrollbar{width:10px}
+.sdp-doc::-webkit-scrollbar-track{background:transparent}
+.sdp-doc::-webkit-scrollbar-thumb{background:var(--paper-4);border-radius:10px;border:3px solid var(--paper-2)}
+.grp{
+  display:block;font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;color:var(--ink-3);
+  padding:18px 18px 8px;text-transform:uppercase;
+}
+.grp:first-child{padding-top:8px}
+.grp b{color:var(--a);font-weight:400}
+.ln{
+  display:grid;grid-template-columns:26px 1fr;gap:10px;width:100%;text-align:left;
+  padding:3px 16px;font-family:var(--mono);font-size:clamp(.7rem,.98vw,.79rem);line-height:1.8;
+  border-left:4px solid transparent;transition:background .14s,opacity .2s,border-color .14s;
+}
+.ln:hover{background:var(--paper-3)}
+.ln .no{color:var(--ink-3);font-size:.66rem;text-align:right;user-select:none;opacity:.7}
+.ln .tx{color:var(--ink-2);word-break:break-all}
+.ln[aria-selected="true"]{background:var(--paper-3);border-left-color:var(--ink)}
+.ln[aria-selected="true"] .tx{color:var(--ink);font-weight:500}
+.ln.dim{opacity:.22}
+.ln.on{background:var(--paper-3)}
+.ln.on .tx{color:var(--ink)}
+
+.expl{position:sticky;top:20px}
+.expl-in{background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--sh-m);padding:20px 22px 22px}
+.expl-tag{
+  display:inline-block;font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;
+  padding:3px 11px;border-radius:20px;margin-bottom:14px;border:1.5px solid currentColor;
+}
+.expl-line{
+  font-family:var(--mono);font-size:.8rem;color:var(--ink);
+  background:var(--paper-3);border:1.5px dashed var(--rule);border-radius:var(--r-s);
+  padding:10px 12px;margin-bottom:16px;word-break:break-all;line-height:1.7;
+}
+.expl-body{font-size:.95rem;color:var(--ink-2);margin:0}
+.expl-body b{color:var(--ink);font-weight:700}
+.expl-hint{margin-top:14px;padding-top:12px;border-top:1.5px dashed var(--rule-2)}
+
+/* ─────────────────────────────────────────────────────────────
+   §2 交换时序
+   ───────────────────────────────────────────────────────────── */
+.stage{
+  position:relative;display:grid;grid-template-columns:1fr clamp(90px,11vw,170px) 1fr;
+  margin-top:32px;align-items:stretch;
+}
+.peer{
+  background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  box-shadow:var(--sh-m);padding:18px 20px 20px;transition:transform .3s,box-shadow .3s;
+}
+.peer.act{transform:translateY(-3px)}
+.peer.act.peer-a{box-shadow:4px 5px 0 var(--a-mid)}
+.peer.act.peer-b{box-shadow:4px 5px 0 var(--b-mid)}
+.peer-hd{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.peer-hd svg{flex:none;width:38px;height:44px}
+.peer-name{font-family:var(--serif);font-weight:700;font-size:1.06rem;letter-spacing:.04em;display:block}
+.peer-role{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em}
+.peer-a .peer-role{color:var(--a)}
+.peer-b .peer-role{color:var(--b)}
+.state-row{margin:14px 0 16px}
+.state-lb{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;color:var(--ink-3);display:block;margin-bottom:6px}
+.state{
+  display:inline-block;font-family:var(--mono);font-size:.79rem;
+  padding:5px 12px;border-radius:20px;border:2px solid var(--ink);background:var(--paper-3);
+}
+.peer-a .state{background:var(--a-soft)}
+.peer-b .state{background:var(--b-soft)}
+.slots{display:grid;gap:8px}
+.slot{
+  display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;
+  border:1.5px dashed var(--rule);border-radius:var(--r-s);padding:8px 12px;
+  font-family:var(--mono);font-size:.72rem;color:var(--ink-3);transition:.25s;background:transparent;
+}
+.slot .sv{font-size:.68rem}
+.slot.full{border-style:solid;border-color:var(--ink);border-width:2px;color:var(--ink)}
+.peer-a .slot.full{background:var(--a-soft)}
+.peer-b .slot.full{background:var(--b-soft)}
+.slot.full .sv{font-weight:700}
+.peer-a .slot.full .sv{color:var(--a)}
+.peer-b .slot.full .sv{color:var(--b)}
+
+/* 中央信道 */
+.spine{position:relative;display:flex;align-items:center;justify-content:center}
+.spine::before{
+  content:"";position:absolute;top:14px;bottom:14px;left:50%;width:0;
+  border-left:3px dashed #B4C6CC;transform:translateX(-1.5px);
+}
+.spine-lb{
+  position:relative;writing-mode:vertical-rl;font-family:var(--mono);
+  font-size:.63rem;letter-spacing:.24em;color:var(--wire-ink);
+  background:var(--paper);padding:14px 3px;
+}
+.packet{
+  position:absolute;top:50%;left:50%;z-index:4;
+  transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;
+  display:flex;align-items:center;gap:8px;white-space:nowrap;
+  font-family:var(--mono);font-size:.7rem;
+  border:2px solid var(--ink);border-radius:20px;padding:6px 14px;box-shadow:var(--sh-s);
+  transition:transform 1s cubic-bezier(.45,.05,.3,1),opacity .3s;
+}
+.packet svg{width:16px;height:13px;flex:none}
+.packet.show{opacity:1}
+.packet.offer{background:var(--a-soft);color:#A8401F}
+.packet.answer{background:var(--b-soft);color:#26644C}
+.packet.ice{background:var(--wire-soft);color:#3F5B66}
+
+.readout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;margin-top:24px}
+.step-card{
+  background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  box-shadow:var(--sh-m);padding:18px 22px 20px;position:relative;overflow:hidden;
+}
+.step-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px}
+.step-card.who-a::before{background:var(--a)}
+.step-card.who-b::before{background:var(--b)}
+.step-card.who-w::before{background:repeating-linear-gradient(180deg,var(--wire) 0 8px,transparent 8px 15px)}
+.step-no{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;color:var(--ink-3);display:block;margin-bottom:6px}
+.step-t{font-family:var(--mono);font-size:.98rem;margin:0 0 10px;letter-spacing:-.01em;word-break:break-all;font-weight:600}
+.step-d{margin:0;font-size:.94rem;color:var(--ink-2)}
+.step-d b{color:var(--ink);font-weight:700}
+.src-card{background:var(--paper-3);border:2px dashed var(--rule);border-radius:var(--r);padding:18px 20px}
+.src-lb{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;color:var(--ink-3);display:block;margin-bottom:9px}
+.src-p{font-family:var(--mono);font-size:.77rem;color:#3F5B66;word-break:break-all;line-height:1.7;display:block;margin-bottom:8px;text-decoration:none;border-bottom:1.5px solid transparent}
+a.src-p:hover{border-bottom-color:var(--wire)}
+.src-n{font-size:.86rem;color:var(--ink-2);margin:0}
+
+.ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:22px}
+.btn{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.05em;
+  border:2px solid var(--ink);border-radius:20px;padding:7px 16px;background:var(--paper-2);
+  box-shadow:var(--sh-s);transition:transform .12s,box-shadow .12s,opacity .2s,background .2s;
+}
+.btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:3px 4px 0 var(--shadow)}
+.btn:active:not(:disabled){transform:translate(1px,2px);box-shadow:0 0 0 var(--shadow)}
+.btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.btn.pri{background:var(--ink);color:var(--paper-2);border-color:var(--ink)}
+.rail{display:flex;gap:5px;flex:1;min-width:170px}
+.dot{flex:1;height:22px;position:relative}
+.dot::after{content:"";position:absolute;left:0;right:0;top:9px;height:4px;background:var(--paper-4);border-radius:4px;transition:background .2s}
+.dot:hover::after{background:var(--ink-3)}
+.dot.done::after{background:var(--rule)}
+.dot[aria-current="true"]::after{background:var(--ink)}
+.ctrl-n{font-family:var(--mono);font-size:.72rem;color:var(--ink-3);min-width:50px;text-align:right}
+
+/* SDP 与 ICE：不是接力赛，而是两条交叠的流水线 */
+.ice-bridge{
+  margin-top:clamp(46px,6vw,72px);padding-top:clamp(34px,4vw,48px);
+  border-top:2px dashed var(--rule);
+}
+.bridge-hd{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.72fr);gap:clamp(22px,4vw,54px);align-items:end}
+.bridge-hd .lede{margin:0}
+.bridge-hd h3.h{
+  font-family:var(--serif);font-weight:700;font-size:clamp(1.45rem,2.8vw,2rem);
+  line-height:1.35;letter-spacing:.02em;margin:0;
+}
+.bridge-kicker{
+  font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;color:var(--wire-ink);
+  display:block;margin-bottom:8px;
+}
+.pipe-contrast{display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr);gap:12px;margin-top:26px}
+.contrast-item{
+  min-width:0;border:2px solid var(--ink);border-radius:var(--r);background:var(--paper-2);
+  box-shadow:var(--sh-s);padding:14px 16px;
+}
+.contrast-item.myth{border-style:dashed;border-color:var(--rule);box-shadow:none;color:var(--ink-3)}
+.contrast-lb{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;display:block;margin-bottom:8px}
+.contrast-item.myth code{font-family:var(--mono);font-size:.74rem;color:var(--ink-2);word-break:break-word}
+.overlap-bars{height:58px;position:relative;font-family:var(--mono);font-size:.68rem}
+.overlap-bar{
+  position:absolute;height:29px;display:flex;align-items:center;padding:0 12px;
+  border:1.5px solid var(--ink);border-radius:20px;white-space:nowrap;overflow:hidden;
+}
+.overlap-bar.sdp{left:0;right:25%;top:0;background:var(--a-soft);color:#A8401F}
+.overlap-bar.ice{left:22%;right:0;bottom:0;background:var(--wire-soft);color:var(--wire-ink)}
+
+.pipe-shell{
+  margin-top:16px;background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  box-shadow:var(--sh-m);overflow:hidden;
+}
+.pipe-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:18px 18px 16px;background:var(--paper-3);border-bottom:1.5px solid var(--rule)}
+.pipe-steps{min-width:820px;display:grid;grid-template-columns:repeat(5,1fr);gap:9px;position:relative}
+.pipe-steps::before{content:"";position:absolute;left:6%;right:6%;top:17px;height:3px;background:var(--rule);border-radius:3px}
+.pipe-step{
+  position:relative;z-index:1;text-align:left;border:1.5px solid var(--rule);border-radius:var(--r-s);
+  background:var(--paper-2);padding:10px 11px 11px;min-height:86px;transition:transform .14s,background .14s,border-color .14s;
+}
+.pipe-step:hover{transform:translateY(-2px);border-color:var(--ink-3)}
+.pipe-step[aria-selected="true"]{border:2px solid var(--ink);background:#fff;box-shadow:var(--sh-s)}
+.pipe-step.a[aria-selected="true"]{background:var(--a-soft)}
+.pipe-step.b[aria-selected="true"]{background:var(--b-soft)}
+.pipe-step.ice[aria-selected="true"]{background:var(--wire-soft)}
+.pipe-step-no{
+  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;margin-bottom:7px;
+  background:var(--ink);color:var(--paper-2);font-family:var(--mono);font-size:.67rem;font-weight:700;
+}
+.pipe-step.a .pipe-step-no{background:var(--a)}
+.pipe-step.b .pipe-step-no{background:var(--b)}
+.pipe-step.ice .pipe-step-no{background:var(--wire)}
+.pipe-step-t{font-family:var(--mono);font-size:.7rem;line-height:1.45;color:var(--ink);display:block}
+
+.pipe-detail{display:grid;grid-template-columns:minmax(260px,.82fr) minmax(0,1.55fr);gap:0}
+.pipe-copy{padding:22px 24px;border-right:1.5px solid var(--rule)}
+.pipe-phase{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;color:var(--ink-3);display:block;margin-bottom:7px}
+.pipe-title{font-family:var(--serif);font-size:1.22rem;line-height:1.35;margin:0 0 8px}
+.pipe-desc{font-size:.91rem;color:var(--ink-2);margin:0}
+.pipe-desc b{color:var(--ink);font-weight:700}
+.ready-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px}
+.ready-peer{border:1.5px solid var(--rule);border-radius:var(--r-s);padding:14px 15px;background:var(--paper-2)}
+.ready-peer.a{border-top:4px solid var(--a)}
+.ready-peer.b{border-top:4px solid var(--b)}
+.ready-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+.ready-name{font-family:var(--mono);font-size:.72rem;font-weight:700}
+.ready-peer.a .ready-name{color:#A8401F}
+.ready-peer.b .ready-name{color:#26644C}
+.ready-state{font-family:var(--mono);font-size:.61rem;color:var(--ink-3);text-align:right}
+.ready-checks{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ready-chip{
+  font-family:var(--mono);font-size:.61rem;line-height:1.35;color:var(--ink-3);
+  border:1.5px dashed var(--rule);border-radius:6px;padding:6px 7px;background:transparent;
+}
+.ready-chip::before{content:"○ ";font-weight:700}
+.ready-chip.on{color:#26644C;border-style:solid;border-color:#A9C9B9;background:var(--b-soft)}
+.ready-chip.on::before{content:"✓ "}
+.ready-chip.work{color:#A8401F;border-style:solid;border-color:#E3A88F;background:var(--a-soft)}
+.ready-chip.work::before{content:"… "}
+.pipe-rule{
+  margin:0;padding:13px 20px;border-top:1.5px dashed var(--rule);background:var(--wire-soft);
+  font-size:.87rem;color:var(--wire-ink);
+}
+.pipe-rule b{color:var(--ink)}
+
+/* ─────────────────────────────────────────────────────────────
+   §3 Three.js 分层
+   ───────────────────────────────────────────────────────────── */
+.layers{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr);gap:clamp(22px,3.4vw,48px);align-items:center;margin-top:32px}
+.scene{
+  position:relative;height:clamp(340px,44vw,470px);
+  background:radial-gradient(ellipse 62% 58% at 50% 46%,#EEE7DF 0%,rgba(253,237,210,0) 70%);
+  border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--sh-m);
+  cursor:grab;touch-action:none;overflow:hidden;
+}
+.scene:active{cursor:grabbing}
+.scene canvas{display:block;width:100%;height:100%}
+.scene-hint{
+  position:absolute;left:14px;bottom:11px;font-family:var(--mono);font-size:.65rem;
+  letter-spacing:.08em;color:var(--ink-3);pointer-events:none;transition:opacity .5s;
+}
+.scene-fb{
+  position:absolute;inset:0;display:none;place-content:center;text-align:center;padding:30px;
+  font-family:var(--mono);font-size:.76rem;line-height:2.1;color:var(--ink-2);
+}
+.scene.failed{cursor:default}
+.scene.failed .scene-fb{display:grid}
+.scene.failed .scene-hint{display:none}
+
+.tog{
+  display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.76rem;
+  border:2px solid var(--ink);border-radius:20px;padding:9px 17px;background:var(--paper-2);
+  box-shadow:var(--sh-s);transition:transform .12s,box-shadow .12s,background .2s;
+}
+.tog:hover{transform:translate(-1px,-1px);box-shadow:3px 4px 0 var(--shadow)}
+.tog[aria-pressed="true"]{background:var(--paper-3)}
+.tog .led{width:9px;height:9px;border-radius:50%;background:var(--paper-4);border:1.5px solid var(--ink);transition:.2s}
+.tog[aria-pressed="true"] .led{background:var(--wire)}
+.cmp{display:grid;gap:11px;margin-top:22px}
+.cmp-row{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;font-size:.93rem;color:var(--ink-2)}
+.cmp-k{
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.06em;color:var(--ink);
+  background:var(--paper-3);border:1.5px solid var(--rule);border-radius:20px;
+  padding:2px 10px;white-space:nowrap;margin-top:3px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   §4 协商
+   ───────────────────────────────────────────────────────────── */
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,368px),1fr));gap:clamp(18px,2.6vw,32px);margin-top:30px}
+.panel{background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--sh-m);padding:22px 24px 24px}
+.side-lb{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;margin:0 0 9px;display:block}
+.side-lb.a{color:var(--a)}
+.side-lb.b{color:var(--b)}
+.codecs,.dirs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.cd{
+  font-family:var(--mono);font-size:.74rem;border:2px solid var(--rule);border-radius:20px;
+  padding:5px 13px;color:var(--ink-3);background:var(--paper-2);transition:.14s;
+}
+.cd:hover{border-color:var(--ink-3);color:var(--ink-2)}
+.cd.a[aria-pressed="true"]{border-color:var(--a);color:#A8401F;background:var(--a-soft)}
+.cd.b[aria-pressed="true"]{border-color:var(--b);color:#26644C;background:var(--b-soft)}
+.out{background:var(--paper-3);border:1.5px dashed var(--rule);border-radius:var(--r-s);padding:12px 14px;margin-bottom:10px}
+.out-lb{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;color:var(--ink-3);display:block;margin-bottom:6px}
+.out-v{font-family:var(--mono);font-size:.78rem;color:var(--ink);word-break:break-all;line-height:1.8;white-space:pre-wrap}
+.out.bad{background:var(--berry-soft);border-color:#DDB0B6;border-style:solid}
+.out.bad .out-v{color:var(--berry)}
+.verdict{font-size:.9rem;color:var(--ink-2);margin:14px 0 0}
+.verdict.bad{color:var(--berry)}
+.verdict b{color:var(--ink);font-weight:700}
+
+.flow{display:grid;gap:16px;background:var(--paper-3);border:1.5px dashed var(--rule);border-radius:var(--r-s);padding:22px 18px 18px}
+.arrow-row{display:grid;grid-template-columns:34px 1fr 34px;align-items:center;gap:12px;font-family:var(--mono);font-size:.72rem}
+.arrow-row .who{color:var(--ink-3)}
+.arrow-row .who.pa{color:var(--a);font-weight:700}
+.arrow-row .who.pb{color:var(--b);text-align:right;font-weight:700}
+.track{position:relative;height:4px;background:var(--paper-4);border-radius:4px}
+.track i{position:absolute;inset:0;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .5s ease;border-radius:4px}
+.arrow-row.rtl .track i{transform-origin:right}
+.arrow-row.on .track i{transform:scaleX(1)}
+.arrow-row.on.dl{color:var(--a)}
+.arrow-row.on.ul{color:var(--b)}
+.track .cap{position:absolute;left:50%;top:-20px;transform:translateX(-50%);font-size:.64rem;color:var(--ink-3);white-space:nowrap;opacity:.35;transition:opacity .3s,color .3s}
+.arrow-row.on .track .cap{opacity:1;color:currentColor}
+
+/* ─────────────────────────────────────────────────────────────
+   §5 陷阱
+   ───────────────────────────────────────────────────────────── */
+.glare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0 18px}
+.gp{border:2px solid var(--ink);border-radius:var(--r);padding:15px 18px;background:var(--paper-2);box-shadow:var(--sh-s);transition:.3s}
+.gp .gn{font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;display:block;margin-bottom:8px}
+.gp.a .gn{color:var(--a)}
+.gp.b .gn{color:var(--b)}
+.gp .gs{font-family:var(--mono);font-size:.82rem;font-weight:600}
+.gp .gx{font-family:var(--mono);font-size:.68rem;color:var(--ink-3);margin-top:6px;display:block;min-height:1.7em}
+.gp.stuck{background:var(--berry-soft);box-shadow:2px 3px 0 #DDB0B6}
+.gp.stuck .gs{color:var(--berry)}
+
+.pit{display:grid;gap:14px;margin-top:18px}
+.pit-i{
+  display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;
+  background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  box-shadow:var(--sh-s);padding:16px 20px;
+}
+.pit-k{
+  font-family:var(--mono);font-size:.68rem;color:#8C333F;background:var(--berry-soft);
+  border:1.5px solid #DDB0B6;border-radius:20px;padding:3px 11px;white-space:nowrap;margin-top:3px;
+}
+.pit-b{margin:0;font-size:.93rem;color:var(--ink-2)}
+.pit-b b{color:var(--ink);font-weight:700;display:block;margin-bottom:3px;font-family:var(--sans)}
+
+/* ─────────────────────────────────────────────────────────────
+   §6 源码地图
+   ───────────────────────────────────────────────────────────── */
+.map{width:100%;border-collapse:collapse;margin-top:26px;font-size:.92rem}
+.map th{
+  text-align:left;font-family:var(--mono);font-size:.63rem;letter-spacing:.12em;color:var(--ink-3);
+  font-weight:400;padding:0 14px 10px 0;border-bottom:2px solid var(--rule);text-transform:uppercase;
+}
+.map td{padding:14px 14px 14px 0;border-bottom:1.5px dashed var(--rule-2);vertical-align:top;color:var(--ink-2)}
+.map td:first-child{color:var(--ink);white-space:nowrap;font-weight:600}
+.map a{font-family:var(--mono);font-size:.77rem;color:#3F5B66;text-decoration:none;border-bottom:1.5px solid var(--wire-soft);word-break:break-all}
+.map a:hover{border-bottom-color:var(--wire)}
+.map .cm{font-family:var(--mono);font-size:.77rem;color:#3F5B66;word-break:break-all}
+
+footer{padding:40px 0 60px;color:var(--ink-2);font-size:.88rem}
+footer .fin{background:var(--paper-3);border:2px dashed var(--rule);border-radius:var(--r);padding:20px 24px}
+footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:var(--ink-3);margin:10px 0 0}
+
+@media (max-width:920px){
+  .hero-grid{grid-template-columns:1fr;gap:30px}
+  .anat{grid-template-columns:1fr}
+  .expl{position:static}
+  .layers{grid-template-columns:1fr}
+  .readout{grid-template-columns:1fr}
+  .bridge-hd{grid-template-columns:1fr;align-items:start}
+  .pipe-detail{grid-template-columns:1fr}
+  .pipe-copy{border-right:0;border-bottom:1.5px solid var(--rule)}
+}
+@media (max-width:760px){
+  .stage{grid-template-columns:1fr;gap:12px}
+  .spine{height:78px}
+  .spine::before{top:50%;bottom:auto;left:14px;right:14px;width:auto;height:0;border-left:0;border-top:3px dashed #B4C6CC;transform:none}
+  .spine-lb{writing-mode:horizontal-tb;letter-spacing:.16em;padding:3px 12px}
+  .glare{grid-template-columns:1fr}
+  .pit-i{grid-template-columns:1fr;gap:8px}
+  .pit-k{justify-self:start}
+  .pipe-contrast{grid-template-columns:1fr}
+  .ready-grid{grid-template-columns:1fr}
+  .map thead{display:none}
+  .map tr{display:grid;gap:5px;padding:16px 0;border-bottom:1.5px dashed var(--rule-2)}
+  .map td{border:0;padding:0}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<!-- 复用的插画符号 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="bot">
+      <path d="M19 3 v7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+      <circle cx="19" cy="3.2" r="3.2" fill="currentColor"/>
+      <rect x="2.4" y="10" width="33.2" height="27" rx="7" fill="#FDFBF8" stroke="#33271E" stroke-width="2.4"/>
+      <rect x="7.6" y="15.4" width="22.8" height="12.6" rx="4" fill="currentColor" opacity=".28"/>
+      <circle cx="14.4" cy="21.6" r="2.5" fill="#33271E"/>
+      <circle cx="23.6" cy="21.6" r="2.5" fill="#33271E"/>
+      <path d="M14.6 31.4 h8.8" stroke="#33271E" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M10 37 v4.2 M28 37 v4.2" stroke="#33271E" stroke-width="2.4" stroke-linecap="round"/>
+    </g>
+    <g id="env">
+      <rect x="1" y="1" width="18" height="13" rx="2.4" fill="#FDFBF8" stroke="currentColor" stroke-width="2"/>
+      <path d="M1.8 2.4 L10 8.6 L18.2 2.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </defs>
+</svg>
+
+<main>
+
+<!-- ══════════════ HERO ══════════════ -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1><span class="sdp">Session Description Protocol</span>SDP 交换</h1>
+      <p class="hero-lede">媒体流动之前，两端要先就「发什么、用什么编码、往哪儿发」谈妥。这场谈判只有两个回合：一封 <span class="m a">offer</span>，一封 <span class="m b">answer</span>。</p>
+      <p class="kicker">而这两封信之间的那段路，<b>WebRTC 故意留空</b>——库负责写信和读信，把信送到对面是你的事。</p>
+      <div class="hero-meta">
+        <span>RFC 4566 · SDP</span><span>RFC 3264 · OFFER/ANSWER</span><span>RFC 8829 · JSEP</span>
+      </div>
+    </div>
+
+    <svg class="hero-art" viewBox="0 0 520 320" role="img" aria-label="插画：左右两台小机器隔着一条虚线信道互相寄信，中间飞着一封信，下方是一张 SDP 便笺">
+      <ellipse cx="112" cy="196" rx="52" ry="9" fill="#DFD5CA" opacity=".55"/>
+      <ellipse cx="408" cy="196" rx="52" ry="9" fill="#DFD5CA" opacity=".55"/>
+      <path d="M150 150 C 220 92, 300 92, 370 150" fill="none" stroke="#A9BEC5" stroke-width="3" stroke-linecap="round" stroke-dasharray="9 11"/>
+      <g transform="translate(84,140) scale(1.5)" style="color:#C9502B"><use href="#bot"/></g>
+      <g transform="translate(380,140) scale(1.5)" style="color:#2F7A5F"><use href="#bot"/></g>
+      <g transform="translate(238,96) rotate(-8)" style="color:#C9502B"><use href="#env"/></g>
+      <text x="112" y="228" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#6A5C50">Peer A</text>
+      <text x="408" y="228" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#6A5C50">Peer B</text>
+      <text x="260" y="80" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#3F5B66" letter-spacing="1.5">你自己实现的信令通道</text>
+
+      <g transform="translate(126,238) rotate(-1.6)">
+        <rect x="0" y="0" width="268" height="70" rx="8" fill="#FDFBF8" stroke="#33271E" stroke-width="2.4"/>
+        <rect x="6" y="6" width="268" height="70" rx="8" fill="none" stroke="#DFD5CA" stroke-width="0"/>
+        <text font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#6A5C50">
+          <tspan x="14" y="20">m=audio 9 UDP/TLS/RTP/SAVPF 111</tspan>
+          <tspan x="14" y="35" fill="#C9502B">a=rtpmap:111 opus/48000/2</tspan>
+          <tspan x="14" y="50">a=mid:0</tspan>
+          <tspan x="14" y="63" fill="#2F7A5F">a=sendrecv</tspan>
+        </text>
+        <rect x="108" y="-9" width="52" height="17" rx="2" fill="#E3DACF" opacity=".9" stroke="#D6CBC0" transform="rotate(-3 134 -1)"/>
+      </g>
+    </svg>
+  </div>
+</header>
+
+<!-- ══════════════ §1 解剖 ══════════════ -->
+<section class="sec" id="s-anatomy">
+  <div class="wrap">
+    <p class="eyebrow">一 · 这坨文本到底是什么</p>
+    <h2 class="h">SDP 不是一份文档，是五件事挤在同一张纸上</h2>
+    <p class="lede">第一次看 SDP 觉得难，是因为它把<strong>会话身份、连接方式、安全凭证、媒体能力、分组规则</strong>混排在几十行 <code>key=value</code> 里，而且顺序有意义：第一行 <span class="m">m=</span> 之前属于整个会话，之后每一行都归它上面那个 <span class="m">m=</span> 管。</p>
+    <p class="note">点任意一行看它在做什么。用上面的标签只看某一类，混乱会立刻消失一大半。</p>
+
+    <div class="anat">
+      <div>
+        <div class="filters" id="filters" role="group" aria-label="按类别筛选 SDP 行"></div>
+        <div class="sdp-doc" id="sdpDoc" role="listbox" aria-label="SDP 逐行解析"></div>
+      </div>
+      <aside class="expl" aria-live="polite">
+        <div class="expl-in">
+          <span class="expl-tag" id="exTag">选中一行</span>
+          <div class="expl-line" id="exLine">a=…</div>
+          <p class="expl-body" id="exBody">左边这份是 libwebrtc 生成的一个典型 offer。逐行点开，你会发现真正需要你关心的其实不到十行——其余要么是历史包袱，要么是 ICE / DTLS 的自留地。</p>
+          <div class="expl-hint tiny" id="exHint">RFC 4566 定义语法，JSEP 定义 WebRTC 怎么用它</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ §2 交换 ══════════════ -->
+<section class="sec" id="s-exchange" tabindex="0" aria-label="offer answer 交换时序，可用左右方向键切换步骤">
+  <div class="wrap-wide">
+    <p class="eyebrow">二 · 一次没有握手的握手</p>
+    <h2 class="h">九步，看清两封信在两端各自留下了什么</h2>
+    <p class="lede">整场协商只有四个 API 在动：<span class="m">CreateOffer</span> <span class="m">SetLocalDescription</span> <span class="m">CreateAnswer</span> <span class="m">SetRemoteDescription</span>。难点从来不是调用顺序，而是<strong>每一步之后，两端各自处在什么状态、手里有哪几份描述</strong>。</p>
+
+    <div class="stage" id="stage">
+      <div class="peer peer-a" id="peerA">
+        <div class="peer-hd">
+          <svg viewBox="0 0 38 44" style="color:#C9502B" aria-hidden="true"><use href="#bot"/></svg>
+          <span><span class="peer-name">Peer A</span><span class="peer-role">发起方 / OFFERER</span></span>
+        </div>
+        <div class="state-row">
+          <span class="state-lb">signalingState</span>
+          <span class="state" id="stA">stable</span>
+        </div>
+        <div class="slots">
+          <div class="slot" id="slAL"><span class="sn">localDescription</span><span class="sv">空</span></div>
+          <div class="slot" id="slAR"><span class="sn">remoteDescription</span><span class="sv">空</span></div>
+        </div>
+      </div>
+
+      <div class="spine">
+        <span class="spine-lb">信令通道 · 你自己实现</span>
+        <div class="packet" id="packet"></div>
+      </div>
+
+      <div class="peer peer-b" id="peerB">
+        <div class="peer-hd">
+          <svg viewBox="0 0 38 44" style="color:#2F7A5F" aria-hidden="true"><use href="#bot"/></svg>
+          <span><span class="peer-name">Peer B</span><span class="peer-role">应答方 / ANSWERER</span></span>
+        </div>
+        <div class="state-row">
+          <span class="state-lb">signalingState</span>
+          <span class="state" id="stB">stable</span>
+        </div>
+        <div class="slots">
+          <div class="slot" id="slBL"><span class="sn">localDescription</span><span class="sv">空</span></div>
+          <div class="slot" id="slBR"><span class="sn">remoteDescription</span><span class="sv">空</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="readout">
+      <div class="step-card" id="stepCard">
+        <span class="step-no" id="stepNo">步骤 00 / 09</span>
+        <p class="step-t" id="stepT">起点</p>
+        <p class="step-d" id="stepD"></p>
+      </div>
+      <div class="src-card">
+        <span class="src-lb">在这个仓库里</span>
+        <a class="src-p" id="srcP" href="#">—</a>
+        <p class="src-n" id="srcN"></p>
+      </div>
+    </div>
+
+    <div class="ctrl">
+      <button class="btn" id="btnPrev" aria-label="上一步">← 上一步</button>
+      <button class="btn pri" id="btnPlay">▶ 自动播放</button>
+      <button class="btn" id="btnNext" aria-label="下一步">下一步 →</button>
+      <div class="rail" id="rail" role="group" aria-label="跳转到某一步"></div>
+      <span class="ctrl-n" id="ctrlN">0 / 9</span>
+    </div>
+
+    <div class="ice-bridge" id="iceBridge">
+      <div class="bridge-hd">
+        <div>
+          <span class="bridge-kicker">补一张时间表 · SDP × ICE</span>
+          <h3 class="h">不是接力赛：Answer 还在路上，ICE 已经开始跑了</h3>
+        </div>
+        <p class="lede">SDP 先提供 <strong>mid、ICE 账号和 DTLS 指纹</strong>；candidate 则通过同一条信令通道持续 trickle。某一端条件够了就先检查，<strong>没有“等双方一起完成”的全局开关</strong>。</p>
+      </div>
+
+      <div class="pipe-contrast">
+        <div class="contrast-item myth">
+          <span class="contrast-lb">常见误解 · 完全串行</span>
+          <code>SDP 完成 → 收完所有 candidate → 开始 ICE 检查</code>
+        </div>
+        <div class="contrast-item">
+          <span class="contrast-lb">真实执行 · 两条轨道交叠</span>
+          <div class="overlap-bars" aria-label="SDP 协商与 ICE 收集检查在时间上重叠">
+            <span class="overlap-bar sdp">SDP · Offer / Answer</span>
+            <span class="overlap-bar ice">ICE · gathering / checking</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pipe-shell">
+        <div class="pipe-scroll">
+          <div class="pipe-steps" id="pipeSteps" role="tablist" aria-label="SDP 与 ICE 交叠时序"></div>
+        </div>
+        <div class="pipe-detail" id="pipePanel" role="tabpanel" aria-live="polite">
+          <div class="pipe-copy">
+            <span class="pipe-phase" id="pipePhase">阶段 1 / 5</span>
+            <h4 class="pipe-title" id="pipeTitle"></h4>
+            <p class="pipe-desc" id="pipeDesc"></p>
+          </div>
+          <div class="ready-grid">
+            <div class="ready-peer a">
+              <div class="ready-hd"><span class="ready-name">发起端 A</span><span class="ready-state" id="readyStateA"></span></div>
+              <div class="ready-checks" id="readyA"></div>
+            </div>
+            <div class="ready-peer b">
+              <div class="ready-hd"><span class="ready-name">应答端 B</span><span class="ready-state" id="readyStateB"></span></div>
+              <div class="ready-checks" id="readyB"></div>
+            </div>
+          </div>
+        </div>
+        <p class="pipe-rule"><b>单端开始完整检查的条件：</b>localDescription + remoteDescription + 至少一个 local candidate + 至少一个 remote candidate。candidate 若早于 remoteDescription 到达，应用层先缓存，设置远端描述后再调用 <span class="m">addIceCandidate()</span>。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ §3 3D 分层 ══════════════ -->
+<section class="sec" id="s-layers">
+  <div class="wrap">
+    <p class="eyebrow">三 · 为什么一份 SDP 要分层</p>
+    <h2 class="h">m-section 是叠上去的，BUNDLE 把它们的管道并成一根</h2>
+    <p class="lede">一份 SDP = 一块会话底板 + 若干块媒体面板。每块面板<strong>本来</strong>都自带一整套传输参数（ICE 账号、DTLS 指纹、端口），意味着音频一条通道、视频一条通道，各打一次洞、各握一次手。<span class="m">a=group:BUNDLE</span> 做的事就是：让它们共用一根管道，靠 <span class="m">a=mid</span> 在包里区分归属。</p>
+
+    <div class="layers">
+      <div class="scene bundled" id="scene" role="img" aria-label="立体示意：会话底板之上叠着 audio 与 video 两块 m-section 面板，下方连着传输通道">
+        <span class="scene-hint" id="sceneHint">拖动可旋转</span>
+        <div class="scene-fb">3D 视图需要联网加载 Three.js<br>右侧的对照说明不受影响</div>
+      </div>
+
+      <div>
+        <button class="tog" id="togBundle" aria-pressed="true">
+          <span class="led" aria-hidden="true"></span>
+          <span id="togTxt">a=group:BUNDLE 0 1 —— 已启用</span>
+        </button>
+        <div class="cmp" id="cmpBox"></div>
+        <p class="note" style="margin-top:20px">所以你会在 SDP 里看到 <span class="m">a=ice-ufrag</span> 和 <span class="m">a=fingerprint</span> 在每个 m-section 里重复出现——那是写给不支持 BUNDLE 的老对端看的。协商成功后，实际只有第一节里的那份在起作用。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ §4 协商内容 ══════════════ -->
+<section class="sec" id="s-negotiate">
+  <div class="wrap">
+    <p class="eyebrow">四 · 到底在谈什么</p>
+    <h2 class="h">谈判只有两件事：用哪个编码，往哪个方向流</h2>
+    <p class="lede">offer 说的是「我<strong>能</strong>做这些」，answer 说的是「那我们<strong>就</strong>用这些」。answer 永远是 offer 的子集——应答方只能删，不能加。</p>
+
+    <div class="duo">
+      <div class="panel">
+        <h3 class="sub">编解码：取交集，编号跟着 offer 走</h3>
+        <p class="note" style="margin-bottom:18px">payload type（96、97…）是<b>本次会话内的临时编号</b>，由 offer 分配。answer 必须沿用同样的号码，不能自己重排。</p>
+
+        <span class="side-lb a">A 支持（写进 offer）</span>
+        <div class="codecs" id="cdA"></div>
+        <span class="side-lb b">B 支持（用来取交集）</span>
+        <div class="codecs" id="cdB"></div>
+
+        <div class="out" id="outOffer"><span class="out-lb">OFFER 的 m 行</span><span class="out-v" id="vOffer"></span></div>
+        <div class="out" id="outAnswer"><span class="out-lb">ANSWER 的 m 行</span><span class="out-v" id="vAnswer"></span></div>
+        <p class="verdict" id="cdVerdict"></p>
+      </div>
+
+      <div class="panel">
+        <h3 class="sub">方向：一行属性决定媒体往哪流</h3>
+        <p class="note" style="margin-bottom:18px">方向属性写在 m-section 里，站在<b>书写者自己的视角</b>。所以 answer 的方向是 offer 的镜像——这正是新手最容易绕晕的地方。</p>
+
+        <span class="side-lb a">A 在 offer 里写</span>
+        <div class="dirs" id="dirBtns"></div>
+
+        <div class="flow">
+          <div class="arrow-row dl" id="arrDown">
+            <span class="who pa">A</span>
+            <div class="track"><i></i><span class="cap">A 的媒体 → B</span></div>
+            <span class="who pb">B</span>
+          </div>
+          <div class="arrow-row rtl ul" id="arrUp">
+            <span class="who pa">A</span>
+            <div class="track"><i></i><span class="cap">B 的媒体 → A</span></div>
+            <span class="who pb">B</span>
+          </div>
+        </div>
+
+        <div class="out" style="margin-top:14px"><span class="out-lb">B 在 answer 里必须写</span><span class="out-v" id="vDir"></span></div>
+        <p class="verdict" id="dirVerdict"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ §5 陷阱 ══════════════ -->
+<section class="sec" id="s-pitfalls">
+  <div class="wrap">
+    <p class="eyebrow">五 · 会出错的地方</p>
+    <h2 class="h">两边同时开口，谈判就卡死了</h2>
+    <p class="lede">状态机不允许一端在 <span class="m">have-local-offer</span> 时接收另一个 offer。双方同时 <span class="m">CreateOffer</span> 时（术语叫 <strong>glare</strong>），必须有一方撤回自己的提案——这就是 <span class="m">SdpType::kRollback</span> 存在的理由。</p>
+
+    <div class="glare">
+      <div class="gp a" id="gpA">
+        <span class="gn">PEER A · 礼貌方 polite</span>
+        <span class="gs" id="gsA">stable</span>
+        <span class="gx" id="gxA">等待动作</span>
+      </div>
+      <div class="gp b" id="gpB">
+        <span class="gn">PEER B · 强硬方 impolite</span>
+        <span class="gs" id="gsB">stable</span>
+        <span class="gx" id="gxB">等待动作</span>
+      </div>
+    </div>
+    <div class="ctrl" style="margin-top:0">
+      <button class="btn pri" id="gBtn">① 两端同时 CreateOffer</button>
+      <button class="btn" id="gReset">重置</button>
+    </div>
+
+    <h3 class="sub" style="margin-top:48px">另外四个常见坑</h3>
+    <div class="pit">
+      <div class="pit-i">
+        <span class="pit-k">手改 SDP</span>
+        <p class="pit-b"><b>直接用字符串替换改 SDP，正在被官方收紧</b>仓库里新增了 <span class="m">DetermineSdpMungingType()</span>，配合 field trial <span class="m">WebRTC-NoSdpMangle</span> 检测并可能拒绝被手改过的描述。改 ufrag / pwd 尤其致命——ICE 校验会直接失败。要改能力，用 <span class="m">setCodecPreferences</span> 和 transceiver API，别动文本。</p>
+      </div>
+      <div class="pit-i">
+        <span class="pit-k">m 行顺序</span>
+        <p class="pit-b"><b>重新协商时，m-section 只能追加，不能删除或重排</b>每个 m-section 的位置就是它的身份（<span class="m">m-line index</span>）。要停掉一路媒体，把它的方向改成 <span class="m">a=inactive</span> 或端口置 0，而不是把那一节删掉。</p>
+      </div>
+      <div class="pit-i">
+        <span class="pit-k">fmtp 不匹配</span>
+        <p class="pit-b"><b>协商成功但画面全黑，八成是 H.264 的 fmtp 对不上</b>两端都写了 <span class="m">H264</span>，但 <span class="m">profile-level-id</span> 或 <span class="m">packetization-mode</span> 不一致时，协商照样通过，解码却出不来图。排查时先 diff 两端的 <span class="m">a=fmtp</span> 行。</p>
+      </div>
+      <div class="pit-i">
+        <span class="pit-k">信令必须可信</span>
+        <p class="pit-b"><b>SDP 的安全性完全寄托在信令通道上</b><span class="m">a=fingerprint</span> 是 DTLS 证书的哈希，DTLS 靠它确认对端身份。如果信令走明文 HTTP，中间人换掉这一行就能完成一次完美的窃听。信令必须走 <span class="m">HTTPS / WSS</span>。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ §6 源码地图 ══════════════ -->
+<section class="sec" id="s-map">
+  <div class="wrap">
+    <p class="eyebrow">六 · 落到这个 checkout 上</p>
+    <h2 class="h">每个概念对应的文件</h2>
+    <p class="lede">路径相对本页所在的 <code>Learning/</code> 目录，用浏览器直接点开即可。</p>
+
+    <table class="map">
+      <thead><tr><th>概念</th><th>文件</th><th>看什么</th></tr></thead>
+      <tbody>
+        <tr><td>offer/answer 状态机</td>
+          <td><a href="../src/pc/sdp_offer_answer.cc">src/pc/sdp_offer_answer.cc</a></td>
+          <td>整场协商的主战场。状态迁移、m-section 匹配、重新协商判定都在这里。</td></tr>
+        <tr><td>SDP 文本 ↔ 对象</td>
+          <td><a href="../src/api/webrtc_sdp.h">src/api/webrtc_sdp.h</a></td>
+          <td><span class="cm">SdpSerialize()</span> / <span class="cm">SdpDeserialize()</span>。注意 <span class="cm">pc/webrtc_sdp.h</span> 现在只是一个转发头。</td></tr>
+        <tr><td>描述与类型</td>
+          <td><a href="../src/api/jsep.h">src/api/jsep.h</a></td>
+          <td><span class="cm">SessionDescriptionInterface</span>、<span class="cm">IceCandidateInterface</span>，以及 <span class="cm">SdpType{kOffer,kPrAnswer,kAnswer,kRollback}</span>。</td></tr>
+        <tr><td>信令状态枚举</td>
+          <td><a href="../src/api/peer_connection_interface.h">src/api/peer_connection_interface.h</a></td>
+          <td><span class="cm">SignalingState</span> 六个取值，以及 CreateOffer / SetLocalDescription 的接口声明。</td></tr>
+        <tr><td>手改 SDP 检测</td>
+          <td><a href="../src/pc/sdp_munging_detector.h">src/pc/sdp_munging_detector.h</a></td>
+          <td>2025 年新增。判断描述是否被改过、是否允许，以及改了哪一类。</td></tr>
+        <tr><td>payload type 分配</td>
+          <td><a href="../src/pc/sdp_payload_type_suggester.h">src/pc/sdp_payload_type_suggester.h</a></td>
+          <td>动态 PT 号（96+）怎么在一次会话里保持一致。</td></tr>
+        <tr><td>simulcast 的 SDP</td>
+          <td><a href="../src/pc/simulcast_sdp_serializer.h">src/pc/simulcast_sdp_serializer.h</a></td>
+          <td><span class="cm">a=simulcast</span> 与 <span class="cm">a=rid</span> 的序列化，多档编码时才会用到。</td></tr>
+        <tr><td>示例：信令消息收发</td>
+          <td><a href="../src/examples/peerconnection/client/conductor.cc">src/examples/peerconnection/client/conductor.cc</a></td>
+          <td>把 SDP 和 candidate 包成 JSON（<span class="cm">"type" / "sdp" / "candidate" / "sdpMid" / "sdpMLineIndex"</span>）再发出去。整条链路最值得读的一份文件。</td></tr>
+        <tr><td>示例：最简信令服务器</td>
+          <td><a href="../src/examples/peerconnection/server/">src/examples/peerconnection/server/</a></td>
+          <td>几百行 C++ 的 HTTP 长轮询中转站，可直接编译起来跑通两端。</td></tr>
+        <tr><td>示例：iOS 侧信令</td>
+          <td><a href="../src/examples/objc/AppRTCMobile/ARDSignalingMessage.m">src/examples/objc/AppRTCMobile/ARDSignalingMessage.m</a></td>
+          <td>Objective-C 版的信令消息编解码，配合 <span class="cm">ARDWebSocketChannel</span> 使用。注意它对接的 appr.tc 公共服务已停用，只能当代码参考。</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fin">
+      <p style="margin:0">读代码的顺序建议：先跑通 <code>examples/peerconnection</code> 的 client + server，看清一封信怎么从 A 走到 B；再回头读 <code>pc/sdp_offer_answer.cc</code>，那时候状态机才有意义。</p>
+      <p class="fm">WebRTC 学习笔记 · SDP 交换 · 基于本地 checkout src@6af87f3957</p>
+    </div>
+  </div>
+</footer>
+
+</main>
+
+<script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+const $ = (s,r)=> (r||document).querySelector(s);
+const $$ = (s,r)=> Array.from((r||document).querySelectorAll(s));
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ═══════════════════ §1 SDP 解剖 ═══════════════════ */
+const CATS = {
+  id   :{name:'会话身份', color:'#6A5C50'},
+  mux  :{name:'分组复用', color:'#7A4A63'},
+  media:{name:'媒体',     color:'#C9502B'},
+  ice  :{name:'连接 ICE', color:'#2F7A5F'},
+  dtls :{name:'安全 DTLS',color:'#A33B47'},
+  codec:{name:'编解码',   color:'#3F5B66'}
+};
+
+const LINES = [
+  {g:'会话级 · 第一个 m= 之前的所有行，管整份描述'},
+  {t:'v=0', c:'id', h:'RFC 4566', d:'SDP 版本号。<b>永远是 0</b>，从 1998 年至今没有过第二个版本。看到它就跳过。'},
+  {t:'o=- 4611731400430051336 2 IN IP4 127.0.0.1', c:'id', h:'origin', d:'依次是：用户名（WebRTC 一律填 <b>-</b>）、会话 ID、<b>会话版本号</b>、网络类型、地址。重新协商时版本号 +1，对端靠它判断这是不是同一会话的新版本。地址填 127.0.0.1 是因为真实地址由 ICE 负责，这里没人看。'},
+  {t:'s=-', c:'id', h:'session name', d:'会话名。WebRTC 一律填 <b>-</b>。纯历史包袱。'},
+  {t:'t=0 0', c:'id', h:'timing', d:'会话的起止时间，<b>0 0 表示永久有效</b>。同样是从多播会议时代继承下来的字段，WebRTC 里没有意义。'},
+  {t:'a=group:BUNDLE 0 1', c:'mux', h:'RFC 9143', d:'把 <b>mid 为 0 和 1</b> 的两个 m-section 合并到同一条传输通道上。没有它，音频视频要各自打一次洞、各握一次 DTLS、占两组端口。这是现代 WebRTC 里最重要的一行之一。'},
+  {t:'a=extmap-allow-mixed', c:'media', h:'RFC 8285', d:'允许在同一路 RTP 里混用一字节和两字节的扩展头。扩展头一多就需要它。'},
+  {t:'a=msid-semantic: WMS stream0', c:'media', h:'msid', d:'声明后面 <b>a=msid</b> 的语义，用于把各条轨道归到同一个 MediaStream。前端拿到的 <b>ontrack</b> 事件里的 stream 分组就来自这里。'},
+
+  {g:'媒体级 · <b>m=audio</b>，直到下一个 m= 为止'},
+  {t:'m=audio 9 UDP/TLS/RTP/SAVPF 111 63 0 8', c:'media', h:'media description', d:'一个 m-section 的开头：媒体类型、端口、传输协议、<b>按优先级排列的 payload type 列表</b>。端口写 9（丢弃端口）是占位，真实端口由 ICE 决定；<b>把端口改成 0 表示拒绝这一路媒体</b>。SAVPF = 加密 + 带反馈的 RTP。'},
+  {t:'c=IN IP4 0.0.0.0', c:'media', h:'connection', d:'连接地址。同样是占位符，实际地址全部由 <b>a=candidate</b> 提供。'},
+  {t:'a=rtcp:9 IN IP4 0.0.0.0', c:'media', h:'rtcp', d:'RTCP 的地址端口，占位。开了 rtcp-mux 之后它就没用了。'},
+  {t:'a=ice-ufrag:4ZcD', c:'ice', h:'RFC 8445', d:'ICE 用户名片段。对端发来的<b>每一个 STUN 连通性检查包</b>都要带上它，用来证明「这个包属于这次会话」。'},
+  {t:'a=ice-pwd:2/1muCWoOi3uLifh0NuRHlZ6', c:'ice', h:'RFC 8445', d:'ICE 口令，给 STUN 请求做完整性校验（MESSAGE-INTEGRITY）。<b>手改这一行连接必挂</b>，而且报错信息通常毫无提示。'},
+  {t:'a=ice-options:trickle', c:'ice', h:'trickle ICE', d:'声明支持 <b>trickle</b>：candidate 可以在 offer 发出之后再陆续送达，不必等收集完再发。这就是为什么建连能比「先收集完再发」快好几百毫秒。'},
+  {t:'a=fingerprint:sha-256 4A:AD:B9:B1:3F:82:18:3B:…', c:'dtls', h:'RFC 8122', d:'本端 DTLS 证书的哈希。握手时拿到的证书必须和这一行对得上。<b>整个 WebRTC 的端到端加密，信任根就是这一行</b>——而它的可信度完全来自信令通道，所以信令必须走 HTTPS/WSS。'},
+  {t:'a=setup:actpass', c:'dtls', h:'RFC 4145', d:'DTLS 角色协商。offer 写 <b>actpass</b>（客户端服务端都行），answer 必须明确选 <b>active</b> 或 <b>passive</b>。选 active 的一方主动发起握手。'},
+  {t:'a=mid:0', c:'mux', h:'RFC 9143', d:'这个 m-section 的标识。BUNDLE 生效后，一条通道上的所有包靠 RTP 扩展头里携带的 <b>mid</b> 判断属于哪一路。也是 <b>transceiver.mid</b> 的来源。'},
+  {t:'a=sendrecv', c:'media', h:'direction', d:'方向：<b>我既发也收</b>。站在写这份 SDP 的人的视角。另外三个取值是 sendonly / recvonly / inactive。'},
+  {t:'a=rtcp-mux', c:'mux', h:'RFC 5761', d:'RTP 和 RTCP <b>共用一个端口</b>。省一半的端口和一半的 ICE 检查。现代 WebRTC 默认开启。'},
+  {t:'a=rtpmap:111 opus/48000/2', c:'codec', h:'rtpmap', d:'payload type <b>111 = Opus</b>，48kHz，双声道。注意 111 这个号是<b>本次会话内临时分配的</b>，不是全局常量——换个浏览器可能就变成别的数字。'},
+  {t:'a=fmtp:111 minptime=10;useinbandfec=1', c:'codec', h:'fmtp', d:'给 111 这个编解码的具体参数：最小打包时长 10ms、开启带内 FEC。<b>fmtp 是最容易出「协商成功但没画面／没声音」的地方</b>。'},
+  {t:'a=rtpmap:0 PCMU/8000', c:'codec', h:'static PT', d:'payload type 0 = G.711 μ-law。0~95 是 RFC 3551 定死的静态编号，留作保底。'},
+
+  {g:'媒体级 · <b>m=video</b>，第二个 m-section'},
+  {t:'m=video 9 UDP/TLS/RTP/SAVPF 96 97', c:'media', h:'media description', d:'视频这一节，提供两个动态 payload type。<b>顺序即偏好</b>：96 排在前面表示 A 更希望用它。'},
+  {t:'a=ice-ufrag:4ZcD', c:'ice', h:'重复出现', d:'和音频那节<b>一模一样</b>。这是写给不支持 BUNDLE 的老对端看的兼容内容；BUNDLE 协商成功后，实际只有第一节里的那份生效。'},
+  {t:'a=mid:1', c:'mux', h:'RFC 9143', d:'第二个 m-section 的标识，对应 <b>a=group:BUNDLE 0 1</b> 里的那个 1。'},
+  {t:'a=sendrecv', c:'media', h:'direction', d:'视频也是双向。'},
+  {t:'a=rtpmap:96 VP8/90000', c:'codec', h:'rtpmap', d:'PT 96 = VP8。<b>90000 是视频固定的 RTP 时钟频率</b>，所有视频编码都用它，既不是分辨率也不是帧率。'},
+  {t:'a=rtpmap:97 H264/90000', c:'codec', h:'rtpmap', d:'PT 97 = H.264。真正决定能不能互通的不是这一行，而是下面那行 fmtp。'},
+  {t:'a=fmtp:97 profile-level-id=42e01f;packetization-mode=1', c:'codec', h:'fmtp', d:'H.264 的 profile（42e01f = Constrained Baseline 3.1）和打包模式。<b>两端这一行对不上，协商照样通过，但画面出不来</b>——这是最经典的「明明都支持 H264 却黑屏」。'}
+];
+
+(function anatomy(){
+  const doc=$('#sdpDoc'), filters=$('#filters');
+  let n=0;
+  LINES.forEach(function(L){
+    if(L.g){
+      const g=document.createElement('span'); g.className='grp'; g.innerHTML=L.g; doc.appendChild(g); return;
+    }
+    n++;
+    const b=document.createElement('button');
+    b.className='ln'; b.type='button'; b.dataset.cat=L.c;
+    b.setAttribute('role','option'); b.setAttribute('aria-selected','false');
+    b.innerHTML='<span class="no">'+n+'</span><span class="tx"></span>';
+    $('.tx',b).textContent=L.t;
+    b.addEventListener('click',function(){ select(b,L); });
+    doc.appendChild(b);
+  });
+
+  function select(btn,L){
+    $$('.ln').forEach(function(x){ x.setAttribute('aria-selected','false'); });
+    btn.setAttribute('aria-selected','true');
+    const cat=CATS[L.c], tag=$('#exTag');
+    tag.textContent=cat.name; tag.style.color=cat.color;
+    $('#exLine').textContent=L.t;
+    $('#exBody').innerHTML=L.d;
+    $('#exHint').textContent=L.h;
+  }
+
+  ['all'].concat(Object.keys(CATS)).forEach(function(k,i){
+    const b=document.createElement('button');
+    b.className='chip'; b.type='button';
+    b.textContent = k==='all' ? '全部' : CATS[k].name;
+    b.setAttribute('aria-pressed', i===0?'true':'false');
+    b.addEventListener('click',function(){
+      $$('.chip',filters).forEach(function(c){ c.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true');
+      $$('.ln').forEach(function(ln){
+        const hit=(k==='all')||ln.dataset.cat===k;
+        ln.classList.toggle('dim',!hit);
+        ln.classList.toggle('on',hit&&k!=='all');
+      });
+    });
+    filters.appendChild(b);
+  });
+})();
+
+/* ═══════════════════ §2 交换时序 ═══════════════════ */
+const STEPS=[
+  {who:'w',t:'起点',s:['stable','stable'],slots:[0,0,0,0],
+   d:'两端各自建好 <b>PeerConnection</b>、addTrack 完毕，但彼此一无所知。四个描述槽全空——这是唯一一个双方都 stable 且什么都没有的时刻。',
+   src:['../src/examples/peerconnection/client/conductor.cc','示例里 InitializePeerConnection() 之后、按下 Call 之前的状态。']},
+  {who:'a',t:'A: CreateOffer()',s:['stable','stable'],slots:[0,0,0,0],
+   d:'A 问自己的 PeerConnection：「我能收发什么？」得到一份 SDP 文本。<b>注意此刻状态没有任何变化</b>——offer 只是一个字符串，还没被采纳，也还没触发 ICE。',
+   src:['../src/api/peer_connection_interface.h','CreateOffer(observer, options)。示例中的调用见 conductor.cc:232。']},
+  {who:'a',t:'A: SetLocalDescription(offer)',s:['have-local-offer','stable'],slots:[1,0,0,0],
+   d:'A 采纳自己的提案，状态进入 <b>have-local-offer</b>。真正的副作用在这里：<b>ICE 开始收集 candidate</b>，DTLS 证书就位。从现在起 A 只接受 answer，再来一个 offer 会被拒绝。',
+   src:['../src/pc/sdp_offer_answer.cc','状态迁移与 ICE 启动的入口，SetLocalDescription 的实现主体在此。']},
+  {who:'w',t:'信令：A → B  {type:"offer", sdp:"…"}',s:['have-local-offer','stable'],slots:[1,0,0,0],
+   d:'跨过虚线的这一步<b>不属于 WebRTC</b>。WebSocket、HTTP、MQTT、二维码、手动复制粘贴都行——库不关心，也不提供。这也是为什么每个 WebRTC 项目都要自己写一个信令服务。',
+   src:['../src/examples/peerconnection/client/conductor.cc','把描述序列化成 JSON：键名是 "type" 和 "sdp"。中转由 examples/peerconnection/server 完成。']},
+  {who:'b',t:'B: SetRemoteDescription(offer)',s:['have-local-offer','have-remote-offer'],slots:[1,0,0,1],
+   d:'B 收下对方的提案，进入 <b>have-remote-offer</b>。此刻 B 才第一次知道对方要发几路、什么编码——<b>ontrack 事件在这一步触发</b>，尽管一个字节的媒体都还没到。',
+   src:['../src/api/jsep.h','描述由 SdpDeserialize() 解析成 SessionDescriptionInterface，类型为 SdpType::kOffer。']},
+  {who:'b',t:'B: CreateAnswer()',s:['have-local-offer','have-remote-offer'],slots:[1,0,0,1],
+   d:'B 在「对方的能力」和「自己的能力」<b>交集</b>里做选择，生成 answer。answer 永远是 offer 的子集：只能删、不能加，payload type 编号也必须沿用 offer 的。',
+   src:['../src/pc/sdp_offer_answer.cc','编解码取交集、方向取镜像、m-section 逐个对齐都在这里完成。']},
+  {who:'b',t:'B: SetLocalDescription(answer)',s:['have-local-offer','stable'],slots:[1,0,1,1],
+   d:'B 采纳自己的答复，<b>回到 stable</b>。B 这一侧的协商已经结束，它的 ICE 也开始收集。注意此时 A 仍卡在 have-local-offer——协商是不对称的。',
+   src:['../src/api/peer_connection_interface.h','SignalingState 六个取值：kStable / kHaveLocalOffer / kHaveLocalPrAnswer / kHaveRemoteOffer / kHaveRemotePrAnswer / kClosed。']},
+  {who:'w',t:'信令：B → A  {type:"answer", sdp:"…"}',s:['have-local-offer','stable'],slots:[1,0,1,1],
+   d:'answer 沿着同一条自建通道回传。<b>格式和 offer 完全一样</b>，区别只在 type 字段——这也是为什么很多人第一次读代码时会觉得两者「长得一模一样」。',
+   src:['../src/examples/peerconnection/client/conductor.cc','收到消息后按 "type" 分派：是 offer 就 CreateAnswer，是 answer 就直接 SetRemoteDescription。']},
+  {who:'a',t:'A: SetRemoteDescription(answer)',s:['stable','stable'],slots:[1,1,1,1],
+   d:'A 收下答复，<b>回到 stable</b>。四个描述槽全满，offer/answer 到此结束。<b>但连接还没建立</b>——协商谈的是「用什么」，真正打通链路是 ICE 的事。',
+   src:['../src/pc/sdp_offer_answer.cc','两端都回到 kStable 后，才允许发起下一轮重新协商。']},
+  {who:'w',t:'ICE：candidate 双向 trickle',s:['stable','stable'],slots:[1,1,1,1],
+   d:'candidate 走<b>同一条信令通道</b>，但它<b>不属于 offer/answer</b>——从第 2 步就已经在陆续发送，和上面几步并行。连通性检查通过、DTLS 握完手之后，媒体才真正开始流动。',
+   src:['../src/examples/peerconnection/client/conductor.cc','OnIceCandidate 里把 candidate 包成 JSON："candidate" / "sdpMid" / "sdpMLineIndex" 三个键。']}
+];
+
+(function exchange(){
+  const stA=$('#stA'), stB=$('#stB'), pk=$('#packet');
+  const slots=[$('#slAL'),$('#slAR'),$('#slBL'),$('#slBR')];
+  const slotType=['offer','answer','answer','offer'];
+  const rail=$('#rail');
+  let i=0, timer=null;
+
+  STEPS.forEach(function(_,n){
+    const d=document.createElement('button');
+    d.className='dot'; d.type='button';
+    d.setAttribute('aria-label','跳到步骤 '+n);
+    d.addEventListener('click',function(){ stop(); go(n); });
+    rail.appendChild(d);
+  });
+  const dots=$$('.dot',rail);
+
+  function render(prev){
+    const S=STEPS[i];
+    stA.textContent=S.s[0]; stB.textContent=S.s[1];
+    slots.forEach(function(el,n){
+      const full=S.slots[n]===1;
+      el.classList.toggle('full',full);
+      $('.sv',el).textContent = full ? slotType[n] : '空';
+    });
+    $('#peerA').classList.toggle('act',S.who==='a');
+    $('#peerB').classList.toggle('act',S.who==='b');
+
+    $('#stepCard').className='step-card who-'+S.who;
+    $('#stepNo').textContent='步骤 '+String(i).padStart(2,'0')+' / 09';
+    $('#stepT').textContent=S.t;
+    $('#stepD').innerHTML=S.d;
+    $('#srcP').textContent=S.src[0].replace('../','');
+    $('#srcP').setAttribute('href',S.src[0]);
+    $('#srcN').textContent=S.src[1];
+    $('#ctrlN').textContent=i+' / '+(STEPS.length-1);
+
+    dots.forEach(function(d,n){
+      d.setAttribute('aria-current',n===i?'true':'false');
+      d.classList.toggle('done',n<i);
+    });
+    $('#btnPrev').disabled=(i===0);
+    $('#btnNext').disabled=(i===STEPS.length-1);
+
+    const wire=(i===3&&'offer')||(i===7&&'answer')||(i===9&&'ice')||'';
+    if(wire && prev!==i){
+      const back=(wire==='answer');
+      pk.className='packet '+wire;
+      pk.innerHTML='<svg viewBox="0 0 20 15" aria-hidden="true"><use href="#env"/></svg><span></span>';
+      $('span',pk).textContent = wire==='offer' ? 'type:"offer"'
+                              : wire==='answer' ? 'type:"answer"'
+                              : 'candidate';
+      /* 位移随舞台宽度收缩，窄屏时信件才不会飞出可视区 */
+      const travel=Math.min(200,Math.round(($('#stage').clientWidth||600)*0.18));
+      const from=back?travel:-travel, to=back?-travel:travel;
+      pk.style.transition='none';
+      pk.style.transform='translate(-50%,-50%) translateX('+from+'px) scale(.8)';
+      pk.classList.remove('show');
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){
+        pk.style.transition = reduced ? 'none' : '';
+        pk.classList.add('show');
+        pk.style.transform='translate(-50%,-50%) translateX('+to+'px) scale(1)';
+      });});
+    } else if(!wire){
+      pk.classList.remove('show');
+    }
+  }
+  function go(n){ const p=i; i=Math.max(0,Math.min(STEPS.length-1,n)); render(p); }
+  function stop(){ if(timer){ clearInterval(timer); timer=null; $('#btnPlay').textContent='▶ 自动播放'; $('#btnPlay').classList.add('pri'); } }
+
+  $('#btnPrev').addEventListener('click',function(){ stop(); go(i-1); });
+  $('#btnNext').addEventListener('click',function(){ stop(); go(i+1); });
+  $('#btnPlay').addEventListener('click',function(){
+    if(timer){ stop(); return; }
+    if(i===STEPS.length-1) go(0);
+    $('#btnPlay').textContent='❚❚ 暂停'; $('#btnPlay').classList.remove('pri');
+    timer=setInterval(function(){ if(i>=STEPS.length-1){ stop(); return; } go(i+1); }, reduced?1500:2700);
+  });
+  $('#s-exchange').addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'){ stop(); go(i+1); e.preventDefault(); }
+    if(e.key==='ArrowLeft'){ stop(); go(i-1); e.preventDefault(); }
+  });
+  render(-1);
+})();
+
+/* ═══════════════════ §2b SDP × ICE 双轨流水线 ═══════════════════ */
+const PIPE_PHASES=[
+  {side:'a',tab:'A 设置本地 Offer',title:'A 采纳 Offer，ICE gathering 从这里启动',
+   desc:'<span class="m">createOffer()</span> 只生成文本；<span class="m">setLocalDescription(offer)</span> 才创建本端 ICE generation、准备 DTLS 证书并开始收集 candidate。Offer 可以立刻发，不必等收集结束。',
+   a:[1,0,2,0],b:[0,0,0,0],as:'正在收集，尚不能检查',bs:'尚未收到 Offer'},
+  {side:'b',tab:'B 设置远端 Offer',title:'B 先拿到 A 的 ICE 凭据和 candidate',
+   desc:'<span class="m">setRemoteDescription(offer)</span> 让 B 知道 A 的 <b>ufrag / pwd / mid</b>。下面假设 A 的首个 candidate 已经 trickle 到达；B 仍缺自己的 localDescription 和 local candidate，暂时组不成候选对。',
+   a:[1,0,1,0],b:[0,1,0,1],as:'等待 Answer',bs:'只具备远端一半信息'},
+  {side:'b',tab:'B 设置本地 Answer',title:'B 条件先凑齐，就可以先发 STUN 检查',
+   desc:'B 调用 <span class="m">setLocalDescription(answer)</span> 后开始收集自己的 candidate。一旦本地和远端各到一个，它就能形成 candidate pair；即使 Answer 还在信令网络里，<b>B 也可以先向 A 探测</b>。',
+   a:[1,0,1,0],b:[1,1,1,1],as:'可响应探测，仍等待 Answer',bs:'条件满足 · 可以先检查'},
+  {side:'a',tab:'A 设置远端 Answer',title:'A 拿到 B 的 ICE 凭据，双方都能完整检查',
+   desc:'A 调用 <span class="m">setRemoteDescription(answer)</span> 后，才能把 B 的 candidate 与自己的 candidate 正式配成对。此前提前到达的 candidate 应先缓存，此刻再交给 <span class="m">addIceCandidate()</span>。',
+   a:[1,1,1,1],b:[1,1,1,1],as:'条件满足 · 可以检查',bs:'检查可继续并行'},
+  {side:'ice',tab:'选中 candidate pair',title:'第一条可用路径打通，随后才轮到 DTLS 和媒体',
+   desc:'连通性检查成功并完成 nomination 后，ICE 进入 <span class="m">connected</span>。此时其他 candidate 仍可能继续收集和检查；选中的路径上接着进行 <b>DTLS 握手 → 导出 SRTP 密钥 → 传输媒体</b>。',
+   a:[1,1,1,1],b:[1,1,1,1],as:'ICE connected',bs:'ICE connected'}
+];
+
+(function icePipeline(){
+  const labels=['localDescription','remoteDescription','local candidate','remote candidate'];
+  const host=$('#pipeSteps');
+  let cur=0;
+
+  function buildReady(target){
+    labels.forEach(function(label){
+      const chip=document.createElement('span');
+      chip.className='ready-chip'; chip.textContent=label;
+      target.appendChild(chip);
+    });
+  }
+  buildReady($('#readyA')); buildReady($('#readyB'));
+
+  PIPE_PHASES.forEach(function(p,n){
+    const btn=document.createElement('button');
+    btn.className='pipe-step '+p.side; btn.type='button'; btn.setAttribute('role','tab');
+    btn.setAttribute('aria-controls','pipePanel'); btn.setAttribute('aria-selected','false');
+    btn.innerHTML='<span class="pipe-step-no">'+String(n+1).padStart(2,'0')+'</span><span class="pipe-step-t"></span>';
+    $('.pipe-step-t',btn).textContent=p.tab;
+    btn.addEventListener('click',function(){ paint(n); });
+    btn.addEventListener('keydown',function(e){
+      if(e.key==='ArrowRight'){ paint(Math.min(PIPE_PHASES.length-1,n+1),true); e.preventDefault(); }
+      if(e.key==='ArrowLeft'){ paint(Math.max(0,n-1),true); e.preventDefault(); }
+    });
+    host.appendChild(btn);
+  });
+  const tabs=$$('.pipe-step',host);
+
+  function paintPeer(target,values,state){
+    $$('.ready-chip',target).forEach(function(chip,n){
+      chip.classList.toggle('on',values[n]===1);
+      chip.classList.toggle('work',values[n]===2);
+    });
+    state.textContent=state===$('#readyStateA') ? PIPE_PHASES[cur].as : PIPE_PHASES[cur].bs;
+  }
+  function paint(n,focus){
+    cur=n; const p=PIPE_PHASES[n];
+    tabs.forEach(function(tab,i){ tab.setAttribute('aria-selected',i===n?'true':'false'); tab.tabIndex=i===n?0:-1; });
+    $('#pipePhase').textContent='阶段 '+(n+1)+' / '+PIPE_PHASES.length;
+    $('#pipeTitle').textContent=p.title;
+    $('#pipeDesc').innerHTML=p.desc;
+    paintPeer($('#readyA'),p.a,$('#readyStateA'));
+    paintPeer($('#readyB'),p.b,$('#readyStateB'));
+    if(focus) tabs[n].focus();
+  }
+  paint(0);
+})();
+
+/* ═══════════════════ §3 Three.js 分层 ═══════════════════ */
+(function layers(){
+  const host=$('#scene'), hint=$('#sceneHint'), tog=$('#togBundle'), txt=$('#togTxt'), box=$('#cmpBox');
+  let bundled=true;
+
+  const COPY={
+    on:[['一条通道','音视频共用一组 ICE candidate、一次 DTLS 握手、一个端口。'],
+        ['靠 mid 区分','包到达后，看 RTP 扩展头里的 mid 决定交给哪一路。'],
+        ['代价','两端都必须支持 BUNDLE；协商失败时要能退回多通道。'],
+        ['现状','现代浏览器与 libwebrtc 默认开启，你几乎总能看到 a=group:BUNDLE。']],
+    off:[['两条通道','音频、视频各自打洞、各自握手，ICE 检查次数翻倍。'],
+         ['端口','占用两组端口，NAT 映射表也多一份。'],
+         ['建连更慢','两套连通性检查更耗时，首帧延迟明显增加。'],
+         ['何时会遇到','对端太老，或者中间设备把 BUNDLE 属性剥掉了。']]
+  };
+  function paintCopy(){
+    box.innerHTML='';
+    COPY[bundled?'on':'off'].forEach(function(r){
+      const d=document.createElement('div'); d.className='cmp-row';
+      d.innerHTML='<span class="cmp-k"></span><span></span>';
+      d.children[0].textContent=r[0]; d.children[1].textContent=r[1];
+      box.appendChild(d);
+    });
+    txt.textContent = bundled ? 'a=group:BUNDLE 0 1 —— 已启用' : '没有 BUNDLE —— 两条独立通道';
+  }
+  tog.addEventListener('click',function(){
+    bundled=!bundled;
+    tog.setAttribute('aria-pressed',bundled?'true':'false');
+    paintCopy();
+    if(onBundle) onBundle(bundled);
+  });
+  paintCopy();
+
+  let onBundle=null;
+  if(typeof THREE==='undefined'){ host.classList.add('failed'); return; }
+
+  /* ── 场景 ── */
+  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.setSize(host.clientWidth,host.clientHeight);
+  host.insertBefore(renderer.domElement,hint);
+
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(32,host.clientWidth/host.clientHeight,0.1,120);
+
+  scene.add(new THREE.AmbientLight(0xFFF7F0,2.2));
+  const key=new THREE.DirectionalLight(0xffffff,1.7); key.position.set(4,8,6); scene.add(key);
+  const fill=new THREE.DirectionalLight(0xF6E2D4,0.9); fill.position.set(-6,3,-4); scene.add(fill);
+
+  const rig=new THREE.Group(); scene.add(rig);
+  const INK=0x3D3128;
+  const Y_SESS=0, Y_AUD=0.9, Y_VID=1.8, Y_PIPE=-1.62, Y_CAP=-2.0;
+
+  function panel(y,color){
+    const g=new THREE.BoxGeometry(3.3,0.09,2.05);
+    const mesh=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:color,roughness:.95,metalness:0}));
+    mesh.position.y=y;
+    mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(g),
+      new THREE.LineBasicMaterial({color:INK,transparent:true,opacity:.6})));
+    rig.add(mesh); return mesh;
+  }
+  panel(Y_SESS,0xE3DACF); panel(Y_AUD,0xE9A183); panel(Y_VID,0x93BCA8);
+
+  /* 接触阴影 */
+  (function(){
+    const c=document.createElement('canvas'); c.width=c.height=128;
+    const g=c.getContext('2d');
+    const rg=g.createRadialGradient(64,64,4,64,64,62);
+    rg.addColorStop(0,'rgba(150,134,118,.5)'); rg.addColorStop(1,'rgba(150,134,118,0)');
+    g.fillStyle=rg; g.fillRect(0,0,128,128);
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(5.4,3.6),
+      new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false}));
+    m.rotation.x=-Math.PI/2; m.position.y=Y_PIPE-0.2; rig.add(m);
+  })();
+
+  /* 标签：画成一张纸质小标牌，保证在任何底色上都读得清 */
+  function label(text,dot,h){
+    const fs=44, padX=20, padY=13, dotW=dot?34:0;
+    const font='600 '+fs+'px ui-monospace,"SF Mono",Menlo,"PingFang SC",sans-serif';
+    const c=document.createElement('canvas'); let g=c.getContext('2d');
+    g.font=font;
+    const tw=Math.ceil(g.measureText(text).width);
+    c.width=tw+padX*2+dotW+8; c.height=fs+padY*2+8;
+    g=c.getContext('2d'); g.font=font; g.textBaseline='middle';
+    const r=(c.height-8)/2, x0=4, y0=4, w=c.width-8, hh=c.height-8;
+    g.beginPath();
+    if(g.roundRect) g.roundRect(x0,y0,w,hh,r); else g.rect(x0,y0,w,hh);
+    g.fillStyle='#FDFBF8'; g.fill();
+    g.lineWidth=4; g.strokeStyle='#33271E'; g.stroke();
+    if(dot){ g.beginPath(); g.arc(x0+padX+7,c.height/2,10,0,Math.PI*2); g.fillStyle=dot; g.fill(); }
+    g.fillStyle='#33271E'; g.fillText(text,x0+padX+dotW,c.height/2+2);
+    const tex=new THREE.CanvasTexture(c); tex.anisotropy=4;
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false,depthWrite:false}));
+    const s=h||0.26;
+    sp.scale.set(s*c.width/c.height,s,1);
+    sp.renderOrder=10;
+    return sp;
+  }
+  function place(sp,y){ sp.position.set(-1.66+sp.scale.x/2,y,-0.86); rig.add(sp); return sp; }
+  place(label('会话级  a=group:BUNDLE 0 1',null,.25),Y_SESS+0.3);
+  place(label('m=audio  mid:0  opus/48000/2','#C9502B',.25),Y_AUD+0.3);
+  place(label('m=video  mid:1  VP8/90000','#2F7A5F',.25),Y_VID+0.3);
+
+  /* 管道与引线：统一用「两点之间的圆柱」表达 */
+  function tube(color,r){
+    const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,1,16),
+      new THREE.MeshStandardMaterial({color:color,roughness:.9,metalness:0,transparent:true}));
+    rig.add(m); return m;
+  }
+  const UP=new THREE.Vector3(0,1,0);
+  const vA=new THREE.Vector3(), vB=new THREE.Vector3(), vD=new THREE.Vector3(), vM=new THREE.Vector3();
+  function link(mesh,x1,y1,z1,x2,y2,z2){
+    vA.set(x1,y1,z1); vB.set(x2,y2,z2);
+    vD.subVectors(vB,vA); const len=vD.length()||0.0001;
+    vM.addVectors(vA,vB).multiplyScalar(.5);
+    mesh.position.copy(vM);
+    mesh.scale.set(1,len,1);
+    mesh.quaternion.setFromUnitVectors(UP,vD.normalize());
+  }
+  const pipeA=tube(0xC9502B,.1), pipeB=tube(0x2F7A5F,.1);
+  const leadA=tube(0xC9502B,.038), leadB=tube(0x2F7A5F,.038);
+  const SHARED=new THREE.Color(0x7E959E), COL_A=new THREE.Color(0xC9502B);
+
+  const capOne=label('一条共用通道 · ICE + DTLS',null,.23);
+  const capA=label('通道 1 · audio','#C9502B',.23);
+  const capB=label('通道 2 · video','#2F7A5F',.23);
+  [capOne,capA,capB].forEach(function(s){ s.center.set(.5,.5); rig.add(s); });
+
+  /* ── 交互 ── */
+  let theta=-0.62, phi=1.02, target=0, cur=0, dragged=false, dragging=false, lx=0, ly=0;
+  const R=9.4;
+  function cam(){
+    camera.position.set(R*Math.sin(phi)*Math.sin(theta), R*Math.cos(phi), R*Math.sin(phi)*Math.cos(theta));
+    camera.lookAt(0,0,0);
+  }
+  host.addEventListener('pointerdown',function(e){
+    dragging=true; dragged=true; lx=e.clientX; ly=e.clientY;
+    host.setPointerCapture(e.pointerId); hint.style.opacity='0';
+  });
+  host.addEventListener('pointermove',function(e){
+    if(!dragging) return;
+    theta-=(e.clientX-lx)*0.006;
+    phi=Math.max(0.34,Math.min(1.42,phi-(e.clientY-ly)*0.005));
+    lx=e.clientX; ly=e.clientY;
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
+    host.addEventListener(ev,function(){ dragging=false; });
+  });
+
+  onBundle=function(on){ target=on?0:0.95; };
+  target=0;
+
+  const ro=new ResizeObserver(function(){
+    const w=host.clientWidth,h=host.clientHeight;
+    if(!w||!h) return;
+    renderer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix();
+  });
+  ro.observe(host);
+
+  let visible=true;
+  new IntersectionObserver(function(es){ visible=es[0].isIntersecting; },{threshold:0}).observe(host);
+
+  (function loop(){
+    requestAnimationFrame(loop);
+    if(!visible) return;
+    if(!dragging && !dragged && !reduced) theta+=0.0022;
+    cur+=(target-cur)*(reduced?1:0.09);
+    const t=Math.min(1,cur/0.95);              // 0 = 合并，1 = 分离
+
+    link(pipeA,-cur,-0.05,0,-cur,Y_PIPE,0);
+    link(pipeB, cur,-0.05,0, cur,Y_PIPE,0);
+    link(leadA,0,Y_AUD-0.05,.1,-cur,-0.02,.1);
+    link(leadB,0,Y_VID-0.05,-.1, cur,-0.02,-.1);
+
+    /* 合并时只剩一根中性色管道，两条引线一起插进去 */
+    pipeA.material.color.copy(SHARED).lerp(COL_A,t);
+    pipeA.scale.x=pipeA.scale.z=1+(1-t)*0.45;
+    pipeB.material.opacity=t;
+    pipeB.visible=t>0.03;
+
+    capOne.position.set(0,Y_CAP,0); capOne.visible=t<0.4;
+    capA.position.set(-cur,Y_CAP,0); capA.visible=t>=0.4;
+    capB.position.set( cur,Y_CAP,0); capB.visible=t>=0.4;
+
+    cam();
+    renderer.render(scene,camera);
+  })();
+})();
+
+/* ═══════════════════ §4a 编解码交集 ═══════════════════ */
+(function codecs(){
+  const ALL=['VP8','VP9','H264','AV1'];
+  const state={A:{VP8:true,VP9:true,H264:true,AV1:false},B:{VP8:true,VP9:false,H264:true,AV1:true}};
+
+  function build(side,host){
+    ALL.forEach(function(c){
+      const b=document.createElement('button');
+      b.className='cd '+side.toLowerCase(); b.type='button'; b.textContent=c;
+      b.setAttribute('aria-pressed',state[side][c]?'true':'false');
+      b.addEventListener('click',function(){
+        state[side][c]=!state[side][c];
+        b.setAttribute('aria-pressed',state[side][c]?'true':'false');
+        paint();
+      });
+      host.appendChild(b);
+    });
+  }
+  build('A',$('#cdA')); build('B',$('#cdB'));
+
+  function paint(){
+    const offer=ALL.filter(function(c){ return state.A[c]; });
+    const pt={}; offer.forEach(function(c,i){ pt[c]=96+i; });
+    const answer=offer.filter(function(c){ return state.B[c]; });
+
+    $('#vOffer').textContent = offer.length
+      ? 'm=video 9 UDP/TLS/RTP/SAVPF '+offer.map(function(c){return pt[c];}).join(' ')+'\n'
+        + offer.map(function(c){ return 'a=rtpmap:'+pt[c]+' '+c+'/90000'; }).join('\n')
+      : 'A 一个视频编码都不支持，offer 里不会有 m=video 这一节。';
+    $('#outOffer').classList.toggle('bad',offer.length===0);
+
+    const bad = offer.length>0 && answer.length===0;
+    $('#outAnswer').classList.toggle('bad',bad);
+    if(offer.length===0){ $('#vAnswer').textContent='—'; $('#outAnswer').classList.remove('bad'); }
+    else if(bad){ $('#vAnswer').textContent='m=video 0 UDP/TLS/RTP/SAVPF '+pt[offer[0]]; }
+    else {
+      $('#vAnswer').textContent='m=video 9 UDP/TLS/RTP/SAVPF '+answer.map(function(c){return pt[c];}).join(' ')+'\n'
+        + answer.map(function(c){ return 'a=rtpmap:'+pt[c]+' '+c+'/90000'; }).join('\n');
+    }
+
+    const v=$('#cdVerdict');
+    v.classList.toggle('bad',bad);
+    if(offer.length===0){ v.textContent='把 A 的编码全关掉，这一路媒体压根不会出现在 offer 里。'; }
+    else if(bad){ v.innerHTML='交集为空。B 没法「有这一节但一个都不支持」，只能把<b>端口置 0</b> 来拒绝整个 m-section——协商不报错，但视频永远不会来。'; }
+    else { v.innerHTML='最终生效：<b>'+answer[0]+'</b>（PT '+pt[answer[0]]+'）。answer 沿用了 offer 分配的编号，顺序也仍按 A 的偏好——<b>应答方只能删，不能重排</b>。'; }
+  }
+  paint();
+})();
+
+/* ═══════════════════ §4b 方向 ═══════════════════ */
+(function direction(){
+  const MAP={
+    sendrecv:{ans:'a=sendrecv',down:true,up:true,n:'双方都发也都收。最常见的视频通话形态。'},
+    sendonly:{ans:'a=recvonly',down:true,up:false,n:'A 只发不收，B 的答复必须是「只收」。典型场景：单向直播推流。'},
+    recvonly:{ans:'a=sendonly',down:false,up:true,n:'A 只收不发，B 变成只发。典型场景：拉流观看。'},
+    inactive:{ans:'a=inactive',down:false,up:false,n:'两个方向都停。用来临时挂起一路媒体，<b>而不是删掉这个 m-section</b>——m-section 一旦出现就不能移除。'}
+  };
+  const host=$('#dirBtns'); let cur='sendrecv';
+  Object.keys(MAP).forEach(function(k){
+    const b=document.createElement('button');
+    b.className='cd a'; b.type='button'; b.textContent='a='+k;
+    b.setAttribute('aria-pressed',k===cur?'true':'false');
+    b.addEventListener('click',function(){
+      cur=k;
+      $$('.cd',host).forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true');
+      paint();
+    });
+    host.appendChild(b);
+  });
+  function paint(){
+    const m=MAP[cur];
+    $('#arrDown').classList.toggle('on',m.down);
+    $('#arrUp').classList.toggle('on',m.up);
+    $('#vDir').textContent=m.ans;
+    $('#dirVerdict').innerHTML=m.n;
+  }
+  paint();
+})();
+
+/* ═══════════════════ §5 glare / rollback ═══════════════════ */
+(function glare(){
+  const SEQ=[
+    {a:['stable','等待动作'],b:['stable','等待动作'],btn:'① 两端同时 CreateOffer',stuck:false},
+    {a:['have-local-offer','setLocalDescription(offer)'],b:['have-local-offer','setLocalDescription(offer)'],btn:'② 各自收到对方的 offer',stuck:false},
+    {a:['have-local-offer','× 收到 offer，但状态不允许'],b:['have-local-offer','× 收到 offer，但状态不允许'],btn:'③ 礼貌方回滚',stuck:true},
+    {a:['stable','setLocalDescription({type:"rollback"})'],b:['have-local-offer','坚持自己的 offer，忽略对方的'],btn:'④ 礼貌方接受对方 offer',stuck:false},
+    {a:['have-remote-offer','setRemoteDescription(B 的 offer)'],b:['have-local-offer','等待 answer'],btn:'✓ 谈判恢复，按正常流程走完',stuck:false}
+  ];
+  let n=0; const btn=$('#gBtn');
+  function paint(){
+    const s=SEQ[n];
+    $('#gsA').textContent=s.a[0]; $('#gxA').textContent=s.a[1];
+    $('#gsB').textContent=s.b[0]; $('#gxB').textContent=s.b[1];
+    $('#gpA').classList.toggle('stuck',s.stuck);
+    $('#gpB').classList.toggle('stuck',s.stuck);
+    btn.textContent=s.btn;
+    btn.disabled=(n===SEQ.length-1);
+  }
+  btn.addEventListener('click',function(){ if(n<SEQ.length-1){ n++; paint(); } });
+  $('#gReset').addEventListener('click',function(){ n=0; paint(); });
+  paint();
+})();
+
+})();
+</script>
+</body>
+</html>

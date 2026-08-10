@@ -1,0 +1,26 @@
+{
+  "viewport": { "width": 1920, "height": 1080 },
+  "frames": [
+    { "time": 3, "label": "intro nodes" },
+    { "time": 12, "label": "intro held layout" },
+    { "time": 20.5, "label": "signaling short caption" },
+    { "time": 32, "label": "signaling long caption" },
+    { "time": 43, "label": "sdp overview" },
+    { "time": 60, "label": "sdp long detail caption" },
+    { "time": 82, "label": "sdp all fields visible" },
+    { "time": 108, "label": "ice overview" },
+    { "time": 127, "label": "ice candidate fields" },
+    { "time": 138, "label": "ice long candidate caption" },
+    { "time": 148, "label": "connectivity checks enter" },
+    { "time": 153, "label": "connectivity selected pair" },
+    { "time": 160, "label": "connectivity final path" },
+    { "time": 171, "label": "security dtls" },
+    { "time": 183, "label": "security srtp caption" },
+    { "time": 193, "label": "summary tiles" },
+    { "time": 211, "label": "summary final sentence" },
+    { "time": 216, "label": "summary held layout" },
+    { "time": 221, "label": "glossary first hold" },
+    { "time": 225, "label": "glossary center hold" },
+    { "time": 230, "label": "glossary final hold" }
+  ]
+}

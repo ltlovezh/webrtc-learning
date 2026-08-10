@@ -1,0 +1,15 @@
+# Local development environments and dependency caches
+**/.venv/**
+**/node_modules/**
+**/.waveform-cache/**
+
+# macOS metadata
+**/.DS_Store
+
+# Agent-only instructions are not part of the public learning site
+**/AGENTS.md
+**/CLAUDE.md
+
+# Video projects stay local; the public learning site only ships lightweight HTML
+webrtc-call-flow-video/**
+webrtc-media-data-flow-video/**
