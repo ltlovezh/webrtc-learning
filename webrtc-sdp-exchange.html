@@ -860,34 +860,34 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
       <thead><tr><th>概念</th><th>文件</th><th>看什么</th></tr></thead>
       <tbody>
         <tr><td>offer/answer 状态机</td>
-          <td><a href="../src/pc/sdp_offer_answer.cc">src/pc/sdp_offer_answer.cc</a></td>
+          <td><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/pc/sdp_offer_answer.cc">src/pc/sdp_offer_answer.cc</a></td>
           <td>整场协商的主战场。状态迁移、m-section 匹配、重新协商判定都在这里。</td></tr>
         <tr><td>SDP 文本 ↔ 对象</td>
-          <td><a href="../src/api/webrtc_sdp.h">src/api/webrtc_sdp.h</a></td>
+          <td><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/api/webrtc_sdp.h">src/api/webrtc_sdp.h</a></td>
           <td><span class="cm">SdpSerialize()</span> / <span class="cm">SdpDeserialize()</span>。注意 <span class="cm">pc/webrtc_sdp.h</span> 现在只是一个转发头。</td></tr>
         <tr><td>描述与类型</td>
-          <td><a href="../src/api/jsep.h">src/api/jsep.h</a></td>
+          <td><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/api/jsep.h">src/api/jsep.h</a></td>
           <td><span class="cm">SessionDescriptionInterface</span>、<span class="cm">IceCandidateInterface</span>，以及 <span class="cm">SdpType{kOffer,kPrAnswer,kAnswer,kRollback}</span>。</td></tr>
         <tr><td>信令状态枚举</td>
-          <td><a href="../src/api/peer_connection_interface.h">src/api/peer_connection_interface.h</a></td>
+          <td><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/api/peer_connection_interface.h">src/api/peer_connection_interface.h</a></td>
           <td><span class="cm">SignalingState</span> 六个取值，以及 CreateOffer / SetLocalDescription 的接口声明。</td></tr>
         <tr><td>手改 SDP 检测</td>
-          <td><a href="../src/pc/sdp_munging_detector.h">src/pc/sdp_munging_detector.h</a></td>
+          <td><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/pc/sdp_munging_detector.h">src/pc/sdp_munging_detector.h</a></td>
           <td>2025 年新增。判断描述是否被改过、是否允许，以及改了哪一类。</td></tr>
         <tr><td>payload type 分配</td>
-          <td><a href="../src/pc/sdp_payload_type_suggester.h">src/pc/sdp_payload_type_suggester.h</a></td>
+          <td><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/pc/sdp_payload_type_suggester.h">src/pc/sdp_payload_type_suggester.h</a></td>
           <td>动态 PT 号（96+）怎么在一次会话里保持一致。</td></tr>
         <tr><td>simulcast 的 SDP</td>
-          <td><a href="../src/pc/simulcast_sdp_serializer.h">src/pc/simulcast_sdp_serializer.h</a></td>
+          <td><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/pc/simulcast_sdp_serializer.h">src/pc/simulcast_sdp_serializer.h</a></td>
           <td><span class="cm">a=simulcast</span> 与 <span class="cm">a=rid</span> 的序列化，多档编码时才会用到。</td></tr>
         <tr><td>示例：信令消息收发</td>
-          <td><a href="../src/examples/peerconnection/client/conductor.cc">src/examples/peerconnection/client/conductor.cc</a></td>
+          <td><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/examples/peerconnection/client/conductor.cc">src/examples/peerconnection/client/conductor.cc</a></td>
           <td>把 SDP 和 candidate 包成 JSON（<span class="cm">"type" / "sdp" / "candidate" / "sdpMid" / "sdpMLineIndex"</span>）再发出去。整条链路最值得读的一份文件。</td></tr>
         <tr><td>示例：最简信令服务器</td>
-          <td><a href="../src/examples/peerconnection/server/">src/examples/peerconnection/server/</a></td>
+          <td><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/examples/peerconnection/server/">src/examples/peerconnection/server/</a></td>
           <td>几百行 C++ 的 HTTP 长轮询中转站，可直接编译起来跑通两端。</td></tr>
         <tr><td>示例：iOS 侧信令</td>
-          <td><a href="../src/examples/objc/AppRTCMobile/ARDSignalingMessage.m">src/examples/objc/AppRTCMobile/ARDSignalingMessage.m</a></td>
+          <td><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/examples/objc/AppRTCMobile/ARDSignalingMessage.m">src/examples/objc/AppRTCMobile/ARDSignalingMessage.m</a></td>
           <td>Objective-C 版的信令消息编解码，配合 <span class="cm">ARDWebSocketChannel</span> 使用。注意它对接的 appr.tc 公共服务已停用，只能当代码参考。</td></tr>
       </tbody>
     </table>
