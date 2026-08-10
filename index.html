@@ -385,9 +385,8 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
     <text x="215" y="654" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#33271E">NAT</text>
     <rect class="blk" x="946" y="638" width="38" height="24" rx="5" fill="#E1D5C8" stroke="#33271E" stroke-width="2"/>
     <text x="965" y="654" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#33271E">NAT</text>
-    <text x="590" y="686" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#6B5B4F">SRTP 媒体流 · 双向 · 端到端加密</text>
+    <text x="590" y="686" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" letter-spacing="1" fill="#6B5B4F">WebRTC 库打通 · SRTP 双向加密媒体流</text>
     <circle class="pin" cx="590" cy="716" r="5"/>
-    <text x="590" y="748" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" letter-spacing="2" fill="#8FA3AA">实线 —— 这段库替你打通</text>
   </g>
 
   <!-- STUN -->
@@ -477,8 +476,8 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
    href    ：null = 在建
    ═══════════════════════════════════════════════ */
 const TOPICS = [
-  { id:'sdp', area:'信令与协商', title:'SDP 交换',
-    desc:'offer 与 answer 两封信谈妥编码、方向与加密指纹：逐行解剖 + 九步时序 + 可拖动的 BUNDLE 分层。',
+  { id:'sdp', area:'信令与协商', title:'SDP 协商',
+    desc:'逐行理解 SDP，演示 Offer / Answer 状态流，以及 ICE candidate 如何并行收集并启动连通性检查。',
     href:'webrtc-sdp-exchange.html', regions:['rg-signal'] },
   { id:'jsep', area:'信令与协商', title:'PeerConnection 与 JSEP',
     desc:'状态机、transceiver、重新协商：api/ 与 pc/ 两个目录的骨架。',

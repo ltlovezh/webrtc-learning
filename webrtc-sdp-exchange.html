@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SDP 交换 · 两台机器如何在开口之前谈妥一切</title>
+<title>SDP 协商 · 从 Offer / Answer 到 ICE 启动</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
 <link rel="shortcut icon" href="/favicon.ico">
@@ -318,6 +318,43 @@ a.src-p:hover{border-bottom-color:var(--wire)}
 .overlap-bar.sdp{left:0;right:25%;top:0;background:var(--a-soft);color:#A8401F}
 .overlap-bar.ice{left:22%;right:0;bottom:0;background:var(--wire-soft);color:var(--wire-ink)}
 
+.bridge-subhead{display:flex;align-items:center;gap:12px;margin:28px 0 11px}
+.bridge-subhead::before{content:"";width:22px;height:2px;background:var(--wire);border-radius:2px;flex:0 0 auto}
+.bridge-subhead span{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;color:var(--ink-2)}
+.seq-overview{
+  background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  box-shadow:var(--sh-m);overflow:hidden;
+}
+.seq-swipe{display:none}
+.seq-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(90deg,var(--a-soft),var(--paper-2) 32%,var(--paper-2) 68%,var(--b-soft))}
+.seq-map{display:block;width:100%;height:auto;min-width:900px}
+.seq-map .lane-card{fill:var(--paper-2);stroke:var(--ink);stroke-width:2}
+.seq-map .lane-life{stroke:var(--rule);stroke-width:2;stroke-dasharray:7 8}
+.seq-map .lane-title{font-family:var(--sans);font-size:20px;font-weight:700;fill:var(--ink)}
+.seq-map .lane-sub{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;fill:var(--ink-3)}
+.seq-map .event-card{fill:var(--paper-2);stroke:var(--rule);stroke-width:1.5}
+.seq-map .event-card.a{fill:var(--a-soft);stroke:var(--a-mid)}
+.seq-map .event-card.b{fill:var(--b-soft);stroke:var(--b-mid)}
+.seq-map .event-text{font-family:var(--mono);font-size:12px;font-weight:650;fill:var(--ink)}
+.seq-map .event-note{font-family:var(--sans);font-size:11px;fill:var(--ink-2)}
+.seq-map .sdp-line{stroke:var(--ink);stroke-width:2;fill:none}
+.seq-map .candidate-line{stroke:var(--wire);stroke-width:2;stroke-dasharray:7 6;fill:none}
+.seq-map .ice-line{stroke:var(--wire);stroke-width:4;fill:none}
+.seq-map .flow-label{font-family:var(--mono);font-size:11px;font-weight:650;fill:var(--ink)}
+.seq-map .flow-note{font-family:var(--sans);font-size:10.5px;fill:var(--ink-2)}
+.seq-map .gather-a{fill:var(--a)}
+.seq-map .gather-b{fill:var(--b)}
+.seq-map .gather-label{font-family:var(--mono);font-size:10px;letter-spacing:.7px;fill:var(--paper-2)}
+.seq-map .milestone{fill:var(--wire-soft);stroke:var(--wire);stroke-width:1.5}
+.seq-map .milestone-text{font-family:var(--sans);font-size:12px;font-weight:700;fill:var(--wire-ink)}
+.seq-legend{display:flex;flex-wrap:wrap;gap:10px 22px;padding:12px 16px;border-top:1.5px solid var(--rule);background:var(--paper-3);font-size:.78rem;color:var(--ink-2)}
+.seq-key{display:inline-flex;align-items:center;gap:8px}
+.seq-key i{display:block;width:34px;height:0;border-top:2px solid var(--ink)}
+.seq-key.candidate i{border-top:2px dashed var(--wire)}
+.seq-key.ice i{border-top:4px solid var(--wire)}
+.seq-callout{margin:0;padding:12px 16px;border-top:1.5px dashed var(--rule);background:var(--wire-soft);font-size:.86rem;color:var(--wire-ink)}
+.seq-callout b{color:var(--ink)}
+
 .pipe-shell{
   margin-top:16px;background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
   box-shadow:var(--sh-m);overflow:hidden;
@@ -517,6 +554,9 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
   .pit-i{grid-template-columns:1fr;gap:8px}
   .pit-k{justify-self:start}
   .pipe-contrast{grid-template-columns:1fr}
+  .bridge-subhead{margin-top:23px}
+  .bridge-subhead span{font-size:.62rem;letter-spacing:.04em}
+  .seq-swipe{display:block;margin:0;padding:7px 12px;text-align:center;border-bottom:1.5px dashed var(--rule);background:var(--wire-soft);font-family:var(--mono);font-size:.6rem;letter-spacing:.04em;color:var(--wire-ink)}
   .ready-grid{grid-template-columns:1fr}
   .map thead{display:none}
   .map tr{display:grid;gap:5px;padding:16px 0;border-bottom:1.5px dashed var(--rule-2)}
@@ -555,7 +595,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
 <header class="hero">
   <div class="wrap hero-grid">
     <div>
-      <h1><span class="sdp">Session Description Protocol</span>SDP 交换</h1>
+      <h1><span class="sdp">Session Description Protocol</span>SDP 协商</h1>
       <p class="hero-lede">媒体流动之前，两端要先就「发什么、用什么编码、往哪儿发」谈妥。这场谈判只有两个回合：一封 <span class="m a">offer</span>，一封 <span class="m b">answer</span>。</p>
       <p class="kicker">而这两封信之间的那段路，<b>WebRTC 故意留空</b>——库负责写信和读信，把信送到对面是你的事。</p>
       <div class="hero-meta">
@@ -683,7 +723,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
       <div class="bridge-hd">
         <div>
           <span class="bridge-kicker">补一张时间表 · SDP × ICE</span>
-          <h3 class="h">不是接力赛：Answer 还在路上，ICE 已经开始跑了</h3>
+          <h3 class="h">不是接力赛：SDP 与 ICE 是两条交叠的轨道</h3>
         </div>
         <p class="lede">SDP 先提供 <strong>mid、ICE 账号和 DTLS 指纹</strong>；candidate 则通过同一条信令通道持续 trickle。某一端条件够了就先检查，<strong>没有“等双方一起完成”的全局开关</strong>。</p>
       </div>
@@ -702,6 +742,85 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
         </div>
       </div>
 
+      <div class="bridge-subhead"><span>先看全局 · Offer / Answer 与 candidate 如何交错</span></div>
+      <div class="seq-overview">
+        <p class="seq-swipe" aria-hidden="true">← 横向滑动，查看信令服务器与应答端 →</p>
+        <div class="seq-scroll">
+          <svg class="seq-map" viewBox="0 0 1160 720" role="img" aria-labelledby="seqTitle seqDesc">
+            <title id="seqTitle">SDP Offer Answer 与 ICE candidate 的交叠时序</title>
+            <desc id="seqDesc">发起端设置本地 Offer 后开始收集 candidate，经信令服务器发送 Offer 和 candidate；应答端设置远端 Offer 与本地 Answer 后即可先发起 ICE 检查。Answer 到达发起端后，两端继续交换 candidate，并直接进行 ICE 连通性检查，最后进入 DTLS 和媒体传输。</desc>
+            <defs>
+              <marker id="seqArrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#33271E"/></marker>
+              <marker id="seqWireArrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#47646F"/></marker>
+            </defs>
+
+            <rect class="lane-card" x="48" y="24" width="260" height="68" rx="10"/>
+            <rect class="lane-card" x="450" y="24" width="260" height="68" rx="10"/>
+            <rect class="lane-card" x="852" y="24" width="260" height="68" rx="10"/>
+            <text class="lane-title" x="178" y="54" text-anchor="middle">发起端 A</text>
+            <text class="lane-sub" x="178" y="77" text-anchor="middle">OFFERER</text>
+            <text class="lane-title" x="580" y="54" text-anchor="middle">信令服务器</text>
+            <text class="lane-sub" x="580" y="77" text-anchor="middle">只负责转发</text>
+            <text class="lane-title" x="982" y="54" text-anchor="middle">应答端 B</text>
+            <text class="lane-sub" x="982" y="77" text-anchor="middle">ANSWERER</text>
+            <line class="lane-life" x1="178" y1="92" x2="178" y2="683"/>
+            <line class="lane-life" x1="580" y1="92" x2="580" y2="683"/>
+            <line class="lane-life" x1="982" y1="92" x2="982" y2="683"/>
+
+            <rect class="event-card a" x="67" y="116" width="222" height="42" rx="7"/>
+            <text class="event-text" x="178" y="142" text-anchor="middle">createOffer()</text>
+            <rect class="event-card a" x="67" y="173" width="222" height="51" rx="7"/>
+            <text class="event-text" x="178" y="194" text-anchor="middle">setLocalDescription(offer)</text>
+            <text class="event-note" x="178" y="213" text-anchor="middle">本地 ICE 收集立即启动</text>
+            <rect class="gather-a" x="36" y="173" width="12" height="430" rx="6"/>
+            <text class="gather-label" x="22" y="388" text-anchor="middle" transform="rotate(-90 22 388)">A · ICE GATHERING 持续进行</text>
+
+            <line class="sdp-line" x1="178" y1="254" x2="580" y2="254" marker-end="url(#seqArrow)"/>
+            <line class="sdp-line" x1="580" y1="254" x2="982" y2="254" marker-end="url(#seqArrow)"/>
+            <text class="flow-label" x="580" y="244" text-anchor="middle">Offer · SDP</text>
+
+            <line class="candidate-line" x1="178" y1="302" x2="580" y2="302" marker-end="url(#seqWireArrow)"/>
+            <line class="candidate-line" x1="580" y1="302" x2="982" y2="302" marker-end="url(#seqWireArrow)"/>
+            <text class="flow-label" x="580" y="292" text-anchor="middle">candidate A₁、A₂… · trickle</text>
+            <text class="flow-note" x="580" y="319" text-anchor="middle">若先到，可暂存；设置远端 Offer 后再添加</text>
+
+            <rect class="event-card b" x="871" y="339" width="222" height="42" rx="7"/>
+            <text class="event-text" x="982" y="365" text-anchor="middle">setRemoteDescription(offer)</text>
+            <rect class="event-card b" x="871" y="394" width="222" height="58" rx="7"/>
+            <text class="event-text" x="982" y="416" text-anchor="middle">createAnswer()</text>
+            <text class="event-text" x="982" y="438" text-anchor="middle">setLocalDescription(answer)</text>
+            <rect class="gather-b" x="1112" y="394" width="12" height="209" rx="6"/>
+            <text class="gather-label" x="1138" y="499" text-anchor="middle" transform="rotate(90 1138 499)">B · ICE GATHERING</text>
+
+            <line class="sdp-line" x1="982" y1="482" x2="580" y2="482" marker-end="url(#seqArrow)"/>
+            <line class="sdp-line" x1="580" y1="482" x2="178" y2="482" marker-end="url(#seqArrow)"/>
+            <text class="flow-label" x="580" y="472" text-anchor="middle">Answer · SDP 正在返回</text>
+
+            <path class="ice-line" d="M 982 524 Q 580 576 178 524" marker-end="url(#seqWireArrow)"/>
+            <text class="flow-label" x="580" y="526" text-anchor="middle">B 的条件先凑齐，可直接发出 STUN 检查</text>
+            <text class="flow-note" x="580" y="546" text-anchor="middle">这条报文走候选网络路径，不经过信令服务器</text>
+
+            <rect class="event-card a" x="67" y="560" width="222" height="42" rx="7"/>
+            <text class="event-text" x="178" y="586" text-anchor="middle">setRemoteDescription(answer)</text>
+
+            <line class="candidate-line" x1="982" y1="622" x2="580" y2="622" marker-end="url(#seqWireArrow)"/>
+            <line class="candidate-line" x1="580" y1="622" x2="178" y2="622" marker-end="url(#seqWireArrow)"/>
+            <text class="flow-label" x="580" y="612" text-anchor="middle">candidate B₁、B₂… · 继续 trickle</text>
+
+            <line class="ice-line" x1="178" y1="662" x2="982" y2="662" marker-start="url(#seqWireArrow)" marker-end="url(#seqWireArrow)"/>
+            <rect class="milestone" x="397" y="644" width="366" height="37" rx="18.5"/>
+            <text class="milestone-text" x="580" y="668" text-anchor="middle">双方直接 ICE 检查 → 选中路径 → DTLS → 媒体</text>
+          </svg>
+        </div>
+        <div class="seq-legend" aria-label="时序图图例">
+          <span class="seq-key"><i aria-hidden="true"></i>实线：Offer / Answer</span>
+          <span class="seq-key candidate"><i aria-hidden="true"></i>虚线：candidate</span>
+          <span class="seq-key ice"><i aria-hidden="true"></i>粗蓝线：端到端 ICE 检查</span>
+        </div>
+        <p class="seq-callout"><b>看图只抓两条路：</b>Offer、Answer 和 candidate 都借助信令服务器传递；真正的 ICE STUN 检查发生在发起端与应答端之间，信令服务器不转发这些检查包。</p>
+      </div>
+
+      <div class="bridge-subhead"><span>再放大 · 某一端什么时候具备完整检查条件</span></div>
       <div class="pipe-shell">
         <div class="pipe-scroll">
           <div class="pipe-steps" id="pipeSteps" role="tablist" aria-label="SDP 与 ICE 交叠时序"></div>
@@ -898,7 +1017,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
   <div class="wrap">
     <div class="fin">
       <p style="margin:0">读代码的顺序建议：先跑通 <code>examples/peerconnection</code> 的 client + server，看清一封信怎么从 A 走到 B；再回头读 <code>pc/sdp_offer_answer.cc</code>，那时候状态机才有意义。</p>
-      <p class="fm">WebRTC 学习笔记 · SDP 交换 · 基于本地 checkout src@6af87f3957</p>
+      <p class="fm">WebRTC 学习笔记 · SDP 协商 · 基于本地 checkout src@6af87f3957</p>
     </div>
   </div>
 </footer>
