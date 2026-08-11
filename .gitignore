@@ -20,6 +20,5 @@
 **/*.mov
 **/*.wav
 
-# Agent-specific local instructions
-**/AGENTS.md
+# Agent-specific local instructions (repo-level AGENTS.md is versioned on purpose)
 **/CLAUDE.md
