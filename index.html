@@ -150,6 +150,23 @@ g[data-region].wip .pin{visibility:visible;fill:none;stroke:var(--ink-3);stroke-
 .g-item b{color:var(--ink);font-weight:700}
 
 /* ── 目录 ── */
+/* ── 学习小径 ── */
+.trail{padding-block:0 clamp(40px,6vw,64px)}
+.trail-frame{background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);box-shadow:var(--sh-m);overflow:hidden}
+.trail-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.trail-scroll svg{display:block;min-width:940px;width:100%;height:auto}
+.trail-map text{user-select:none}
+.trail-map .t-name{font-family:var(--serif);font-weight:700;font-size:14.5px;fill:var(--ink)}
+.trail-map .t-sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.4px;fill:var(--ink-3)}
+.trail-stop{cursor:pointer;transition:transform .18s ease}
+.trail-stop:hover,.trail-stop:focus-visible{transform:translateY(-2px)}
+.trail-stop .ring{fill:var(--paper-2);stroke:var(--ink-3);stroke-width:2;stroke-dasharray:3 4}
+.trail-stop .core{fill:none}
+.trail-stop.grown .ring{stroke:var(--b);stroke-width:3;stroke-dasharray:none}
+.trail-stop.grown .core{fill:#7FA96B}
+@media (prefers-reduced-motion:reduce){ .trail-stop{transition:none} }
+
+/* ── 学习目录 ── */
 .toc{padding-block:0 clamp(48px,7vw,80px)}
 h2.h{
   font-family:var(--serif);font-weight:700;
@@ -217,7 +234,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
   <div class="wrap">
     <div class="map-frame">
       <div class="map-scroll">
-<svg viewBox="0 0 1180 790" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="WebRTC 全景架构图：两台六层的机器塔楼相对而立，顶部虚线是你自己实现的信令通道，底部实线管道是库实现的 SRTP 媒体流，穿过 NAT 进入公网，STUN 与 TURN 在公网带里待命">
+<svg viewBox="0 0 1180 830" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="WebRTC 全景架构图：两台六层的机器塔楼相对而立，塔顶有摄像头与麦克风等采集设备，顶部虚线是你自己实现的信令通道，中央是调试观测台，底部两根实线管道是库实现的 SRTP 媒体流与 DataChannel 数据流，穿过 NAT 进入公网，STUN、TURN 与 SFU 在公网带里待命">
   <defs>
     <linearGradient id="pipeGrad" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#C97B4A"/>
@@ -226,12 +243,23 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
   </defs>
 
   <!-- 公网带 -->
-  <rect x="56" y="648" width="1068" height="134" rx="14" fill="#EDF2EC"/>
+  <rect x="56" y="648" width="1068" height="174" rx="14" fill="#EDF2EC"/>
   <text x="1100" y="676" text-anchor="end" font-family="ui-monospace,Menlo,monospace" font-size="12" letter-spacing="2" fill="#93A89B">公网 · INTERNET</text>
 
   <!-- ════ 塔楼 A ════ -->
   <g transform="translate(75,10)">
     <ellipse cx="140" cy="622" rx="150" ry="12" fill="#E3E8D8" opacity=".6"/>
+    <!-- 采集设备（摄像头 + 麦克风） -->
+    <g data-region="rg-capture" tabindex="0" role="button" aria-label="媒体采集与设备：getUserMedia、摄像头与麦克风">
+      <text x="48" y="56" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="8.5" fill="#8B957D">getUserMedia</text>
+      <rect class="blk" x="18" y="64" width="58" height="40" rx="9" fill="#FEFEFB" stroke="#333D2E" stroke-width="2.5"/>
+      <circle cx="47" cy="84" r="13" fill="#F5E6D8" stroke="#333D2E" stroke-width="2.5"/>
+      <circle cx="47" cy="84" r="5" fill="#333D2E"/>
+      <rect class="blk" x="28" y="112" width="14" height="20" rx="7" fill="#FEFEFB" stroke="#333D2E" stroke-width="2.5"/>
+      <line x1="35" y1="132" x2="35" y2="140" stroke="#333D2E" stroke-width="2.5"/>
+      <path d="M27 140 h16" stroke="#333D2E" stroke-width="2.5" stroke-linecap="round"/>
+      <circle class="pin" cx="86" cy="70" r="5"/>
+    </g>
     <line x1="140" y1="38" x2="140" y2="64" stroke="#333D2E" stroke-width="3"/>
     <circle cx="140" cy="33" r="7" fill="#C97B4A"/>
     <rect x="96" y="64" width="88" height="66" rx="12" fill="#FEFEFB" stroke="#333D2E" stroke-width="2.5"/>
@@ -389,29 +417,64 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
     <circle class="pin" cx="590" cy="716" r="5"/>
   </g>
 
+  <!-- ════ 数据管道（DataChannel · SCTP） ════ -->
+  <g data-region="rg-data" tabindex="0" role="button" aria-label="DataChannel 数据流：SCTP over DTLS，与媒体并行的第三条流">
+    <path d="M260 630 L260 650 Q260 668 278 668 L902 668 Q920 668 920 650 L920 630"
+          fill="none" stroke="#7A4A63" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="12 8"/>
+    <text x="590" y="658" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#7A4A63">DataChannel · SCTP 数据流</text>
+    <circle class="pin" cx="695" cy="655" r="5"/>
+  </g>
+
+  <!-- 调试观测台 -->
+  <g data-region="rg-debug" tabindex="0" role="button" aria-label="调试与观测：webrtc-internals 与 getStats">
+    <text x="590" y="352" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#3F6B60">调试观测台</text>
+    <rect class="blk" x="516" y="368" width="148" height="84" rx="10" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+    <rect x="534" y="414" width="16" height="24" rx="3" fill="#F5E6D8"/>
+    <rect x="558" y="402" width="16" height="36" rx="3" fill="#E7EFE3"/>
+    <rect x="582" y="422" width="16" height="16" rx="3" fill="#E4EEE9"/>
+    <path d="M534 396 L562 382 L590 394 L618 380 L646 388" fill="none" stroke="#4E8378" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="664" cy="452" r="24" fill="#E4EEE9" fill-opacity=".55" stroke="#333D2E" stroke-width="3"/>
+    <line x1="681" y1="469" x2="704" y2="492" stroke="#333D2E" stroke-width="5" stroke-linecap="round"/>
+    <circle class="pin" cx="658" cy="376" r="5"/>
+    <text x="590" y="512" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#8B957D">webrtc-internals · getStats</text>
+  </g>
+
   <!-- STUN -->
   <g data-region="rg-stun" tabindex="0" role="button" aria-label="STUN：查询自己的公网地址">
-    <path d="M255 662 C 320 720, 380 738, 428 738" fill="none" stroke="#BCCDBF" stroke-width="2" stroke-dasharray="4 6"/>
+    <path d="M215 706 C 245 762, 330 775, 420 775" fill="none" stroke="#BCCDBF" stroke-width="2" stroke-dasharray="4 6"/>
     <g class="blk-none">
-      <ellipse class="blk" cx="452" cy="736" rx="34" ry="18" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
-      <ellipse class="blk" cx="478" cy="730" rx="26" ry="15" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
-      <ellipse class="blk" cx="464" cy="740" rx="40" ry="14" fill="#FEFEFB" stroke="#FEFEFB" stroke-width="4"/>
-      <circle class="pin" cx="497" cy="717" r="5"/>
+      <ellipse class="blk" cx="452" cy="768" rx="34" ry="18" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <ellipse class="blk" cx="478" cy="762" rx="26" ry="15" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <ellipse class="blk" cx="464" cy="772" rx="40" ry="14" fill="#FEFEFB" stroke="#FEFEFB" stroke-width="4"/>
+      <circle class="pin" cx="497" cy="749" r="5"/>
     </g>
-    <text x="464" y="744" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#3F6B60">STUN</text>
-    <text x="464" y="770" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#8B957D">「你的公网地址是…」</text>
+    <text x="464" y="776" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#3F6B60">STUN</text>
+    <text x="464" y="802" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#8B957D">「你的公网地址是…」</text>
   </g>
 
   <!-- TURN -->
   <g data-region="rg-turn" tabindex="0" role="button" aria-label="TURN 中继：打洞失败时的兜底">
-    <line x1="740" y1="700" x2="740" y2="722" stroke="#333D2E" stroke-width="2"/>
+    <line x1="740" y1="707" x2="740" y2="752" stroke="#333D2E" stroke-width="2"/>
     <g class="blk-none">
-      <rect class="blk" x="716" y="722" width="48" height="30" rx="6" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
-      <path d="M726 722 v-8 M754 722 v-8" stroke="#333D2E" stroke-width="2"/>
-      <circle class="pin" cx="764" cy="717" r="5"/>
+      <rect class="blk" x="716" y="752" width="48" height="30" rx="6" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <path d="M726 752 v-8 M754 752 v-8" stroke="#333D2E" stroke-width="2"/>
+      <circle class="pin" cx="764" cy="747" r="5"/>
     </g>
-    <text x="740" y="742" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#3F6B60">TURN</text>
-    <text x="740" y="770" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#8B957D">打洞失败时中继兜底</text>
+    <text x="740" y="772" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#3F6B60">TURN</text>
+    <text x="740" y="802" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#8B957D">打洞失败时中继兜底</text>
+  </g>
+
+  <!-- SFU -->
+  <g data-region="rg-topology" tabindex="0" role="button" aria-label="SFU 多方转发：从一对一走向多方与规模化">
+    <line x1="870" y1="708" x2="870" y2="745" stroke="#BCCDBF" stroke-width="2" stroke-dasharray="4 6"/>
+    <g class="blk-none">
+      <rect class="blk" x="830" y="745" width="80" height="40" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <circle cx="845" cy="765" r="4" fill="#C97B4A"/>
+      <path d="M851 765 L893 751 M851 765 L893 765 M851 765 L893 779" fill="none" stroke="#4A7856" stroke-width="2" stroke-linecap="round"/>
+      <path d="M893 751 l-6 -1.5 M893 751 l-4 4.5 M893 765 l-6 -3 M893 765 l-6 3 M893 779 l-4 -4.5 M893 779 l-6 1.5" stroke="#4A7856" stroke-width="2" stroke-linecap="round"/>
+      <circle class="pin" cx="912" cy="740" r="5"/>
+    </g>
+    <text x="870" y="802" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#8B957D">SFU · 一份流转发多方</text>
   </g>
 </svg>
       </div>
@@ -426,7 +489,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
     <div class="guide-grid">
       <div class="g-item">
         <span class="g-k">横着读</span>
-        <p>上面那条<b>虚线</b>是信令：库不提供，每个 WebRTC 项目都要自己写。下面那根<b>实管</b>是媒体：打洞、加密、传输，全部由库完成。</p>
+        <p>上面那条<b>虚线</b>是信令：库不提供，每个 WebRTC 项目都要自己写。下面两根<b>实管</b>由库打通：粗的是 SRTP 媒体流，细的是 DataChannel 数据流。</p>
       </div>
       <div class="g-item">
         <span class="g-k">竖着读</span>
@@ -437,6 +500,80 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
         <p>地图上每一块都对应下面的一个专题。<b>实心点</b>表示已经写好可以读，<b>虚圈</b>表示还在路上——点击会带你跳到对应条目。</p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ══════════════ 学习小径 ══════════════ -->
+<section class="trail" id="trail">
+  <div class="wrap">
+    <h2 class="h">学习小径</h2>
+    <p class="toc-sum">九段路，从跑通一次通话走到千人规模 · 绿色石阶已经能踩，虚圈的还在铺 · 点任意一站跳到对应专题</p>
+    <div class="trail-frame">
+      <div class="trail-scroll">
+        <svg class="trail-map" viewBox="0 0 1180 224" xmlns="http://www.w3.org/2000/svg" role="list" aria-label="学习小径：九段学习路线">
+          <path d="M90 108 C155 108,155 148,220 148 C285 148,285 108,350 108 C415 108,415 148,480 148 C545 148,545 108,610 108 C675 108,675 148,740 148 C805 148,805 108,870 108 C935 108,935 148,1000 148 C1065 148,1065 108,1130 108"
+                fill="none" stroke="#E9EDDC" stroke-width="20" stroke-linecap="round"/>
+          <path d="M90 108 C155 108,155 148,220 148 C285 148,285 108,350 108 C415 108,415 148,480 148 C545 148,545 108,610 108 C675 108,675 148,740 148 C805 148,805 108,870 108 C935 108,935 148,1000 148 C1065 148,1065 108,1130 108"
+                fill="none" stroke="#C97B4A" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="0.1 11"/>
+
+          <g class="trail-stop" data-topics="first capture" tabindex="0" role="listitem" aria-label="第一段 跑通：examples 与媒体采集">
+            <text class="t-name" x="90" y="64" text-anchor="middle">① 跑通</text>
+            <text class="t-sub" x="90" y="82" text-anchor="middle">examples · 采集</text>
+            <circle class="ring" cx="90" cy="108" r="11"/>
+            <circle class="core" cx="90" cy="108" r="4.5"/>
+          </g>
+          <g class="trail-stop" data-topics="sdp jsep" tabindex="0" role="listitem" aria-label="第二段 协商：SDP 与 JSEP">
+            <text class="t-name" x="220" y="190" text-anchor="middle">② 协商</text>
+            <text class="t-sub" x="220" y="208" text-anchor="middle">SDP · JSEP</text>
+            <circle class="ring" cx="220" cy="148" r="11"/>
+            <circle class="core" cx="220" cy="148" r="4.5"/>
+          </g>
+          <g class="trail-stop" data-topics="ice turn" tabindex="0" role="listitem" aria-label="第三段 连通：ICE 与 TURN">
+            <text class="t-name" x="350" y="64" text-anchor="middle">③ 连通</text>
+            <text class="t-sub" x="350" y="82" text-anchor="middle">ICE · TURN</text>
+            <circle class="ring" cx="350" cy="108" r="11"/>
+            <circle class="core" cx="350" cy="108" r="4.5"/>
+          </g>
+          <g class="trail-stop" data-topics="dtls" tabindex="0" role="listitem" aria-label="第四段 加密：DTLS 与 SRTP">
+            <text class="t-name" x="480" y="190" text-anchor="middle">④ 加密</text>
+            <text class="t-sub" x="480" y="208" text-anchor="middle">DTLS · SRTP</text>
+            <circle class="ring" cx="480" cy="148" r="11"/>
+            <circle class="core" cx="480" cy="148" r="4.5"/>
+          </g>
+          <g class="trail-stop" data-topics="rtp cc" tabindex="0" role="listitem" aria-label="第五段 传输：RTP、RTCP 与拥塞控制">
+            <text class="t-name" x="610" y="64" text-anchor="middle">⑤ 传输</text>
+            <text class="t-sub" x="610" y="82" text-anchor="middle">RTP/RTCP · 拥塞控制</text>
+            <circle class="ring" cx="610" cy="108" r="11"/>
+            <circle class="core" cx="610" cy="108" r="4.5"/>
+          </g>
+          <g class="trail-stop" data-topics="audio video" tabindex="0" role="listitem" aria-label="第六段 引擎：音频与视频">
+            <text class="t-name" x="740" y="190" text-anchor="middle">⑥ 引擎</text>
+            <text class="t-sub" x="740" y="208" text-anchor="middle">音频 · 视频</text>
+            <circle class="ring" cx="740" cy="148" r="11"/>
+            <circle class="core" cx="740" cy="148" r="4.5"/>
+          </g>
+          <g class="trail-stop" data-topics="data" tabindex="0" role="listitem" aria-label="第七段 数据：DataChannel">
+            <text class="t-name" x="870" y="64" text-anchor="middle">⑦ 数据</text>
+            <text class="t-sub" x="870" y="82" text-anchor="middle">DataChannel</text>
+            <circle class="ring" cx="870" cy="108" r="11"/>
+            <circle class="core" cx="870" cy="108" r="4.5"/>
+          </g>
+          <g class="trail-stop" data-topics="topology" tabindex="0" role="listitem" aria-label="第八段 规模：SFU 与 MCU">
+            <text class="t-name" x="1000" y="190" text-anchor="middle">⑧ 规模</text>
+            <text class="t-sub" x="1000" y="208" text-anchor="middle">SFU / MCU</text>
+            <circle class="ring" cx="1000" cy="148" r="11"/>
+            <circle class="core" cx="1000" cy="148" r="4.5"/>
+          </g>
+          <g class="trail-stop" data-topics="debug" tabindex="0" role="listitem" aria-label="第九段 工程：调试与观测">
+            <text class="t-name" x="1130" y="64" text-anchor="middle">⑨ 工程</text>
+            <text class="t-sub" x="1130" y="82" text-anchor="middle">调试 · 观测</text>
+            <circle class="ring" cx="1130" cy="108" r="11"/>
+            <circle class="core" cx="1130" cy="108" r="4.5"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <p class="map-hint">← 左右滑动查看全程 →</p>
   </div>
 </section>
 
@@ -454,7 +591,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
   <div class="wrap">
     <div class="fin">
       <p><b>以后怎么往这页加专题：</b>打开本文件，在 <code>&lt;script&gt;</code> 里的 <code>TOPICS</code> 数组末尾追加一条即可，卡片和地图会自动联动：</p>
-      <pre>{ id:'neteq', area:'媒体与引擎', title:'NetEQ 抗抖动',
+      <pre>{ id:'neteq', area:'媒体与传输', title:'NetEQ 抗抖动',
   desc:'一句话说清这个专题讲什么。',
   href:'neteq.html',          // 还没写好就填 null，显示为「发芽中」
   regions:['rg-audio'] }      // 对应地图块的 data-region，可多个</pre>
@@ -476,6 +613,13 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
    href    ：null = 发芽中
    ═══════════════════════════════════════════════ */
 const TOPICS = [
+  { id:'first', area:'起步与采集', title:'先跑通一次通话',
+    desc:'gn/ninja 构建 examples/peerconnection，亲手把一封 offer 送到对面——再带着问题回来看每一层。',
+    href:null, regions:['rg-signal','rg-app'] },
+  { id:'capture', area:'起步与采集', title:'媒体采集与设备',
+    desc:'getUserMedia、约束与权限、屏幕共享：一切媒体的入口。',
+    href:null, regions:['rg-capture'] },
+
   { id:'sdp', area:'信令与协商', title:'SDP 协商',
     desc:'逐行理解 SDP，演示 Offer / Answer 状态流，以及 ICE candidate 如何并行收集并启动连通性检查。',
     href:'webrtc-sdp-exchange.html', regions:['rg-signal'] },
@@ -483,25 +627,38 @@ const TOPICS = [
     desc:'状态机、transceiver、重新协商：api/ 与 pc/ 两个目录的骨架。',
     href:null, regions:['rg-jsep'] },
 
-  { id:'ice', area:'连接与穿透', title:'ICE 与 NAT 穿透',
+  { id:'ice', area:'连接与安全', title:'ICE 与 NAT 穿透',
     desc:'用交互数据包实验理解四种 NAT：映射如何复用，回包为何放行或被拦截。',
     href:'nat-types-visualizer.html', regions:['rg-transport','rg-stun'] },
-  { id:'turn', area:'连接与穿透', title:'TURN 中继',
+  { id:'turn', area:'连接与安全', title:'TURN 中继',
     desc:'打洞失败的兜底：relay candidate 的代价，以及为什么它总排在最后。',
     href:null, regions:['rg-turn'] },
-  { id:'dtls', area:'连接与穿透', title:'DTLS 与 SRTP',
+  { id:'dtls', area:'连接与安全', title:'DTLS 与 SRTP',
     desc:'指纹校验、密钥导出：媒体为什么天生就是加密的。',
     href:null, regions:['rg-transport'] },
 
-  { id:'audio', area:'媒体与引擎', title:'音频引擎',
+  { id:'rtp', area:'媒体与传输', title:'RTP 与 RTCP',
+    desc:'SSRC、时间戳、NACK/PLI 反馈与 FEC：在不可靠的网络上传媒体的全部直觉。',
+    href:null, regions:['rg-pipe'] },
+  { id:'audio', area:'媒体与传输', title:'音频引擎',
     desc:'ADM 采集、3A 前处理、Opus 编码、NetEQ 抗抖动。',
     href:null, regions:['rg-audio'] },
-  { id:'video', area:'媒体与引擎', title:'视频引擎',
+  { id:'video', area:'媒体与传输', title:'视频引擎',
     desc:'采集、编码器选择、simulcast/SVC、JitterBuffer 与关键帧请求。',
     href:null, regions:['rg-video'] },
-  { id:'cc', area:'媒体与引擎', title:'拥塞控制与带宽估计',
+  { id:'cc', area:'媒体与传输', title:'拥塞控制与带宽估计',
     desc:'GCC、transport-cc 反馈：发多快，到底由谁说了算。',
-    href:null, regions:['rg-pipe'] }
+    href:null, regions:['rg-pipe'] },
+  { id:'data', area:'媒体与传输', title:'DataChannel 与 SCTP',
+    desc:'SCTP over DTLS：有序或乱序、可靠或半可靠，音视频之外的第三条流。',
+    href:null, regions:['rg-data'] },
+
+  { id:'topology', area:'规模与工程', title:'SFU / MCU 与规模化',
+    desc:'Mesh、SFU、MCU 怎么选；simulcast 与级联如何让一份流服务一千人。',
+    href:null, regions:['rg-topology'] },
+  { id:'debug', area:'规模与工程', title:'调试与观测',
+    desc:'webrtc-internals、getStats 与抓包：看见每一路流的心跳。',
+    href:null, regions:['rg-debug'] }
 ];
 
 const $  = (s,r)=> (r||document).querySelector(s);
@@ -583,6 +740,28 @@ $$('.card').forEach(function(c){
   });
   c.addEventListener('mouseleave',function(){
     $$('g[data-region].hi').forEach(function(g){ g.classList.remove('hi'); });
+  });
+});
+
+/* ── 学习小径 ↔ 卡片联动 ── */
+$$('.trail-stop').forEach(function(g){
+  const ids = (g.dataset.topics||'').split(' ').filter(Boolean);
+  const grown = ids.some(function(id){
+    const t = TOPICS.filter(function(x){ return x.id===id; })[0];
+    return t && t.href;
+  });
+  g.classList.add(grown ? 'grown' : 'seed');
+  function act(){
+    const cards = ids.map(function(id){ return $('#card-'+id); }).filter(Boolean);
+    if(!cards.length) return;
+    cards[0].scrollIntoView({behavior:'smooth',block:'center'});
+    cards.forEach(function(c){
+      c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash');
+    });
+  }
+  g.addEventListener('click',act);
+  g.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); act(); }
   });
 });
 
