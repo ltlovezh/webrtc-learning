@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
   <title id="title">WebRTC 实时连接</title>
-  <desc id="desc">陶橘与松绿两个端点通过双向链路相连</desc>
-  <rect x="3" y="3" width="58" height="58" rx="15" fill="#FFFAF6" stroke="#33271E" stroke-width="4"/>
-  <path d="M22 23.5 42 40.5" fill="none" stroke="#47646F" stroke-width="7" stroke-linecap="round"/>
-  <path d="m28.5 23 6.4 1.1-2.7 5.9M35.5 41l-6.4-1.1 2.7-5.9" fill="none" stroke="#FFFAF6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="18" cy="20" r="11" fill="#C9502B" stroke="#33271E" stroke-width="3"/>
-  <circle cx="46" cy="44" r="11" fill="#2F7A5F" stroke="#33271E" stroke-width="3"/>
-  <circle cx="18" cy="20" r="4" fill="#FFFAF6"/>
-  <circle cx="46" cy="44" r="4" fill="#FFFAF6"/>
+  <desc id="desc">陶土与林绿两个端点通过双向链路相连</desc>
+  <rect x="3" y="3" width="58" height="58" rx="15" fill="#FEFEFB" stroke="#333D2E" stroke-width="4"/>
+  <path d="M22 23.5 42 40.5" fill="none" stroke="#4E8378" stroke-width="7" stroke-linecap="round"/>
+  <path d="m28.5 23 6.4 1.1-2.7 5.9M35.5 41l-6.4-1.1 2.7-5.9" fill="none" stroke="#FEFEFB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="18" cy="20" r="11" fill="#C97B4A" stroke="#333D2E" stroke-width="3"/>
+  <circle cx="46" cy="44" r="11" fill="#4A7856" stroke="#333D2E" stroke-width="3"/>
+  <circle cx="18" cy="20" r="4" fill="#FEFEFB"/>
+  <circle cx="46" cy="44" r="4" fill="#FEFEFB"/>
 </svg>

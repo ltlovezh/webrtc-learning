@@ -8,34 +8,34 @@
 <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
 <link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
-<meta name="theme-color" content="#47646F">
+<meta name="theme-color" content="#4E8378">
 <style>
 /* ─────────────────────────────────────────────────────────────
    tokens — 与系列页（webrtc-sdp-exchange.html）同一套
    ───────────────────────────────────────────────────────────── */
 :root{
-  --paper:#F7EFE8;
-  --paper-2:#FFFAF6;
-  --paper-3:#EFE5DC;
-  --paper-4:#E1D5C8;
+  --paper:#F9FAF4;
+  --paper-2:#FEFEFB;
+  --paper-3:#F0F2E4;
+  --paper-4:#DDE4D2;
 
-  --ink:#33271E;
-  --ink-2:#6B5B4F;
-  --ink-3:#9C8B7E;
-  --rule:#D8CABD;
-  --rule-2:#EBE0D6;
+  --ink:#333D2E;
+  --ink-2:#66705A;
+  --ink-3:#8B957D;
+  --rule:#D5DCC6;
+  --rule-2:#E6EBDA;
 
-  --a:#C9502B;          /* Peer A · 发起方 · 陶橘 */
-  --a-soft:#F7E1D7;
-  --b:#2F7A5F;          /* Peer B · 应答方 · 松绿 */
-  --b-soft:#DFEBE4;
-  --wire:#47646F;       /* 信令 · 不属于任何一端的那段路 */
-  --wire-soft:#E6EDEF;
-  --wire-ink:#3F5B66;
+  --a:#C97B4A;          /* Peer A · 发起方 · 陶土 */
+  --a-soft:#F5E6D8;
+  --b:#4A7856;          /* Peer B · 应答方 · 林绿 */
+  --b-soft:#E7EFE3;
+  --wire:#4E8378;       /* 信令 · 不属于任何一端的那段路 */
+  --wire-soft:#E4EEE9;
+  --wire-ink:#3F6B60;
 
-  --shadow:#E0D3C5;
-  --sh-s:2px 3px 0 var(--shadow);
-  --sh-m:4px 5px 0 var(--shadow);
+  --shadow:#E3E8D8;
+  --sh-s:0 2px 10px rgba(74,120,86,.12);
+  --sh-m:0 6px 18px rgba(74,120,86,.14);
 
   --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Helvetica Neue",sans-serif;
   --serif:"Songti SC","STSong","Noto Serif SC","Source Han Serif SC",Georgia,serif;
@@ -82,7 +82,7 @@ h1{
 /* ── 地图 ── */
 .atlas{padding-block:clamp(28px,4vw,44px) clamp(40px,6vw,64px)}
 .map-frame{
-  background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);
   box-shadow:var(--sh-m);overflow:hidden;
 }
 .map-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -101,7 +101,7 @@ g[data-region]:hover .blk{fill:var(--paper-3)}
 g[data-region].hi,
 g[data-region]:focus-visible{transform:translateY(-2px)}
 g[data-region] .pin{visibility:hidden}
-g[data-region].has-open .pin{visibility:visible;fill:var(--a);stroke:none}
+g[data-region].has-open .pin{visibility:visible;fill:var(--b);stroke:none}
 g[data-region].wip .pin{visibility:visible;fill:none;stroke:var(--ink-3);stroke-width:1.6;stroke-dasharray:2.5 2.5}
 
 /* 信封往返：offer 去，answer 回 */
@@ -138,7 +138,7 @@ g[data-region].wip .pin{visibility:visible;fill:none;stroke:var(--ink-3);stroke-
 .guide{padding-block:0 clamp(40px,6vw,64px)}
 .guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:14px}
 .g-item{
-  background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);
   box-shadow:var(--sh-s);padding:16px 20px;
 }
 .g-k{
@@ -163,19 +163,19 @@ h2.h{
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:14px}
 .card{
   position:relative;display:block;text-decoration:none;
-  background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);
   box-shadow:var(--sh-s);padding:15px 18px 16px;
   transition:transform .14s,box-shadow .14s;
 }
-a.card:hover{transform:translate(-1px,-2px);box-shadow:4px 6px 0 var(--shadow)}
+a.card:hover{transform:translate(-1px,-2px);box-shadow:0 8px 22px rgba(74,120,86,.18)}
 .card.wip{border-style:dashed;border-color:var(--rule);background:transparent;box-shadow:none}
 .card-st{
   font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;
   display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;color:var(--ink-3);
 }
 .card-st .d{width:8px;height:8px;border-radius:50%}
-a.card .card-st{color:#A8401F}
-a.card .card-st .d{background:var(--a)}
+a.card .card-st{color:var(--b-ink,#3D6B4C)}
+a.card .card-st .d{background:#7FA96B}
 .card.wip .card-st .d{border:1.6px dashed var(--ink-3)}
 .card-t{font-family:var(--sans);font-weight:700;font-size:1rem;margin:0 0 6px;color:var(--ink)}
 .card.wip .card-t{color:var(--ink-2)}
@@ -220,159 +220,159 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
 <svg viewBox="0 0 1180 790" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="WebRTC 全景架构图：两台六层的机器塔楼相对而立，顶部虚线是你自己实现的信令通道，底部实线管道是库实现的 SRTP 媒体流，穿过 NAT 进入公网，STUN 与 TURN 在公网带里待命">
   <defs>
     <linearGradient id="pipeGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#C9502B"/>
-      <stop offset="1" stop-color="#2F7A5F"/>
+      <stop offset="0" stop-color="#C97B4A"/>
+      <stop offset="1" stop-color="#4A7856"/>
     </linearGradient>
   </defs>
 
   <!-- 公网带 -->
-  <rect x="56" y="648" width="1068" height="118" rx="14" fill="#ECF0F1"/>
-  <text x="1100" y="676" text-anchor="end" font-family="ui-monospace,Menlo,monospace" font-size="12" letter-spacing="2" fill="#8FA3AA">公网 · INTERNET</text>
+  <rect x="56" y="648" width="1068" height="134" rx="14" fill="#EDF2EC"/>
+  <text x="1100" y="676" text-anchor="end" font-family="ui-monospace,Menlo,monospace" font-size="12" letter-spacing="2" fill="#93A89B">公网 · INTERNET</text>
 
   <!-- ════ 塔楼 A ════ -->
   <g transform="translate(75,10)">
-    <ellipse cx="140" cy="622" rx="150" ry="12" fill="#E0D3C5" opacity=".6"/>
-    <line x1="140" y1="38" x2="140" y2="64" stroke="#33271E" stroke-width="3"/>
-    <circle cx="140" cy="33" r="7" fill="#C9502B"/>
-    <rect x="96" y="64" width="88" height="66" rx="12" fill="#FFFAF6" stroke="#33271E" stroke-width="2.5"/>
-    <rect x="106" y="76" width="68" height="42" rx="8" fill="#F7E1D7"/>
-    <circle cx="124" cy="93" r="4.5" fill="#33271E"/>
-    <circle cx="156" cy="93" r="4.5" fill="#33271E"/>
-    <path d="M128 108 h24" stroke="#33271E" stroke-width="2.5" stroke-linecap="round"/>
-    <rect x="126" y="130" width="28" height="20" fill="#FFFAF6" stroke="#33271E" stroke-width="2.5"/>
-    <rect x="0" y="150" width="280" height="470" rx="14" fill="#FFFAF6" stroke="#33271E" stroke-width="2.5"/>
+    <ellipse cx="140" cy="622" rx="150" ry="12" fill="#E3E8D8" opacity=".6"/>
+    <line x1="140" y1="38" x2="140" y2="64" stroke="#333D2E" stroke-width="3"/>
+    <circle cx="140" cy="33" r="7" fill="#C97B4A"/>
+    <rect x="96" y="64" width="88" height="66" rx="12" fill="#FEFEFB" stroke="#333D2E" stroke-width="2.5"/>
+    <rect x="106" y="76" width="68" height="42" rx="8" fill="#F5E6D8"/>
+    <circle cx="124" cy="93" r="4.5" fill="#333D2E"/>
+    <circle cx="156" cy="93" r="4.5" fill="#333D2E"/>
+    <path d="M128 108 h24" stroke="#333D2E" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="126" y="130" width="28" height="20" fill="#FEFEFB" stroke="#333D2E" stroke-width="2.5"/>
+    <rect x="0" y="150" width="280" height="470" rx="14" fill="#FEFEFB" stroke="#333D2E" stroke-width="2.5"/>
 
     <g data-region="rg-app" tabindex="0" role="button" aria-label="你的应用层：UI、业务与信令客户端">
-      <rect class="blk" x="16" y="166" width="248" height="62" rx="8" fill="#FFFAF6" stroke="#33271E" stroke-width="2"/>
-      <text x="30" y="192" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#33271E">你的应用</text>
-      <text x="30" y="212" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#9C8B7E">UI · 业务 · 信令客户端</text>
-      <text x="248" y="192" text-anchor="end" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#A8401F">你写的</text>
+      <rect class="blk" x="16" y="166" width="248" height="62" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="30" y="192" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#333D2E">你的应用</text>
+      <text x="30" y="212" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#8B957D">UI · 业务 · 信令客户端</text>
+      <text x="248" y="192" text-anchor="end" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#A05C2C">你写的</text>
       <circle class="pin" cx="248" cy="209" r="5"/>
     </g>
     <g data-region="rg-jsep" tabindex="0" role="button" aria-label="PeerConnection 与 JSEP 层">
-      <rect class="blk" x="16" y="238" width="248" height="62" rx="8" fill="#FFFAF6" stroke="#33271E" stroke-width="2"/>
-      <text x="30" y="264" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#33271E">PeerConnection</text>
-      <text x="30" y="284" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#9C8B7E">JSEP · api/ · pc/</text>
+      <rect class="blk" x="16" y="238" width="248" height="62" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="30" y="264" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#333D2E">PeerConnection</text>
+      <text x="30" y="284" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#8B957D">JSEP · api/ · pc/</text>
       <circle class="pin" cx="248" cy="281" r="5"/>
     </g>
     <g data-region="rg-transport" tabindex="0" role="button" aria-label="传输安全层：ICE、DTLS、SRTP">
-      <rect class="blk" x="16" y="310" width="248" height="86" rx="8" fill="#FFFAF6" stroke="#33271E" stroke-width="2"/>
-      <text x="30" y="336" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#33271E">传输安全</text>
+      <rect class="blk" x="16" y="310" width="248" height="86" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="30" y="336" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#333D2E">传输安全</text>
       <g font-family="ui-monospace,Menlo,monospace" font-size="10.5">
-        <rect x="30" y="350" width="52" height="24" rx="12" fill="#EFE5DC"/>
-        <text x="56" y="366" text-anchor="middle" fill="#6B5B4F">ICE</text>
-        <rect x="90" y="350" width="58" height="24" rx="12" fill="#EFE5DC"/>
-        <text x="119" y="366" text-anchor="middle" fill="#6B5B4F">DTLS</text>
-        <rect x="156" y="350" width="58" height="24" rx="12" fill="#EFE5DC"/>
-        <text x="185" y="366" text-anchor="middle" fill="#6B5B4F">SRTP</text>
+        <rect x="30" y="350" width="52" height="24" rx="12" fill="#F0F2E4"/>
+        <text x="56" y="366" text-anchor="middle" fill="#66705A">ICE</text>
+        <rect x="90" y="350" width="58" height="24" rx="12" fill="#F0F2E4"/>
+        <text x="119" y="366" text-anchor="middle" fill="#66705A">DTLS</text>
+        <rect x="156" y="350" width="58" height="24" rx="12" fill="#F0F2E4"/>
+        <text x="185" y="366" text-anchor="middle" fill="#66705A">SRTP</text>
       </g>
       <circle class="pin" cx="248" cy="377" r="5"/>
     </g>
     <g data-region="rg-audio" tabindex="0" role="button" aria-label="音频引擎">
-      <rect class="blk" x="16" y="406" width="118" height="92" rx="8" fill="#FFFAF6" stroke="#33271E" stroke-width="2"/>
-      <text x="30" y="434" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#33271E">音频引擎</text>
-      <text x="30" y="454" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#9C8B7E">Opus · 3A</text>
-      <text x="30" y="470" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#9C8B7E">NetEQ</text>
+      <rect class="blk" x="16" y="406" width="118" height="92" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="30" y="434" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#333D2E">音频引擎</text>
+      <text x="30" y="454" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">Opus · 3A</text>
+      <text x="30" y="470" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">NetEQ</text>
       <circle class="pin" cx="118" cy="424" r="5"/>
     </g>
     <g data-region="rg-video" tabindex="0" role="button" aria-label="视频引擎">
-      <rect class="blk" x="146" y="406" width="118" height="92" rx="8" fill="#FFFAF6" stroke="#33271E" stroke-width="2"/>
-      <text x="160" y="434" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#33271E">视频引擎</text>
-      <text x="160" y="454" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#9C8B7E">VP8 · H264</text>
-      <text x="160" y="470" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#9C8B7E">JitterBuffer</text>
+      <rect class="blk" x="146" y="406" width="118" height="92" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="160" y="434" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#333D2E">视频引擎</text>
+      <text x="160" y="454" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">VP8 · H264</text>
+      <text x="160" y="470" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">JitterBuffer</text>
       <circle class="pin" cx="248" cy="424" r="5"/>
     </g>
     <g>
-      <rect x="16" y="508" width="248" height="56" rx="8" fill="#EFE5DC" stroke="#33271E" stroke-width="2" stroke-dasharray="none"/>
-      <text x="30" y="532" font-family="ui-monospace,Menlo,monospace" font-size="12.5" font-weight="600" fill="#6B5B4F">系统层</text>
-      <text x="30" y="550" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#9C8B7E">采集 · 渲染 · Socket</text>
+      <rect x="16" y="508" width="248" height="56" rx="8" fill="#F0F2E4" stroke="#333D2E" stroke-width="2" stroke-dasharray="none"/>
+      <text x="30" y="532" font-family="ui-monospace,Menlo,monospace" font-size="12.5" font-weight="600" fill="#66705A">系统层</text>
+      <text x="30" y="550" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">采集 · 渲染 · Socket</text>
     </g>
-    <text x="140" y="596" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" letter-spacing="1.5" fill="#A8401F">PEER A · 发起方</text>
+    <text x="140" y="596" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" letter-spacing="1.5" fill="#A05C2C">PEER A · 发起方</text>
   </g>
 
   <!-- ════ 塔楼 B ════ -->
   <g transform="translate(825,10)">
-    <ellipse cx="140" cy="622" rx="150" ry="12" fill="#E0D3C5" opacity=".6"/>
-    <line x1="140" y1="38" x2="140" y2="64" stroke="#33271E" stroke-width="3"/>
-    <circle cx="140" cy="33" r="7" fill="#2F7A5F"/>
-    <rect x="96" y="64" width="88" height="66" rx="12" fill="#FFFAF6" stroke="#33271E" stroke-width="2.5"/>
-    <rect x="106" y="76" width="68" height="42" rx="8" fill="#DFEBE4"/>
-    <circle cx="124" cy="93" r="4.5" fill="#33271E"/>
-    <circle cx="156" cy="93" r="4.5" fill="#33271E"/>
-    <path d="M128 108 h24" stroke="#33271E" stroke-width="2.5" stroke-linecap="round"/>
-    <rect x="126" y="130" width="28" height="20" fill="#FFFAF6" stroke="#33271E" stroke-width="2.5"/>
-    <rect x="0" y="150" width="280" height="470" rx="14" fill="#FFFAF6" stroke="#33271E" stroke-width="2.5"/>
+    <ellipse cx="140" cy="622" rx="150" ry="12" fill="#E3E8D8" opacity=".6"/>
+    <line x1="140" y1="38" x2="140" y2="64" stroke="#333D2E" stroke-width="3"/>
+    <circle cx="140" cy="33" r="7" fill="#4A7856"/>
+    <rect x="96" y="64" width="88" height="66" rx="12" fill="#FEFEFB" stroke="#333D2E" stroke-width="2.5"/>
+    <rect x="106" y="76" width="68" height="42" rx="8" fill="#E7EFE3"/>
+    <circle cx="124" cy="93" r="4.5" fill="#333D2E"/>
+    <circle cx="156" cy="93" r="4.5" fill="#333D2E"/>
+    <path d="M128 108 h24" stroke="#333D2E" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="126" y="130" width="28" height="20" fill="#FEFEFB" stroke="#333D2E" stroke-width="2.5"/>
+    <rect x="0" y="150" width="280" height="470" rx="14" fill="#FEFEFB" stroke="#333D2E" stroke-width="2.5"/>
 
     <g data-region="rg-app" tabindex="0" role="button" aria-label="你的应用层：UI、业务与信令客户端">
-      <rect class="blk" x="16" y="166" width="248" height="62" rx="8" fill="#FFFAF6" stroke="#33271E" stroke-width="2"/>
-      <text x="30" y="192" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#33271E">你的应用</text>
-      <text x="30" y="212" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#9C8B7E">UI · 业务 · 信令客户端</text>
-      <text x="248" y="192" text-anchor="end" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#26644C">你写的</text>
+      <rect class="blk" x="16" y="166" width="248" height="62" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="30" y="192" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#333D2E">你的应用</text>
+      <text x="30" y="212" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#8B957D">UI · 业务 · 信令客户端</text>
+      <text x="248" y="192" text-anchor="end" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#3D6B4C">你写的</text>
       <circle class="pin" cx="248" cy="209" r="5"/>
     </g>
     <g data-region="rg-jsep" tabindex="0" role="button" aria-label="PeerConnection 与 JSEP 层">
-      <rect class="blk" x="16" y="238" width="248" height="62" rx="8" fill="#FFFAF6" stroke="#33271E" stroke-width="2"/>
-      <text x="30" y="264" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#33271E">PeerConnection</text>
-      <text x="30" y="284" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#9C8B7E">JSEP · api/ · pc/</text>
+      <rect class="blk" x="16" y="238" width="248" height="62" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="30" y="264" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#333D2E">PeerConnection</text>
+      <text x="30" y="284" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#8B957D">JSEP · api/ · pc/</text>
       <circle class="pin" cx="248" cy="281" r="5"/>
     </g>
     <g data-region="rg-transport" tabindex="0" role="button" aria-label="传输安全层：ICE、DTLS、SRTP">
-      <rect class="blk" x="16" y="310" width="248" height="86" rx="8" fill="#FFFAF6" stroke="#33271E" stroke-width="2"/>
-      <text x="30" y="336" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#33271E">传输安全</text>
+      <rect class="blk" x="16" y="310" width="248" height="86" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="30" y="336" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#333D2E">传输安全</text>
       <g font-family="ui-monospace,Menlo,monospace" font-size="10.5">
-        <rect x="30" y="350" width="52" height="24" rx="12" fill="#EFE5DC"/>
-        <text x="56" y="366" text-anchor="middle" fill="#6B5B4F">ICE</text>
-        <rect x="90" y="350" width="58" height="24" rx="12" fill="#EFE5DC"/>
-        <text x="119" y="366" text-anchor="middle" fill="#6B5B4F">DTLS</text>
-        <rect x="156" y="350" width="58" height="24" rx="12" fill="#EFE5DC"/>
-        <text x="185" y="366" text-anchor="middle" fill="#6B5B4F">SRTP</text>
+        <rect x="30" y="350" width="52" height="24" rx="12" fill="#F0F2E4"/>
+        <text x="56" y="366" text-anchor="middle" fill="#66705A">ICE</text>
+        <rect x="90" y="350" width="58" height="24" rx="12" fill="#F0F2E4"/>
+        <text x="119" y="366" text-anchor="middle" fill="#66705A">DTLS</text>
+        <rect x="156" y="350" width="58" height="24" rx="12" fill="#F0F2E4"/>
+        <text x="185" y="366" text-anchor="middle" fill="#66705A">SRTP</text>
       </g>
       <circle class="pin" cx="248" cy="377" r="5"/>
     </g>
     <g data-region="rg-audio" tabindex="0" role="button" aria-label="音频引擎">
-      <rect class="blk" x="16" y="406" width="118" height="92" rx="8" fill="#FFFAF6" stroke="#33271E" stroke-width="2"/>
-      <text x="30" y="434" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#33271E">音频引擎</text>
-      <text x="30" y="454" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#9C8B7E">Opus · 3A</text>
-      <text x="30" y="470" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#9C8B7E">NetEQ</text>
+      <rect class="blk" x="16" y="406" width="118" height="92" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="30" y="434" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#333D2E">音频引擎</text>
+      <text x="30" y="454" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">Opus · 3A</text>
+      <text x="30" y="470" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">NetEQ</text>
       <circle class="pin" cx="118" cy="424" r="5"/>
     </g>
     <g data-region="rg-video" tabindex="0" role="button" aria-label="视频引擎">
-      <rect class="blk" x="146" y="406" width="118" height="92" rx="8" fill="#FFFAF6" stroke="#33271E" stroke-width="2"/>
-      <text x="160" y="434" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#33271E">视频引擎</text>
-      <text x="160" y="454" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#9C8B7E">VP8 · H264</text>
-      <text x="160" y="470" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#9C8B7E">JitterBuffer</text>
+      <rect class="blk" x="146" y="406" width="118" height="92" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="160" y="434" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#333D2E">视频引擎</text>
+      <text x="160" y="454" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">VP8 · H264</text>
+      <text x="160" y="470" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">JitterBuffer</text>
       <circle class="pin" cx="248" cy="424" r="5"/>
     </g>
     <g>
-      <rect x="16" y="508" width="248" height="56" rx="8" fill="#EFE5DC" stroke="#33271E" stroke-width="2"/>
-      <text x="30" y="532" font-family="ui-monospace,Menlo,monospace" font-size="12.5" font-weight="600" fill="#6B5B4F">系统层</text>
-      <text x="30" y="550" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#9C8B7E">采集 · 渲染 · Socket</text>
+      <rect x="16" y="508" width="248" height="56" rx="8" fill="#F0F2E4" stroke="#333D2E" stroke-width="2"/>
+      <text x="30" y="532" font-family="ui-monospace,Menlo,monospace" font-size="12.5" font-weight="600" fill="#66705A">系统层</text>
+      <text x="30" y="550" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">采集 · 渲染 · Socket</text>
     </g>
-    <text x="140" y="596" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" letter-spacing="1.5" fill="#26644C">PEER B · 应答方</text>
+    <text x="140" y="596" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" letter-spacing="1.5" fill="#3D6B4C">PEER B · 应答方</text>
   </g>
 
   <!-- ════ 信令通道（你实现） ════ -->
   <g data-region="rg-signal" tabindex="0" role="button" aria-label="信令通道：SDP offer 与 answer 经你自己搭的服务器往返">
-    <path d="M339 207 C 400 110, 470 92, 552 92" fill="none" stroke="#B4C6CC" stroke-width="3" stroke-dasharray="8 10" stroke-linecap="round"/>
-    <path d="M628 92 C 710 92, 780 110, 841 207" fill="none" stroke="#B4C6CC" stroke-width="3" stroke-dasharray="8 10" stroke-linecap="round"/>
+    <path d="M339 207 C 400 110, 470 92, 552 92" fill="none" stroke="#BCCDBF" stroke-width="3" stroke-dasharray="8 10" stroke-linecap="round"/>
+    <path d="M628 92 C 710 92, 780 110, 841 207" fill="none" stroke="#BCCDBF" stroke-width="3" stroke-dasharray="8 10" stroke-linecap="round"/>
     <g class="blk-none">
-      <rect class="blk" x="552" y="64" width="76" height="56" rx="8" fill="#FFFAF6" stroke="#33271E" stroke-width="2.5"/>
-      <path d="M558 74 L590 96 L622 74" fill="none" stroke="#3F5B66" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect class="blk" x="552" y="64" width="76" height="56" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2.5"/>
+      <path d="M558 74 L590 96 L622 74" fill="none" stroke="#3F6B60" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
       <circle class="pin" cx="622" cy="112" r="5"/>
     </g>
-    <text x="590" y="142" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11.5" fill="#3F5B66">信令服务器</text>
-    <text x="590" y="160" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#9C8B7E">你自己搭 · WSS</text>
-    <text x="590" y="40" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" letter-spacing="2" fill="#8FA3AA">虚线 —— 这段你自己实现</text>
+    <text x="590" y="142" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11.5" fill="#3F6B60">信令服务器</text>
+    <text x="590" y="160" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">你自己搭 · WSS</text>
+    <text x="590" y="40" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" letter-spacing="2" fill="#93A89B">虚线 —— 这段你自己实现</text>
   </g>
 
   <!-- 信封（offer 去 / answer 回） -->
   <g class="env env-a" aria-hidden="true">
-    <rect x="-11" y="-8" width="22" height="16" rx="2.5" fill="#F7E1D7" stroke="#A8401F" stroke-width="2"/>
-    <path d="M-9 -6 L0 2 L9 -6" fill="none" stroke="#A8401F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="-11" y="-8" width="22" height="16" rx="2.5" fill="#F5E6D8" stroke="#A05C2C" stroke-width="2"/>
+    <path d="M-9 -6 L0 2 L9 -6" fill="none" stroke="#A05C2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
   <g class="env env-b" aria-hidden="true">
-    <rect x="-11" y="-8" width="22" height="16" rx="2.5" fill="#DFEBE4" stroke="#26644C" stroke-width="2"/>
-    <path d="M-9 -6 L0 2 L9 -6" fill="none" stroke="#26644C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="-11" y="-8" width="22" height="16" rx="2.5" fill="#E7EFE3" stroke="#3D6B4C" stroke-width="2"/>
+    <path d="M-9 -6 L0 2 L9 -6" fill="none" stroke="#3D6B4C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
 
   <!-- ════ 媒体管道（库实现） ════ -->
@@ -380,38 +380,38 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
     <path d="M215 630 L215 682 Q215 700 233 700 L947 700 Q965 700 965 682 L965 630"
           fill="none" stroke="url(#pipeGrad)" stroke-width="12" stroke-linecap="round"/>
     <path class="flow" d="M215 630 L215 682 Q215 700 233 700 L947 700 Q965 700 965 682 L965 630"
-          fill="none" stroke="#FFFAF6" stroke-width="4" stroke-linecap="round" stroke-dasharray="3 25" opacity=".85"/>
-    <rect class="blk" x="196" y="638" width="38" height="24" rx="5" fill="#E1D5C8" stroke="#33271E" stroke-width="2"/>
-    <text x="215" y="654" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#33271E">NAT</text>
-    <rect class="blk" x="946" y="638" width="38" height="24" rx="5" fill="#E1D5C8" stroke="#33271E" stroke-width="2"/>
-    <text x="965" y="654" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#33271E">NAT</text>
-    <text x="590" y="686" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" letter-spacing="1" fill="#6B5B4F">WebRTC 库打通 · SRTP 双向加密媒体流</text>
+          fill="none" stroke="#FEFEFB" stroke-width="4" stroke-linecap="round" stroke-dasharray="3 25" opacity=".85"/>
+    <rect class="blk" x="196" y="638" width="38" height="24" rx="5" fill="#DDE4D2" stroke="#333D2E" stroke-width="2"/>
+    <text x="215" y="654" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#333D2E">NAT</text>
+    <rect class="blk" x="946" y="638" width="38" height="24" rx="5" fill="#DDE4D2" stroke="#333D2E" stroke-width="2"/>
+    <text x="965" y="654" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#333D2E">NAT</text>
+    <text x="590" y="686" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" letter-spacing="1" fill="#66705A">WebRTC 库打通 · SRTP 双向加密媒体流</text>
     <circle class="pin" cx="590" cy="716" r="5"/>
   </g>
 
   <!-- STUN -->
   <g data-region="rg-stun" tabindex="0" role="button" aria-label="STUN：查询自己的公网地址">
-    <path d="M255 662 C 320 720, 380 738, 428 738" fill="none" stroke="#B4C6CC" stroke-width="2" stroke-dasharray="4 6"/>
+    <path d="M255 662 C 320 720, 380 738, 428 738" fill="none" stroke="#BCCDBF" stroke-width="2" stroke-dasharray="4 6"/>
     <g class="blk-none">
-      <ellipse class="blk" cx="452" cy="736" rx="34" ry="18" fill="#FFFAF6" stroke="#33271E" stroke-width="2"/>
-      <ellipse class="blk" cx="478" cy="730" rx="26" ry="15" fill="#FFFAF6" stroke="#33271E" stroke-width="2"/>
-      <ellipse class="blk" cx="464" cy="740" rx="40" ry="14" fill="#FFFAF6" stroke="#FFFAF6" stroke-width="4"/>
+      <ellipse class="blk" cx="452" cy="736" rx="34" ry="18" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <ellipse class="blk" cx="478" cy="730" rx="26" ry="15" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <ellipse class="blk" cx="464" cy="740" rx="40" ry="14" fill="#FEFEFB" stroke="#FEFEFB" stroke-width="4"/>
       <circle class="pin" cx="497" cy="717" r="5"/>
     </g>
-    <text x="464" y="744" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#3F5B66">STUN</text>
-    <text x="464" y="770" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#9C8B7E">「你的公网地址是…」</text>
+    <text x="464" y="744" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#3F6B60">STUN</text>
+    <text x="464" y="770" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#8B957D">「你的公网地址是…」</text>
   </g>
 
   <!-- TURN -->
   <g data-region="rg-turn" tabindex="0" role="button" aria-label="TURN 中继：打洞失败时的兜底">
-    <line x1="740" y1="700" x2="740" y2="722" stroke="#33271E" stroke-width="2"/>
+    <line x1="740" y1="700" x2="740" y2="722" stroke="#333D2E" stroke-width="2"/>
     <g class="blk-none">
-      <rect class="blk" x="716" y="722" width="48" height="30" rx="6" fill="#FFFAF6" stroke="#33271E" stroke-width="2"/>
-      <path d="M726 722 v-8 M754 722 v-8" stroke="#33271E" stroke-width="2"/>
+      <rect class="blk" x="716" y="722" width="48" height="30" rx="6" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <path d="M726 722 v-8 M754 722 v-8" stroke="#333D2E" stroke-width="2"/>
       <circle class="pin" cx="764" cy="717" r="5"/>
     </g>
-    <text x="740" y="742" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#3F5B66">TURN</text>
-    <text x="740" y="770" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#9C8B7E">打洞失败时中继兜底</text>
+    <text x="740" y="742" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#3F6B60">TURN</text>
+    <text x="740" y="770" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#8B957D">打洞失败时中继兜底</text>
   </g>
 </svg>
       </div>
@@ -456,7 +456,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
       <p><b>以后怎么往这页加专题：</b>打开本文件，在 <code>&lt;script&gt;</code> 里的 <code>TOPICS</code> 数组末尾追加一条即可，卡片和地图会自动联动：</p>
       <pre>{ id:'neteq', area:'媒体与引擎', title:'NetEQ 抗抖动',
   desc:'一句话说清这个专题讲什么。',
-  href:'neteq.html',          // 还没写好就填 null，显示为「在建」
+  href:'neteq.html',          // 还没写好就填 null，显示为「发芽中」
   regions:['rg-audio'] }      // 对应地图块的 data-region，可多个</pre>
       <p class="fm">WebRTC 学习笔记 · 首页 · 基于本地 checkout src@6af87f3957</p>
     </div>
@@ -473,7 +473,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
    学习目录 —— 加专题只改这里
    区域 area：卡片分组标题
    regions ：地图块的 data-region（可多个，可省略）
-   href    ：null = 在建
+   href    ：null = 发芽中
    ═══════════════════════════════════════════════ */
 const TOPICS = [
   { id:'sdp', area:'信令与协商', title:'SDP 协商',
@@ -519,7 +519,7 @@ areas.forEach(function(area){
   sec.className='area';
   sec.innerHTML = '<div class="area-hd"><h3></h3><span class="n"></span></div><div class="cards"></div>';
   $('h3',sec).textContent = area;
-  $('.n',sec).textContent = done+' 可读 / '+list.length+' 规划';
+  $('.n',sec).textContent = done+' 已长成 / '+list.length+' 规划';
   const grid = $('.cards',sec);
   list.forEach(function(t){
     const el = document.createElement(t.href ? 'a' : 'div');
@@ -529,7 +529,7 @@ areas.forEach(function(area){
     if(t.href) el.href = t.href; else el.setAttribute('aria-disabled','true');
     el.innerHTML = '<span class="card-st"><span class="d"></span><span class="stx"></span></span>'
                  + '<p class="card-t"></p><p class="card-d"></p>';
-    $('.stx',el).textContent = t.href ? '可读' : '在建';
+    $('.stx',el).textContent = t.href ? '已长成' : '发芽中';
     $('.card-t',el).textContent = t.title;
     $('.card-d',el).textContent = t.desc;
     grid.appendChild(el);
@@ -537,9 +537,9 @@ areas.forEach(function(area){
   body.appendChild(sec);
 });
 const doneAll = TOPICS.filter(function(t){ return t.href; }).length;
-$('#tocSum').textContent = doneAll+' 个专题可读 · '+(TOPICS.length-doneAll)+' 个在建 · 地图上的实心点 = 可读';
+$('#tocSum').textContent = doneAll+' 个专题已长成 · '+(TOPICS.length-doneAll)+' 个发芽中 · 地图上的实心点 = 已长成';
 
-/* ── 地图块状态（有可读专题 → 实心点；只有规划 → 虚圈） ── */
+/* ── 地图块状态（有已长成专题 → 实心点；只有规划 → 虚圈） ── */
 const regionState = {};
 TOPICS.forEach(function(t){
   (t.regions||[]).forEach(function(r){

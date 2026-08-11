@@ -8,40 +8,40 @@
 <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
 <link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
-<meta name="theme-color" content="#47646F">
+<meta name="theme-color" content="#4E8378">
 <style>
 /* ─────────────────────────────────────────────────────────────
    tokens — 暖纸 · 棕墨 · 平涂插画
    ───────────────────────────────────────────────────────────── */
 :root{
   /* 中性色一律走暖陶色相（~26°），而不是奶黄（~40°）：有暖度，但不发黄 */
-  --paper:#F7EFE8;
-  --paper-2:#FFFAF6;
-  --paper-3:#EFE5DC;
-  --paper-4:#E1D5C8;
+  --paper:#F9FAF4;
+  --paper-2:#FEFEFB;
+  --paper-3:#F0F2E4;
+  --paper-4:#DDE4D2;
 
-  --ink:#33271E;
-  --ink-2:#6B5B4F;
-  --ink-3:#9C8B7E;
-  --rule:#D8CABD;
-  --rule-2:#EBE0D6;
+  --ink:#333D2E;
+  --ink-2:#66705A;
+  --ink-3:#8B957D;
+  --rule:#D5DCC6;
+  --rule-2:#E6EBDA;
 
-  --a:#C9502B;            /* Peer A · 发起方 · 陶橘 */
-  --a-soft:#F7E1D7;
-  --a-mid:#E9A183;
-  --b:#2F7A5F;            /* Peer B · 应答方 · 松绿 */
-  --b-soft:#DFEBE4;
+  --a:#C97B4A;            /* Peer A · 发起方 · 陶土 */
+  --a-soft:#F5E6D8;
+  --a-mid:#DFAF85;
+  --b:#4A7856;            /* Peer B · 应答方 · 林绿 */
+  --b-soft:#E7EFE3;
   --b-mid:#93BCA8;
-  --wire:#47646F;        /* 信令通道 · 不属于任何一端的那段路 */
-  --wire-soft:#E6EDEF;
-  --wire-ink:#3F5B66;
+  --wire:#4E8378;        /* 信令通道 · 不属于任何一端的那段路 */
+  --wire-soft:#E4EEE9;
+  --wire-ink:#3F6B60;
   --berry:#A33B47;        /* 出错 */
   --berry-soft:#F6E0E2;
 
-  --shadow:#E0D3C5;
-  --sh-s:2px 3px 0 var(--shadow);
-  --sh-m:4px 5px 0 var(--shadow);
-  --sh-l:6px 8px 0 var(--shadow);
+  --shadow:#E3E8D8;
+  --sh-s:0 2px 10px rgba(74,120,86,.12);
+  --sh-m:0 6px 18px rgba(74,120,86,.14);
+  --sh-l:0 10px 26px rgba(74,120,86,.16);
 
   --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Helvetica Neue",sans-serif;
   --serif:"Songti SC","STSong","Noto Serif SC","Source Han Serif SC",Georgia,serif;
@@ -95,11 +95,11 @@ p.note{color:var(--ink-2);font-size:.94rem;max-width:64ch}
 code{font-family:var(--mono);font-size:.88em}
 /* 行内协议片段：默认中性，只有明确归属某一端时才上色 */
 .m{
-  font-family:var(--mono);font-size:.86em;color:#4A3B30;background:var(--paper-3);
+  font-family:var(--mono);font-size:.86em;color:#3B4534;background:var(--paper-3);
   padding:1.5px 6px;border-radius:4px;white-space:nowrap;
 }
-.m.a{color:#A8401F;background:var(--a-soft)}
-.m.b{color:#26644C;background:var(--b-soft)}
+.m.a{color:#A05C2C;background:var(--a-soft)}
+.m.b{color:#3D6B4C;background:var(--b-soft)}
 
 /* ─────────────────────────────────────────────────────────────
    HERO
@@ -117,7 +117,7 @@ code{font-family:var(--mono);font-size:.88em}
 }
 .hero-lede{font-size:clamp(1.02rem,1.7vw,1.18rem);color:var(--ink-2);max-width:44ch;margin:0 0 24px}
 .kicker{
-  position:relative;background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  position:relative;background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);
   box-shadow:var(--sh-m);padding:16px 20px;margin:0;max-width:44ch;font-size:1rem;
 }
 .kicker b{color:var(--a);font-weight:700}
@@ -142,7 +142,7 @@ code{font-family:var(--mono);font-size:.88em}
 .chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper-2);box-shadow:var(--sh-s)}
 
 .sdp-doc{
-  background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--sh-m);
+  background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);box-shadow:var(--sh-m);
   padding:10px 0 14px;max-height:min(70vh,640px);overflow-y:auto;position:relative;
 }
 .sdp-doc::-webkit-scrollbar{width:10px}
@@ -169,7 +169,7 @@ code{font-family:var(--mono);font-size:.88em}
 .ln.on .tx{color:var(--ink)}
 
 .expl{position:sticky;top:20px}
-.expl-in{background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--sh-m);padding:20px 22px 22px}
+.expl-in{background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);box-shadow:var(--sh-m);padding:20px 22px 22px}
 .expl-tag{
   display:inline-block;font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;
   padding:3px 11px;border-radius:20px;margin-bottom:14px;border:1.5px solid currentColor;
@@ -191,7 +191,7 @@ code{font-family:var(--mono);font-size:.88em}
   margin-top:32px;align-items:stretch;
 }
 .peer{
-  background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);
   box-shadow:var(--sh-m);padding:18px 20px 20px;transition:transform .3s,box-shadow .3s;
 }
 .peer.act{transform:translateY(-3px)}
@@ -207,7 +207,7 @@ code{font-family:var(--mono);font-size:.88em}
 .state-lb{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;color:var(--ink-3);display:block;margin-bottom:6px}
 .state{
   display:inline-block;font-family:var(--mono);font-size:.79rem;
-  padding:5px 12px;border-radius:20px;border:2px solid var(--ink);background:var(--paper-3);
+  padding:5px 12px;border-radius:20px;border:1.5px solid var(--rule);background:var(--paper-3);
 }
 .peer-a .state{background:var(--a-soft)}
 .peer-b .state{background:var(--b-soft)}
@@ -229,7 +229,7 @@ code{font-family:var(--mono);font-size:.88em}
 .spine{position:relative;display:flex;align-items:center;justify-content:center}
 .spine::before{
   content:"";position:absolute;top:14px;bottom:14px;left:50%;width:0;
-  border-left:3px dashed #B4C6CC;transform:translateX(-1.5px);
+  border-left:3px dashed #BCCDBF;transform:translateX(-1.5px);
 }
 .spine-lb{
   position:relative;writing-mode:vertical-rl;font-family:var(--mono);
@@ -241,18 +241,18 @@ code{font-family:var(--mono);font-size:.88em}
   transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;
   display:flex;align-items:center;gap:8px;white-space:nowrap;
   font-family:var(--mono);font-size:.7rem;
-  border:2px solid var(--ink);border-radius:20px;padding:6px 14px;box-shadow:var(--sh-s);
+  border:1.5px solid var(--rule);border-radius:20px;padding:6px 14px;box-shadow:var(--sh-s);
   transition:transform 1s cubic-bezier(.45,.05,.3,1),opacity .3s;
 }
 .packet svg{width:16px;height:13px;flex:none}
 .packet.show{opacity:1}
-.packet.offer{background:var(--a-soft);color:#A8401F}
-.packet.answer{background:var(--b-soft);color:#26644C}
-.packet.ice{background:var(--wire-soft);color:#3F5B66}
+.packet.offer{background:var(--a-soft);color:#A05C2C}
+.packet.answer{background:var(--b-soft);color:#3D6B4C}
+.packet.ice{background:var(--wire-soft);color:#3F6B60}
 
 .readout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;margin-top:24px}
 .step-card{
-  background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);
   box-shadow:var(--sh-m);padding:18px 22px 20px;position:relative;overflow:hidden;
 }
 .step-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px}
@@ -265,17 +265,17 @@ code{font-family:var(--mono);font-size:.88em}
 .step-d b{color:var(--ink);font-weight:700}
 .src-card{background:var(--paper-3);border:2px dashed var(--rule);border-radius:var(--r);padding:18px 20px}
 .src-lb{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;color:var(--ink-3);display:block;margin-bottom:9px}
-.src-p{font-family:var(--mono);font-size:.77rem;color:#3F5B66;word-break:break-all;line-height:1.7;display:block;margin-bottom:8px;text-decoration:none;border-bottom:1.5px solid transparent}
+.src-p{font-family:var(--mono);font-size:.77rem;color:#3F6B60;word-break:break-all;line-height:1.7;display:block;margin-bottom:8px;text-decoration:none;border-bottom:1.5px solid transparent}
 a.src-p:hover{border-bottom-color:var(--wire)}
 .src-n{font-size:.86rem;color:var(--ink-2);margin:0}
 
 .ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:22px}
 .btn{
   font-family:var(--mono);font-size:.74rem;letter-spacing:.05em;
-  border:2px solid var(--ink);border-radius:20px;padding:7px 16px;background:var(--paper-2);
+  border:1.5px solid var(--rule);border-radius:20px;padding:7px 16px;background:var(--paper-2);
   box-shadow:var(--sh-s);transition:transform .12s,box-shadow .12s,opacity .2s,background .2s;
 }
-.btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:3px 4px 0 var(--shadow)}
+.btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:0 4px 14px rgba(74,120,86,.18)}
 .btn:active:not(:disabled){transform:translate(1px,2px);box-shadow:0 0 0 var(--shadow)}
 .btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
 .btn.pri{background:var(--ink);color:var(--paper-2);border-color:var(--ink)}
@@ -304,7 +304,7 @@ a.src-p:hover{border-bottom-color:var(--wire)}
 }
 .pipe-contrast{display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr);gap:12px;margin-top:26px}
 .contrast-item{
-  min-width:0;border:2px solid var(--ink);border-radius:var(--r);background:var(--paper-2);
+  min-width:0;border:1.5px solid var(--rule);border-radius:var(--r);background:var(--paper-2);
   box-shadow:var(--sh-s);padding:14px 16px;
 }
 .contrast-item.myth{border-style:dashed;border-color:var(--rule);box-shadow:none;color:var(--ink-3)}
@@ -315,14 +315,14 @@ a.src-p:hover{border-bottom-color:var(--wire)}
   position:absolute;height:29px;display:flex;align-items:center;padding:0 12px;
   border:1.5px solid var(--ink);border-radius:20px;white-space:nowrap;overflow:hidden;
 }
-.overlap-bar.sdp{left:0;right:25%;top:0;background:var(--a-soft);color:#A8401F}
+.overlap-bar.sdp{left:0;right:25%;top:0;background:var(--a-soft);color:#A05C2C}
 .overlap-bar.ice{left:22%;right:0;bottom:0;background:var(--wire-soft);color:var(--wire-ink)}
 
 .bridge-subhead{display:flex;align-items:center;gap:12px;margin:28px 0 11px}
 .bridge-subhead::before{content:"";width:22px;height:2px;background:var(--wire);border-radius:2px;flex:0 0 auto}
 .bridge-subhead span{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;color:var(--ink-2)}
 .seq-overview{
-  background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);
   box-shadow:var(--sh-m);overflow:hidden;
 }
 .seq-swipe{display:none}
@@ -349,14 +349,14 @@ a.src-p:hover{border-bottom-color:var(--wire)}
 .seq-map .milestone-text{font-family:var(--sans);font-size:12px;font-weight:700;fill:var(--wire-ink)}
 .seq-legend{display:flex;flex-wrap:wrap;gap:10px 22px;padding:12px 16px;border-top:1.5px solid var(--rule);background:var(--paper-3);font-size:.78rem;color:var(--ink-2)}
 .seq-key{display:inline-flex;align-items:center;gap:8px}
-.seq-key i{display:block;width:34px;height:0;border-top:2px solid var(--ink)}
+.seq-key i{display:block;width:34px;height:0;border-top:1.5px solid var(--rule)}
 .seq-key.candidate i{border-top:2px dashed var(--wire)}
 .seq-key.ice i{border-top:4px solid var(--wire)}
 .seq-callout{margin:0;padding:12px 16px;border-top:1.5px dashed var(--rule);background:var(--wire-soft);font-size:.86rem;color:var(--wire-ink)}
 .seq-callout b{color:var(--ink)}
 
 .pipe-shell{
-  margin-top:16px;background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  margin-top:16px;background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);
   box-shadow:var(--sh-m);overflow:hidden;
 }
 .pipe-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:18px 18px 16px;background:var(--paper-3);border-bottom:1.5px solid var(--rule)}
@@ -367,7 +367,7 @@ a.src-p:hover{border-bottom-color:var(--wire)}
   background:var(--paper-2);padding:10px 11px 11px;min-height:86px;transition:transform .14s,background .14s,border-color .14s;
 }
 .pipe-step:hover{transform:translateY(-2px);border-color:var(--ink-3)}
-.pipe-step[aria-selected="true"]{border:2px solid var(--ink);background:#fff;box-shadow:var(--sh-s)}
+.pipe-step[aria-selected="true"]{border:1.5px solid var(--rule);background:#fff;box-shadow:var(--sh-s)}
 .pipe-step.a[aria-selected="true"]{background:var(--a-soft)}
 .pipe-step.b[aria-selected="true"]{background:var(--b-soft)}
 .pipe-step.ice[aria-selected="true"]{background:var(--wire-soft)}
@@ -392,8 +392,8 @@ a.src-p:hover{border-bottom-color:var(--wire)}
 .ready-peer.b{border-top:4px solid var(--b)}
 .ready-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
 .ready-name{font-family:var(--mono);font-size:.72rem;font-weight:700}
-.ready-peer.a .ready-name{color:#A8401F}
-.ready-peer.b .ready-name{color:#26644C}
+.ready-peer.a .ready-name{color:#A05C2C}
+.ready-peer.b .ready-name{color:#3D6B4C}
 .ready-state{font-family:var(--mono);font-size:.61rem;color:var(--ink-3);text-align:right}
 .ready-checks{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .ready-chip{
@@ -401,9 +401,9 @@ a.src-p:hover{border-bottom-color:var(--wire)}
   border:1.5px dashed var(--rule);border-radius:6px;padding:6px 7px;background:transparent;
 }
 .ready-chip::before{content:"○ ";font-weight:700}
-.ready-chip.on{color:#26644C;border-style:solid;border-color:#A9C9B9;background:var(--b-soft)}
+.ready-chip.on{color:#3D6B4C;border-style:solid;border-color:#A9C9B9;background:var(--b-soft)}
 .ready-chip.on::before{content:"✓ "}
-.ready-chip.work{color:#A8401F;border-style:solid;border-color:#E3A88F;background:var(--a-soft)}
+.ready-chip.work{color:#A05C2C;border-style:solid;border-color:#DBA97F;background:var(--a-soft)}
 .ready-chip.work::before{content:"… "}
 .pipe-rule{
   margin:0;padding:13px 20px;border-top:1.5px dashed var(--rule);background:var(--wire-soft);
@@ -417,8 +417,8 @@ a.src-p:hover{border-bottom-color:var(--wire)}
 .layers{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr);gap:clamp(22px,3.4vw,48px);align-items:center;margin-top:32px}
 .scene{
   position:relative;height:clamp(340px,44vw,470px);
-  background:radial-gradient(ellipse 62% 58% at 50% 46%,#EEE7DF 0%,rgba(253,237,210,0) 70%);
-  border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--sh-m);
+  background:radial-gradient(ellipse 62% 58% at 50% 46%,#EEF1E5 0%,rgba(253,237,210,0) 70%);
+  border:1.5px solid var(--rule);border-radius:var(--r);box-shadow:var(--sh-m);
   cursor:grab;touch-action:none;overflow:hidden;
 }
 .scene:active{cursor:grabbing}
@@ -437,10 +437,10 @@ a.src-p:hover{border-bottom-color:var(--wire)}
 
 .tog{
   display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.76rem;
-  border:2px solid var(--ink);border-radius:20px;padding:9px 17px;background:var(--paper-2);
+  border:1.5px solid var(--rule);border-radius:20px;padding:9px 17px;background:var(--paper-2);
   box-shadow:var(--sh-s);transition:transform .12s,box-shadow .12s,background .2s;
 }
-.tog:hover{transform:translate(-1px,-1px);box-shadow:3px 4px 0 var(--shadow)}
+.tog:hover{transform:translate(-1px,-1px);box-shadow:0 4px 14px rgba(74,120,86,.18)}
 .tog[aria-pressed="true"]{background:var(--paper-3)}
 .tog .led{width:9px;height:9px;border-radius:50%;background:var(--paper-4);border:1.5px solid var(--ink);transition:.2s}
 .tog[aria-pressed="true"] .led{background:var(--wire)}
@@ -456,7 +456,7 @@ a.src-p:hover{border-bottom-color:var(--wire)}
    §4 协商
    ───────────────────────────────────────────────────────────── */
 .duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,368px),1fr));gap:clamp(18px,2.6vw,32px);margin-top:30px}
-.panel{background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);box-shadow:var(--sh-m);padding:22px 24px 24px}
+.panel{background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);box-shadow:var(--sh-m);padding:22px 24px 24px}
 .side-lb{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;margin:0 0 9px;display:block}
 .side-lb.a{color:var(--a)}
 .side-lb.b{color:var(--b)}
@@ -466,8 +466,8 @@ a.src-p:hover{border-bottom-color:var(--wire)}
   padding:5px 13px;color:var(--ink-3);background:var(--paper-2);transition:.14s;
 }
 .cd:hover{border-color:var(--ink-3);color:var(--ink-2)}
-.cd.a[aria-pressed="true"]{border-color:var(--a);color:#A8401F;background:var(--a-soft)}
-.cd.b[aria-pressed="true"]{border-color:var(--b);color:#26644C;background:var(--b-soft)}
+.cd.a[aria-pressed="true"]{border-color:var(--a);color:#A05C2C;background:var(--a-soft)}
+.cd.b[aria-pressed="true"]{border-color:var(--b);color:#3D6B4C;background:var(--b-soft)}
 .out{background:var(--paper-3);border:1.5px dashed var(--rule);border-radius:var(--r-s);padding:12px 14px;margin-bottom:10px}
 .out-lb{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;color:var(--ink-3);display:block;margin-bottom:6px}
 .out-v{font-family:var(--mono);font-size:.78rem;color:var(--ink);word-break:break-all;line-height:1.8;white-space:pre-wrap}
@@ -495,19 +495,19 @@ a.src-p:hover{border-bottom-color:var(--wire)}
    §5 陷阱
    ───────────────────────────────────────────────────────────── */
 .glare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0 18px}
-.gp{border:2px solid var(--ink);border-radius:var(--r);padding:15px 18px;background:var(--paper-2);box-shadow:var(--sh-s);transition:.3s}
+.gp{border:1.5px solid var(--rule);border-radius:var(--r);padding:15px 18px;background:var(--paper-2);box-shadow:var(--sh-s);transition:.3s}
 .gp .gn{font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;display:block;margin-bottom:8px}
 .gp.a .gn{color:var(--a)}
 .gp.b .gn{color:var(--b)}
 .gp .gs{font-family:var(--mono);font-size:.82rem;font-weight:600}
 .gp .gx{font-family:var(--mono);font-size:.68rem;color:var(--ink-3);margin-top:6px;display:block;min-height:1.7em}
-.gp.stuck{background:var(--berry-soft);box-shadow:2px 3px 0 #DDB0B6}
+.gp.stuck{background:var(--berry-soft);box-shadow:0 2px 10px rgba(163,59,71,.22)}
 .gp.stuck .gs{color:var(--berry)}
 
 .pit{display:grid;gap:14px;margin-top:18px}
 .pit-i{
   display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;
-  background:var(--paper-2);border:2px solid var(--ink);border-radius:var(--r);
+  background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);
   box-shadow:var(--sh-s);padding:16px 20px;
 }
 .pit-k{
@@ -527,9 +527,9 @@ a.src-p:hover{border-bottom-color:var(--wire)}
 }
 .map td{padding:14px 14px 14px 0;border-bottom:1.5px dashed var(--rule-2);vertical-align:top;color:var(--ink-2)}
 .map td:first-child{color:var(--ink);white-space:nowrap;font-weight:600}
-.map a{font-family:var(--mono);font-size:.77rem;color:#3F5B66;text-decoration:none;border-bottom:1.5px solid var(--wire-soft);word-break:break-all}
+.map a{font-family:var(--mono);font-size:.77rem;color:#3F6B60;text-decoration:none;border-bottom:1.5px solid var(--wire-soft);word-break:break-all}
 .map a:hover{border-bottom-color:var(--wire)}
-.map .cm{font-family:var(--mono);font-size:.77rem;color:#3F5B66;word-break:break-all}
+.map .cm{font-family:var(--mono);font-size:.77rem;color:#3F6B60;word-break:break-all}
 
 footer{padding:40px 0 60px;color:var(--ink-2);font-size:.88rem}
 footer .fin{background:var(--paper-3);border:2px dashed var(--rule);border-radius:var(--r);padding:20px 24px}
@@ -548,7 +548,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
 @media (max-width:760px){
   .stage{grid-template-columns:1fr;gap:12px}
   .spine{height:78px}
-  .spine::before{top:50%;bottom:auto;left:14px;right:14px;width:auto;height:0;border-left:0;border-top:3px dashed #B4C6CC;transform:none}
+  .spine::before{top:50%;bottom:auto;left:14px;right:14px;width:auto;height:0;border-left:0;border-top:3px dashed #BCCDBF;transform:none}
   .spine-lb{writing-mode:horizontal-tb;letter-spacing:.16em;padding:3px 12px}
   .glare{grid-template-columns:1fr}
   .pit-i{grid-template-columns:1fr;gap:8px}
@@ -575,15 +575,15 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
     <g id="bot">
       <path d="M19 3 v7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/>
       <circle cx="19" cy="3.2" r="3.2" fill="currentColor"/>
-      <rect x="2.4" y="10" width="33.2" height="27" rx="7" fill="#FDFBF8" stroke="#33271E" stroke-width="2.4"/>
+      <rect x="2.4" y="10" width="33.2" height="27" rx="7" fill="#FBFCF7" stroke="#333D2E" stroke-width="2.4"/>
       <rect x="7.6" y="15.4" width="22.8" height="12.6" rx="4" fill="currentColor" opacity=".28"/>
-      <circle cx="14.4" cy="21.6" r="2.5" fill="#33271E"/>
-      <circle cx="23.6" cy="21.6" r="2.5" fill="#33271E"/>
-      <path d="M14.6 31.4 h8.8" stroke="#33271E" stroke-width="2.2" stroke-linecap="round"/>
-      <path d="M10 37 v4.2 M28 37 v4.2" stroke="#33271E" stroke-width="2.4" stroke-linecap="round"/>
+      <circle cx="14.4" cy="21.6" r="2.5" fill="#333D2E"/>
+      <circle cx="23.6" cy="21.6" r="2.5" fill="#333D2E"/>
+      <path d="M14.6 31.4 h8.8" stroke="#333D2E" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M10 37 v4.2 M28 37 v4.2" stroke="#333D2E" stroke-width="2.4" stroke-linecap="round"/>
     </g>
     <g id="env">
-      <rect x="1" y="1" width="18" height="13" rx="2.4" fill="#FDFBF8" stroke="currentColor" stroke-width="2"/>
+      <rect x="1" y="1" width="18" height="13" rx="2.4" fill="#FBFCF7" stroke="currentColor" stroke-width="2"/>
       <path d="M1.8 2.4 L10 8.6 L18.2 2.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
   </defs>
@@ -604,26 +604,26 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
     </div>
 
     <svg class="hero-art" viewBox="0 0 520 320" role="img" aria-label="插画：左右两台小机器隔着一条虚线信道互相寄信，中间飞着一封信，下方是一张 SDP 便笺">
-      <ellipse cx="112" cy="196" rx="52" ry="9" fill="#DFD5CA" opacity=".55"/>
-      <ellipse cx="408" cy="196" rx="52" ry="9" fill="#DFD5CA" opacity=".55"/>
-      <path d="M150 150 C 220 92, 300 92, 370 150" fill="none" stroke="#A9BEC5" stroke-width="3" stroke-linecap="round" stroke-dasharray="9 11"/>
-      <g transform="translate(84,140) scale(1.5)" style="color:#C9502B"><use href="#bot"/></g>
-      <g transform="translate(380,140) scale(1.5)" style="color:#2F7A5F"><use href="#bot"/></g>
-      <g transform="translate(238,96) rotate(-8)" style="color:#C9502B"><use href="#env"/></g>
-      <text x="112" y="228" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#6A5C50">Peer A</text>
-      <text x="408" y="228" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#6A5C50">Peer B</text>
-      <text x="260" y="80" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#3F5B66" letter-spacing="1.5">你自己实现的信令通道</text>
+      <ellipse cx="112" cy="196" rx="52" ry="9" fill="#DFE5D3" opacity=".55"/>
+      <ellipse cx="408" cy="196" rx="52" ry="9" fill="#DFE5D3" opacity=".55"/>
+      <path d="M150 150 C 220 92, 300 92, 370 150" fill="none" stroke="#A9C2B2" stroke-width="3" stroke-linecap="round" stroke-dasharray="9 11"/>
+      <g transform="translate(84,140) scale(1.5)" style="color:#C97B4A"><use href="#bot"/></g>
+      <g transform="translate(380,140) scale(1.5)" style="color:#4A7856"><use href="#bot"/></g>
+      <g transform="translate(238,96) rotate(-8)" style="color:#C97B4A"><use href="#env"/></g>
+      <text x="112" y="228" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#66705A">Peer A</text>
+      <text x="408" y="228" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#66705A">Peer B</text>
+      <text x="260" y="80" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#3F6B60" letter-spacing="1.5">你自己实现的信令通道</text>
 
       <g transform="translate(126,238) rotate(-1.6)">
-        <rect x="0" y="0" width="268" height="70" rx="8" fill="#FDFBF8" stroke="#33271E" stroke-width="2.4"/>
-        <rect x="6" y="6" width="268" height="70" rx="8" fill="none" stroke="#DFD5CA" stroke-width="0"/>
-        <text font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#6A5C50">
+        <rect x="0" y="0" width="268" height="70" rx="8" fill="#FBFCF7" stroke="#333D2E" stroke-width="2.4"/>
+        <rect x="6" y="6" width="268" height="70" rx="8" fill="none" stroke="#DFE5D3" stroke-width="0"/>
+        <text font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#66705A">
           <tspan x="14" y="20">m=audio 9 UDP/TLS/RTP/SAVPF 111</tspan>
-          <tspan x="14" y="35" fill="#C9502B">a=rtpmap:111 opus/48000/2</tspan>
+          <tspan x="14" y="35" fill="#C97B4A">a=rtpmap:111 opus/48000/2</tspan>
           <tspan x="14" y="50">a=mid:0</tspan>
-          <tspan x="14" y="63" fill="#2F7A5F">a=sendrecv</tspan>
+          <tspan x="14" y="63" fill="#4A7856">a=sendrecv</tspan>
         </text>
-        <rect x="108" y="-9" width="52" height="17" rx="2" fill="#E3DACF" opacity=".9" stroke="#D6CBC0" transform="rotate(-3 134 -1)"/>
+        <rect x="108" y="-9" width="52" height="17" rx="2" fill="#E3E8D6" opacity=".9" stroke="#D6DDC9" transform="rotate(-3 134 -1)"/>
       </g>
     </svg>
   </div>
@@ -664,7 +664,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
     <div class="stage" id="stage">
       <div class="peer peer-a" id="peerA">
         <div class="peer-hd">
-          <svg viewBox="0 0 38 44" style="color:#C9502B" aria-hidden="true"><use href="#bot"/></svg>
+          <svg viewBox="0 0 38 44" style="color:#C97B4A" aria-hidden="true"><use href="#bot"/></svg>
           <span><span class="peer-name">Peer A</span><span class="peer-role">发起方 / OFFERER</span></span>
         </div>
         <div class="state-row">
@@ -684,7 +684,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
 
       <div class="peer peer-b" id="peerB">
         <div class="peer-hd">
-          <svg viewBox="0 0 38 44" style="color:#2F7A5F" aria-hidden="true"><use href="#bot"/></svg>
+          <svg viewBox="0 0 38 44" style="color:#4A7856" aria-hidden="true"><use href="#bot"/></svg>
           <span><span class="peer-name">Peer B</span><span class="peer-role">应答方 / ANSWERER</span></span>
         </div>
         <div class="state-row">
@@ -750,8 +750,8 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
             <title id="seqTitle">SDP Offer Answer 与 ICE candidate 的交叠时序</title>
             <desc id="seqDesc">发起端设置本地 Offer 后开始收集 candidate，经信令服务器发送 Offer 和 candidate；应答端设置远端 Offer 与本地 Answer 后即可先发起 ICE 检查。Answer 到达发起端后，两端继续交换 candidate，并直接进行 ICE 连通性检查，最后进入 DTLS 和媒体传输。</desc>
             <defs>
-              <marker id="seqArrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#33271E"/></marker>
-              <marker id="seqWireArrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#47646F"/></marker>
+              <marker id="seqArrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#333D2E"/></marker>
+              <marker id="seqWireArrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4E8378"/></marker>
             </defs>
 
             <rect class="lane-card" x="48" y="24" width="260" height="68" rx="10"/>
@@ -815,7 +815,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
         <div class="seq-legend" aria-label="时序图图例">
           <span class="seq-key"><i aria-hidden="true"></i>实线：Offer / Answer</span>
           <span class="seq-key candidate"><i aria-hidden="true"></i>虚线：candidate</span>
-          <span class="seq-key ice"><i aria-hidden="true"></i>粗蓝线：端到端 ICE 检查</span>
+          <span class="seq-key ice"><i aria-hidden="true"></i>粗青线：端到端 ICE 检查</span>
         </div>
         <p class="seq-callout"><b>看图只抓两条路：</b>Offer、Answer 和 candidate 都借助信令服务器传递；真正的 ICE STUN 检查发生在发起端与应答端之间，信令服务器不转发这些检查包。</p>
       </div>
@@ -1034,12 +1034,12 @@ const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ═══════════════════ §1 SDP 解剖 ═══════════════════ */
 const CATS = {
-  id   :{name:'会话身份', color:'#6A5C50'},
+  id   :{name:'会话身份', color:'#66705A'},
   mux  :{name:'分组复用', color:'#7A4A63'},
-  media:{name:'媒体',     color:'#C9502B'},
-  ice  :{name:'连接 ICE', color:'#2F7A5F'},
+  media:{name:'媒体',     color:'#C97B4A'},
+  ice  :{name:'连接 ICE', color:'#4A7856'},
   dtls :{name:'安全 DTLS',color:'#A33B47'},
-  codec:{name:'编解码',   color:'#3F5B66'}
+  codec:{name:'编解码',   color:'#3F6B60'}
 };
 
 const LINES = [
@@ -1396,10 +1396,10 @@ const PIPE_PHASES=[
     const r=(c.height-8)/2, x0=4, y0=4, w=c.width-8, hh=c.height-8;
     g.beginPath();
     if(g.roundRect) g.roundRect(x0,y0,w,hh,r); else g.rect(x0,y0,w,hh);
-    g.fillStyle='#FDFBF8'; g.fill();
-    g.lineWidth=4; g.strokeStyle='#33271E'; g.stroke();
+    g.fillStyle='#FBFCF7'; g.fill();
+    g.lineWidth=4; g.strokeStyle='#333D2E'; g.stroke();
     if(dot){ g.beginPath(); g.arc(x0+padX+7,c.height/2,10,0,Math.PI*2); g.fillStyle=dot; g.fill(); }
-    g.fillStyle='#33271E'; g.fillText(text,x0+padX+dotW,c.height/2+2);
+    g.fillStyle='#333D2E'; g.fillText(text,x0+padX+dotW,c.height/2+2);
     const tex=new THREE.CanvasTexture(c); tex.anisotropy=4;
     const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false,depthWrite:false}));
     const s=h||0.26;
@@ -1409,8 +1409,8 @@ const PIPE_PHASES=[
   }
   function place(sp,y){ sp.position.set(-1.66+sp.scale.x/2,y,-0.86); rig.add(sp); return sp; }
   place(label('会话级  a=group:BUNDLE 0 1',null,.25),Y_SESS+0.3);
-  place(label('m=audio  mid:0  opus/48000/2','#C9502B',.25),Y_AUD+0.3);
-  place(label('m=video  mid:1  VP8/90000','#2F7A5F',.25),Y_VID+0.3);
+  place(label('m=audio  mid:0  opus/48000/2','#C97B4A',.25),Y_AUD+0.3);
+  place(label('m=video  mid:1  VP8/90000','#4A7856',.25),Y_VID+0.3);
 
   /* 管道与引线：统一用「两点之间的圆柱」表达 */
   function tube(color,r){
@@ -1433,8 +1433,8 @@ const PIPE_PHASES=[
   const SHARED=new THREE.Color(0x7E959E), COL_A=new THREE.Color(0xC9502B);
 
   const capOne=label('一条共用通道 · ICE + DTLS',null,.23);
-  const capA=label('通道 1 · audio','#C9502B',.23);
-  const capB=label('通道 2 · video','#2F7A5F',.23);
+  const capA=label('通道 1 · audio','#C97B4A',.23);
+  const capB=label('通道 2 · video','#4A7856',.23);
   [capOne,capA,capB].forEach(function(s){ s.center.set(.5,.5); rig.add(s); });
 
   /* ── 交互 ── */
