@@ -73,6 +73,12 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
 .wrap{width:min(1140px,100% - var(--pad)*2);margin-inline:auto}
 .wrap-wide{width:min(1300px,100% - var(--pad)*2);margin-inline:auto}
+
+/* ── 顶栏 ── */
+.top{display:flex;justify-content:space-between;align-items:center;padding:18px 0 0;position:relative;z-index:2}
+.top a{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;color:var(--ink-2);text-decoration:none;border-bottom:1.5px solid var(--rule)}
+.top a:hover{color:var(--ink);border-color:var(--wire)}
+.top .no{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;color:var(--ink-3)}
 .sec{padding-block:clamp(58px,9vw,110px);position:relative}
 
 .eyebrow{
@@ -135,7 +141,7 @@ code{font-family:var(--mono);font-size:.88em}
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .chip{
   font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;
-  border:2px solid var(--rule);background:var(--paper-2);border-radius:20px;padding:5px 13px;color:var(--ink-2);
+  border:1.5px solid var(--rule);background:var(--paper-2);border-radius:20px;padding:5px 13px;color:var(--ink-2);
   transition:transform .14s,box-shadow .14s,border-color .14s,color .14s,background .14s;
 }
 .chip:hover{border-color:var(--ink-3);transform:translateY(-1px)}
@@ -195,8 +201,8 @@ code{font-family:var(--mono);font-size:.88em}
   box-shadow:var(--sh-m);padding:18px 20px 20px;transition:transform .3s,box-shadow .3s;
 }
 .peer.act{transform:translateY(-3px)}
-.peer.act.peer-a{box-shadow:4px 5px 0 var(--a-mid)}
-.peer.act.peer-b{box-shadow:4px 5px 0 var(--b-mid)}
+.peer.act.peer-a{border-color:var(--a-mid);box-shadow:0 0 0 3px var(--a-soft),var(--sh-l)}
+.peer.act.peer-b{border-color:var(--b-mid);box-shadow:0 0 0 3px var(--b-soft),var(--sh-l)}
 .peer-hd{display:flex;align-items:center;gap:12px;margin-bottom:6px}
 .peer-hd svg{flex:none;width:38px;height:44px}
 .peer-name{font-family:var(--serif);font-weight:700;font-size:1.06rem;letter-spacing:.04em;display:block}
@@ -263,7 +269,7 @@ code{font-family:var(--mono);font-size:.88em}
 .step-t{font-family:var(--mono);font-size:.98rem;margin:0 0 10px;letter-spacing:-.01em;word-break:break-all;font-weight:600}
 .step-d{margin:0;font-size:.94rem;color:var(--ink-2)}
 .step-d b{color:var(--ink);font-weight:700}
-.src-card{background:var(--paper-3);border:2px dashed var(--rule);border-radius:var(--r);padding:18px 20px}
+.src-card{background:var(--paper-3);border:1.5px dashed var(--rule);border-radius:var(--r);padding:18px 20px}
 .src-lb{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;color:var(--ink-3);display:block;margin-bottom:9px}
 .src-p{font-family:var(--mono);font-size:.77rem;color:#3F6B60;word-break:break-all;line-height:1.7;display:block;margin-bottom:8px;text-decoration:none;border-bottom:1.5px solid transparent}
 a.src-p:hover{border-bottom-color:var(--wire)}
@@ -290,7 +296,7 @@ a.src-p:hover{border-bottom-color:var(--wire)}
 /* SDP 与 ICE：不是接力赛，而是两条交叠的流水线 */
 .ice-bridge{
   margin-top:clamp(46px,6vw,72px);padding-top:clamp(34px,4vw,48px);
-  border-top:2px dashed var(--rule);
+  border-top:1.5px dashed var(--rule);
 }
 .bridge-hd{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.72fr);gap:clamp(22px,4vw,54px);align-items:end}
 .bridge-hd .lede{margin:0}
@@ -462,7 +468,7 @@ a.src-p:hover{border-bottom-color:var(--wire)}
 .side-lb.b{color:var(--b)}
 .codecs,.dirs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
 .cd{
-  font-family:var(--mono);font-size:.74rem;border:2px solid var(--rule);border-radius:20px;
+  font-family:var(--mono);font-size:.74rem;border:1.5px solid var(--rule);border-radius:20px;
   padding:5px 13px;color:var(--ink-3);background:var(--paper-2);transition:.14s;
 }
 .cd:hover{border-color:var(--ink-3);color:var(--ink-2)}
@@ -523,7 +529,7 @@ a.src-p:hover{border-bottom-color:var(--wire)}
 .map{width:100%;border-collapse:collapse;margin-top:26px;font-size:.92rem}
 .map th{
   text-align:left;font-family:var(--mono);font-size:.63rem;letter-spacing:.12em;color:var(--ink-3);
-  font-weight:400;padding:0 14px 10px 0;border-bottom:2px solid var(--rule);text-transform:uppercase;
+  font-weight:400;padding:0 14px 10px 0;border-bottom:1.5px solid var(--rule);text-transform:uppercase;
 }
 .map td{padding:14px 14px 14px 0;border-bottom:1.5px dashed var(--rule-2);vertical-align:top;color:var(--ink-2)}
 .map td:first-child{color:var(--ink);white-space:nowrap;font-weight:600}
@@ -532,7 +538,7 @@ a.src-p:hover{border-bottom-color:var(--wire)}
 .map .cm{font-family:var(--mono);font-size:.77rem;color:#3F6B60;word-break:break-all}
 
 footer{padding:40px 0 60px;color:var(--ink-2);font-size:.88rem}
-footer .fin{background:var(--paper-3);border:2px dashed var(--rule);border-radius:var(--r);padding:20px 24px}
+footer .fin{background:var(--paper-3);border:1.5px dashed var(--rule);border-radius:var(--r);padding:20px 24px}
 footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:var(--ink-3);margin:10px 0 0}
 
 @media (max-width:920px){
@@ -590,6 +596,11 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
 </svg>
 
 <main>
+
+<div class="wrap top">
+  <a href="index.html">← 返回学习地图</a>
+  <span class="no">SIGNALING · SDP</span>
+</div>
 
 <!-- ══════════════ HERO ══════════════ -->
 <header class="hero">
@@ -1124,37 +1135,38 @@ const LINES = [
 })();
 
 /* ═══════════════════ §2 交换时序 ═══════════════════ */
+const SRC_BASE='https://webrtc.googlesource.com/src/+/refs/heads/main/';
 const STEPS=[
   {who:'w',t:'起点',s:['stable','stable'],slots:[0,0,0,0],
    d:'两端各自建好 <b>PeerConnection</b>、addTrack 完毕，但彼此一无所知。四个描述槽全空——这是唯一一个双方都 stable 且什么都没有的时刻。',
-   src:['../src/examples/peerconnection/client/conductor.cc','示例里 InitializePeerConnection() 之后、按下 Call 之前的状态。']},
+   src:['src/examples/peerconnection/client/conductor.cc','示例里 InitializePeerConnection() 之后、按下 Call 之前的状态。']},
   {who:'a',t:'A: CreateOffer()',s:['stable','stable'],slots:[0,0,0,0],
    d:'A 问自己的 PeerConnection：「我能收发什么？」得到一份 SDP 文本。<b>注意此刻状态没有任何变化</b>——offer 只是一个字符串，还没被采纳，也还没触发 ICE。',
-   src:['../src/api/peer_connection_interface.h','CreateOffer(observer, options)。示例中的调用见 conductor.cc:232。']},
+   src:['src/api/peer_connection_interface.h','CreateOffer(observer, options)。示例中的调用见 conductor.cc:232。']},
   {who:'a',t:'A: SetLocalDescription(offer)',s:['have-local-offer','stable'],slots:[1,0,0,0],
    d:'A 采纳自己的提案，状态进入 <b>have-local-offer</b>。真正的副作用在这里：<b>ICE 开始收集 candidate</b>，DTLS 证书就位。从现在起 A 只接受 answer，再来一个 offer 会被拒绝。',
-   src:['../src/pc/sdp_offer_answer.cc','状态迁移与 ICE 启动的入口，SetLocalDescription 的实现主体在此。']},
+   src:['src/pc/sdp_offer_answer.cc','状态迁移与 ICE 启动的入口，SetLocalDescription 的实现主体在此。']},
   {who:'w',t:'信令：A → B  {type:"offer", sdp:"…"}',s:['have-local-offer','stable'],slots:[1,0,0,0],
    d:'跨过虚线的这一步<b>不属于 WebRTC</b>。WebSocket、HTTP、MQTT、二维码、手动复制粘贴都行——库不关心，也不提供。这也是为什么每个 WebRTC 项目都要自己写一个信令服务。',
-   src:['../src/examples/peerconnection/client/conductor.cc','把描述序列化成 JSON：键名是 "type" 和 "sdp"。中转由 examples/peerconnection/server 完成。']},
+   src:['src/examples/peerconnection/client/conductor.cc','把描述序列化成 JSON：键名是 "type" 和 "sdp"。中转由 examples/peerconnection/server 完成。']},
   {who:'b',t:'B: SetRemoteDescription(offer)',s:['have-local-offer','have-remote-offer'],slots:[1,0,0,1],
    d:'B 收下对方的提案，进入 <b>have-remote-offer</b>。此刻 B 才第一次知道对方要发几路、什么编码——<b>ontrack 事件在这一步触发</b>，尽管一个字节的媒体都还没到。',
-   src:['../src/api/jsep.h','描述由 SdpDeserialize() 解析成 SessionDescriptionInterface，类型为 SdpType::kOffer。']},
+   src:['src/api/jsep.h','描述由 SdpDeserialize() 解析成 SessionDescriptionInterface，类型为 SdpType::kOffer。']},
   {who:'b',t:'B: CreateAnswer()',s:['have-local-offer','have-remote-offer'],slots:[1,0,0,1],
    d:'B 在「对方的能力」和「自己的能力」<b>交集</b>里做选择，生成 answer。answer 永远是 offer 的子集：只能删、不能加，payload type 编号也必须沿用 offer 的。',
-   src:['../src/pc/sdp_offer_answer.cc','编解码取交集、方向取镜像、m-section 逐个对齐都在这里完成。']},
+   src:['src/pc/sdp_offer_answer.cc','编解码取交集、方向取镜像、m-section 逐个对齐都在这里完成。']},
   {who:'b',t:'B: SetLocalDescription(answer)',s:['have-local-offer','stable'],slots:[1,0,1,1],
    d:'B 采纳自己的答复，<b>回到 stable</b>。B 这一侧的协商已经结束，它的 ICE 也开始收集。注意此时 A 仍卡在 have-local-offer——协商是不对称的。',
-   src:['../src/api/peer_connection_interface.h','SignalingState 六个取值：kStable / kHaveLocalOffer / kHaveLocalPrAnswer / kHaveRemoteOffer / kHaveRemotePrAnswer / kClosed。']},
+   src:['src/api/peer_connection_interface.h','SignalingState 六个取值：kStable / kHaveLocalOffer / kHaveLocalPrAnswer / kHaveRemoteOffer / kHaveRemotePrAnswer / kClosed。']},
   {who:'w',t:'信令：B → A  {type:"answer", sdp:"…"}',s:['have-local-offer','stable'],slots:[1,0,1,1],
    d:'answer 沿着同一条自建通道回传。<b>格式和 offer 完全一样</b>，区别只在 type 字段——这也是为什么很多人第一次读代码时会觉得两者「长得一模一样」。',
-   src:['../src/examples/peerconnection/client/conductor.cc','收到消息后按 "type" 分派：是 offer 就 CreateAnswer，是 answer 就直接 SetRemoteDescription。']},
+   src:['src/examples/peerconnection/client/conductor.cc','收到消息后按 "type" 分派：是 offer 就 CreateAnswer，是 answer 就直接 SetRemoteDescription。']},
   {who:'a',t:'A: SetRemoteDescription(answer)',s:['stable','stable'],slots:[1,1,1,1],
    d:'A 收下答复，<b>回到 stable</b>。四个描述槽全满，offer/answer 到此结束。<b>但连接还没建立</b>——协商谈的是「用什么」，真正打通链路是 ICE 的事。',
-   src:['../src/pc/sdp_offer_answer.cc','两端都回到 kStable 后，才允许发起下一轮重新协商。']},
+   src:['src/pc/sdp_offer_answer.cc','两端都回到 kStable 后，才允许发起下一轮重新协商。']},
   {who:'w',t:'ICE：candidate 双向 trickle',s:['stable','stable'],slots:[1,1,1,1],
    d:'candidate 走<b>同一条信令通道</b>，但它<b>不属于 offer/answer</b>——从第 2 步就已经在陆续发送，和上面几步并行。连通性检查通过、DTLS 握完手之后，媒体才真正开始流动。',
-   src:['../src/examples/peerconnection/client/conductor.cc','OnIceCandidate 里把 candidate 包成 JSON："candidate" / "sdpMid" / "sdpMLineIndex" 三个键。']}
+   src:['src/examples/peerconnection/client/conductor.cc','OnIceCandidate 里把 candidate 包成 JSON："candidate" / "sdpMid" / "sdpMLineIndex" 三个键。']}
 ];
 
 (function exchange(){
@@ -1188,8 +1200,8 @@ const STEPS=[
     $('#stepNo').textContent='步骤 '+String(i).padStart(2,'0')+' / 09';
     $('#stepT').textContent=S.t;
     $('#stepD').innerHTML=S.d;
-    $('#srcP').textContent=S.src[0].replace('../','');
-    $('#srcP').setAttribute('href',S.src[0]);
+    $('#srcP').textContent=S.src[0];
+    $('#srcP').setAttribute('href',SRC_BASE+S.src[0].replace(/^src\//,''));
     $('#srcN').textContent=S.src[1];
     $('#ctrlN').textContent=i+' / '+(STEPS.length-1);
 
