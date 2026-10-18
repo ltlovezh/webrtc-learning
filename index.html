@@ -225,7 +225,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
   <div class="wrap">
     <p class="eyebrow">WebRTC Learning Atlas · 持续补充中</p>
     <h1>WebRTC 学习地图</h1>
-    <p class="lede">一次通话<b>横着走</b>：信令在上面那条虚线里，媒体在下面那根管道里；一台机器<b>竖着拆</b>：从你的代码到系统底层，一共六层。每一块都会长出一个专题——亮点的已经写好，虚圈的还在路上。</p>
+    <p class="lede">一次通话<b>横着走</b>：信令在上面那条虚线里，媒体在下面那根管道里；一台机器<b>竖着拆</b>：从你的代码到系统底层，一共五层。每一块都会长出一个专题——亮点的已经写好，虚圈的还在路上。</p>
   </div>
 </header>
 
@@ -234,7 +234,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
   <div class="wrap">
     <div class="map-frame">
       <div class="map-scroll">
-<svg viewBox="0 0 1180 830" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="WebRTC 全景架构图：两台六层的机器塔楼相对而立，塔顶有摄像头与麦克风等采集设备，顶部虚线是你自己实现的信令通道，中央是调试观测台，底部两根实线管道是库实现的 SRTP 媒体流与 DataChannel 数据流，穿过 NAT 进入公网，STUN、TURN 与 SFU 在公网带里待命">
+<svg viewBox="0 0 1180 830" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="WebRTC 全景架构图：两台五层的机器塔楼相对而立，塔顶有摄像头与麦克风等采集设备，顶部虚线是你自己实现的信令通道，中央是调试观测台，底部两根实线管道是库实现的 SRTP 媒体流与 DataChannel 数据流，穿过 NAT 进入公网，STUN、TURN 与 SFU 在公网带里待命">
   <defs>
     <linearGradient id="pipeGrad" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#C97B4A"/>
@@ -283,32 +283,32 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
       <text x="30" y="284" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#8B957D">JSEP · api/ · pc/</text>
       <circle class="pin" cx="248" cy="281" r="5"/>
     </g>
-    <g data-region="rg-transport" tabindex="0" role="button" aria-label="传输安全层：ICE、DTLS、SRTP">
-      <rect class="blk" x="16" y="310" width="248" height="86" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
-      <text x="30" y="336" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#333D2E">传输安全</text>
-      <g font-family="ui-monospace,Menlo,monospace" font-size="10.5">
-        <rect x="30" y="350" width="52" height="24" rx="12" fill="#F0F2E4"/>
-        <text x="56" y="366" text-anchor="middle" fill="#66705A">ICE</text>
-        <rect x="90" y="350" width="58" height="24" rx="12" fill="#F0F2E4"/>
-        <text x="119" y="366" text-anchor="middle" fill="#66705A">DTLS</text>
-        <rect x="156" y="350" width="58" height="24" rx="12" fill="#F0F2E4"/>
-        <text x="185" y="366" text-anchor="middle" fill="#66705A">SRTP</text>
-      </g>
-      <circle class="pin" cx="248" cy="377" r="5"/>
-    </g>
     <g data-region="rg-audio" tabindex="0" role="button" aria-label="音频引擎">
-      <rect class="blk" x="16" y="406" width="118" height="92" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
-      <text x="30" y="434" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#333D2E">音频引擎</text>
-      <text x="30" y="454" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">Opus · 3A</text>
-      <text x="30" y="470" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">NetEQ</text>
-      <circle class="pin" cx="118" cy="424" r="5"/>
+      <rect class="blk" x="16" y="310" width="118" height="92" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="30" y="338" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#333D2E">音频引擎</text>
+      <text x="30" y="358" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">Opus · 3A</text>
+      <text x="30" y="374" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">NetEQ</text>
+      <circle class="pin" cx="118" cy="328" r="5"/>
     </g>
     <g data-region="rg-video" tabindex="0" role="button" aria-label="视频引擎">
-      <rect class="blk" x="146" y="406" width="118" height="92" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
-      <text x="160" y="434" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#333D2E">视频引擎</text>
-      <text x="160" y="454" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">VP8 · H264</text>
-      <text x="160" y="470" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">JitterBuffer</text>
-      <circle class="pin" cx="248" cy="424" r="5"/>
+      <rect class="blk" x="146" y="310" width="118" height="92" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="160" y="338" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#333D2E">视频引擎</text>
+      <text x="160" y="358" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">VP8 · H264</text>
+      <text x="160" y="374" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">JitterBuffer</text>
+      <circle class="pin" cx="248" cy="328" r="5"/>
+    </g>
+    <g data-region="rg-transport" tabindex="0" role="button" aria-label="传输安全层：SRTP、DTLS、ICE">
+      <rect class="blk" x="16" y="412" width="248" height="86" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="30" y="438" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#333D2E">传输安全</text>
+      <g font-family="ui-monospace,Menlo,monospace" font-size="10.5">
+        <rect x="30" y="452" width="58" height="24" rx="12" fill="#F0F2E4"/>
+        <text x="59" y="468" text-anchor="middle" fill="#66705A">SRTP</text>
+        <rect x="96" y="452" width="58" height="24" rx="12" fill="#F0F2E4"/>
+        <text x="125" y="468" text-anchor="middle" fill="#66705A">DTLS</text>
+        <rect x="162" y="452" width="52" height="24" rx="12" fill="#F0F2E4"/>
+        <text x="188" y="468" text-anchor="middle" fill="#66705A">ICE</text>
+      </g>
+      <circle class="pin" cx="248" cy="479" r="5"/>
     </g>
     <g>
       <rect x="16" y="508" width="248" height="56" rx="8" fill="#F0F2E4" stroke="#333D2E" stroke-width="2" stroke-dasharray="none"/>
@@ -344,32 +344,32 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
       <text x="30" y="284" font-family="ui-monospace,Menlo,monospace" font-size="10.5" fill="#8B957D">JSEP · api/ · pc/</text>
       <circle class="pin" cx="248" cy="281" r="5"/>
     </g>
-    <g data-region="rg-transport" tabindex="0" role="button" aria-label="传输安全层：ICE、DTLS、SRTP">
-      <rect class="blk" x="16" y="310" width="248" height="86" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
-      <text x="30" y="336" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#333D2E">传输安全</text>
-      <g font-family="ui-monospace,Menlo,monospace" font-size="10.5">
-        <rect x="30" y="350" width="52" height="24" rx="12" fill="#F0F2E4"/>
-        <text x="56" y="366" text-anchor="middle" fill="#66705A">ICE</text>
-        <rect x="90" y="350" width="58" height="24" rx="12" fill="#F0F2E4"/>
-        <text x="119" y="366" text-anchor="middle" fill="#66705A">DTLS</text>
-        <rect x="156" y="350" width="58" height="24" rx="12" fill="#F0F2E4"/>
-        <text x="185" y="366" text-anchor="middle" fill="#66705A">SRTP</text>
-      </g>
-      <circle class="pin" cx="248" cy="377" r="5"/>
-    </g>
     <g data-region="rg-audio" tabindex="0" role="button" aria-label="音频引擎">
-      <rect class="blk" x="16" y="406" width="118" height="92" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
-      <text x="30" y="434" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#333D2E">音频引擎</text>
-      <text x="30" y="454" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">Opus · 3A</text>
-      <text x="30" y="470" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">NetEQ</text>
-      <circle class="pin" cx="118" cy="424" r="5"/>
+      <rect class="blk" x="16" y="310" width="118" height="92" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="30" y="338" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#333D2E">音频引擎</text>
+      <text x="30" y="358" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">Opus · 3A</text>
+      <text x="30" y="374" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">NetEQ</text>
+      <circle class="pin" cx="118" cy="328" r="5"/>
     </g>
     <g data-region="rg-video" tabindex="0" role="button" aria-label="视频引擎">
-      <rect class="blk" x="146" y="406" width="118" height="92" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
-      <text x="160" y="434" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#333D2E">视频引擎</text>
-      <text x="160" y="454" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">VP8 · H264</text>
-      <text x="160" y="470" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">JitterBuffer</text>
-      <circle class="pin" cx="248" cy="424" r="5"/>
+      <rect class="blk" x="146" y="310" width="118" height="92" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="160" y="338" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#333D2E">视频引擎</text>
+      <text x="160" y="358" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">VP8 · H264</text>
+      <text x="160" y="374" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">JitterBuffer</text>
+      <circle class="pin" cx="248" cy="328" r="5"/>
+    </g>
+    <g data-region="rg-transport" tabindex="0" role="button" aria-label="传输安全层：SRTP、DTLS、ICE">
+      <rect class="blk" x="16" y="412" width="248" height="86" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+      <text x="30" y="438" font-family="ui-monospace,Menlo,monospace" font-size="14" font-weight="600" fill="#333D2E">传输安全</text>
+      <g font-family="ui-monospace,Menlo,monospace" font-size="10.5">
+        <rect x="30" y="452" width="58" height="24" rx="12" fill="#F0F2E4"/>
+        <text x="59" y="468" text-anchor="middle" fill="#66705A">SRTP</text>
+        <rect x="96" y="452" width="58" height="24" rx="12" fill="#F0F2E4"/>
+        <text x="125" y="468" text-anchor="middle" fill="#66705A">DTLS</text>
+        <rect x="162" y="452" width="52" height="24" rx="12" fill="#F0F2E4"/>
+        <text x="188" y="468" text-anchor="middle" fill="#66705A">ICE</text>
+      </g>
+      <circle class="pin" cx="248" cy="479" r="5"/>
     </g>
     <g>
       <rect x="16" y="508" width="248" height="56" rx="8" fill="#F0F2E4" stroke="#333D2E" stroke-width="2"/>
@@ -493,7 +493,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
       </div>
       <div class="g-item">
         <span class="g-k">竖着读</span>
-        <p>每一端从「你的应用」到「系统层」共六层。<b>问题出在哪一层，就去哪一层的源码目录找答案</b>——层名下方标了这一层的关键模块，顺着它们就能在源码里找到位置。</p>
+        <p>每一端从「你的应用」到「系统层」共五层，<b>从上往下就是媒体发出去的顺序</b>：应用调 PeerConnection，音视频引擎编码，传输层用 SRTP 加密、经 ICE 选好的路径发出，最后落到系统的 Socket；接收时反过来自下而上。问题出在哪一层，就去哪一层找答案——层名下方标了这一层的关键模块。</p>
       </div>
       <div class="g-item">
         <span class="g-k">点一块</span>
