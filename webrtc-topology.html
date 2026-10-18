@@ -384,7 +384,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
         <div class="topo-hd">
           <span class="tag">3~6 人</span>
           <h3>mesh 全互联</h3>
-          <span class="rfc">RFC 7667 · Multi-unicast</span>
+          <span class="rfc">RFC 7667 · Topo-Mesh</span>
         </div>
         <svg viewBox="0 0 240 90" aria-hidden="true">
           <line x1="85" y1="25" x2="155" y2="25" stroke="#8B957D" stroke-width="1.6"/>
@@ -525,7 +525,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
             <rect x="435" y="258" width="130" height="64" rx="9" fill="#E4EEE9" stroke="#333D2E" stroke-width="2.5"/>
             <text x="500" y="284" text-anchor="middle" font-family="Menlo,monospace" font-size="11.5" font-weight="600" fill="#3F6B60">SFU</text>
             <text x="500" y="302" text-anchor="middle" font-family="Menlo,monospace" font-size="8" fill="#66705A">只转发 · 不解码</text>
-            <text x="150" y="362" text-anchor="middle" font-family="Menlo,monospace" font-size="9" fill="#3D6B4C">上 1 · 编 1 · 下 3</text>
+            <text x="150" y="362" text-anchor="middle" font-family="Menlo,monospace" font-size="9" fill="#3D6B4C">上 1 · 编 3 层 · 下 3</text>
           </g>
 
           <g id="fm-mcu" style="display:none">
@@ -704,7 +704,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
           <text x="470" y="205" font-family="Menlo,monospace" font-size="9.5" fill="#8B957D">丢 L2 → 720p；只剩 L0 → 360p。_KEY 模式：空间层只在关键帧互引，平时各自独立。</text>
         </svg>
       </div>
-      <p class="callout"><b>为什么敢丢：</b>依赖只朝下——T2 谁也不引用，L2 只引用下层。SFU 停发某一层的包，剩下的码流依然合法，解码器毫无感觉。对比 simulcast 的切流：要等关键帧，画面还可能跳一下。</p>
+      <p class="callout"><b>为什么敢丢：</b>依赖只朝下——T2 谁也不引用，L2 只引用下层。SFU 停发某一层的包，剩下的码流依然合法，解码器毫无感觉。对比 simulcast 的切流：要等关键帧，画面还可能跳一下。反过来<b>升档</b>要分开看：时间层在下一个可切换帧就能续上；空间层要等高层的关键帧（或切换点），这一点和 simulcast 差不多。</p>
     </div>
 
     <table class="pick-table">
@@ -739,7 +739,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
       </article>
       <article class="chain"><span class="c-k">信令</span>
         <h4>对称协商变 pub/sub</h4>
-        <p>不再是两端互发 offer/answer，而是每个客户端与 SFU 建连，发布、订阅由 SDK 与服务端语义主导；SFU 侧通常跑 ice-lite，TURN 基本退场。</p>
+        <p>不再是两端互发 offer/answer，而是每个客户端与 SFU 建连，发布、订阅由 SDK 与服务端语义主导；SFU 有公网地址、通常跑 ice-lite，不再需要打洞；但企业防火墙封掉 UDP 时，仍要靠 TURN over TLS 或 ICE-TCP 兜底，TURN 只是退到了少数场景。</p>
       </article>
       <article class="chain"><span class="c-k">音频</span>
         <h4>只转发最响的几路</h4>
@@ -991,7 +991,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
       </article>
       <article class="chain"><span class="c-k" style="background:var(--b-soft);color:var(--b-ink)">标准化</span>
         <h4>WHIP 推流 · WHEP 拉流</h4>
-        <p>WHIP（RFC 9725）与 WHEP 把「怎么把 WebRTC 流推给服务器 / 从服务器拉下来」标准化成一次 HTTP POST 交换 SDP。OBS 已原生支持 WHIP——RTC 直播第一次有了 RTMP 那样的通用推拉流协议。</p>
+        <p>WHIP（RFC 9725）与 WHEP（仍是 IETF 草案）把「怎么把 WebRTC 流推给服务器 / 从服务器拉下来」标准化成一次 HTTP POST 交换 SDP。OBS 已原生支持 WHIP——RTC 直播第一次有了 RTMP 那样的通用推拉流协议。</p>
       </article>
       <article class="chain"><span class="c-k" style="background:var(--b-soft);color:var(--b-ink)">混合</span>
         <h4>和 CDN 直播各守一段</h4>
@@ -1084,7 +1084,7 @@ const SCHEMES = [
     ft:n=>'全网 '+(n*(n-1)/2)+' 条连接，两两都要打洞' },
   { id:'sfu', name:'SFU 转发', tag:'服务器出带宽',
     up:()=>1, down:n=>n-1, enc:()=>1, srv:n=>n*(n-1),
-    ft:()=>'每端上行钉死 1 路（simulcast 算 1 次编码 3 层）' },
+    ft:()=>'每端上行钉死 1 路（开 simulcast 时是 1 路 3 层）' },
   { id:'mcu', name:'MCU 混流', tag:'服务器出算力',
     up:()=>1, down:()=>1, enc:()=>1, srv:n=>n,
     ft:n=>'服务器要解码 '+n+' 路、合成、再编码——延迟随之增加' }
@@ -1184,7 +1184,7 @@ sim();
 /* ═══ 三 · 信令与媒体流向切换台 ═══ */
 const FLOW = {
   mesh: '甲要维护 <b>3 条</b>连接、编码 <b>3 次</b>、下行收 <b>3 路</b>；房间共 6 条双向链路（图略乙↔丁）。信令面为每一对各协商一次，共 N(N-1)/2 组 offer/answer。',
-  sfu:  '甲只上行 <b>1 路</b>（simulcast 一次编三层也算 1 次），下行 3 路由 SFU 逐路转发、每路可独立选层；服务器不解码。信令轨原样不动，语义变成 pub/sub。',
+  sfu:  '甲只上行 <b>1 路</b>（开 simulcast 时这 1 路里有 3 层，要编码 3 次；不开就是 1 次），下行 3 路由 SFU 逐路转发、每路可独立选层；服务器不解码。信令轨原样不动，语义变成 pub/sub。',
   mcu:  '甲上行 <b>1 路</b>、下行 <b>1 路</b>合成画面；MCU 把 4 路全部解码、合流、再编码——延迟 +200~500ms，加密也只到服务器为止。信令轨依旧每人一条。'
 };
 const flowBtns = $$('.flow-tabs button');
@@ -1206,7 +1206,7 @@ setFlow('mesh');
 const SVC = {
   all: '9 帧全部转发，30 fps。注意箭头方向：引用只朝下——T2 谁也不引用，这就是它敢被丢的原因。',
   t2:  'SFU 停发 T2 的 4 帧（变灰）：没有任何帧引用它们，剩下的码流照样合法——15 fps，不等关键帧、不切流，降档瞬间完成。',
-  t0:  '只转发 T0：依赖链自洽，7.5 fps 保底。带宽一恢复，把上层的包续上就升档——同样瞬间完成。'
+  t0:  '只转发 T0：依赖链自洽，7.5 fps 保底。带宽一恢复，从下一个 T1/T2 帧起把上层的包续上就升档——时间层不用等关键帧。'
 };
 const svcBtns = $$('#svcTabs button');
 function setSvc(mode){

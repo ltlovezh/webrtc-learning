@@ -599,7 +599,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
 
 <div class="wrap top">
   <a href="index.html">← 返回学习地图</a>
-  <span class="no">SIGNALING · SDP</span>
+  <span class="no">SIGNALING / 02</span>
 </div>
 
 <!-- ══════════════ HERO ══════════════ -->
@@ -610,7 +610,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
       <p class="hero-lede">媒体流动之前，两端要先就「发什么、用什么编码、往哪儿发」谈妥。这场谈判只有两个回合：一封 <span class="m a">offer</span>，一封 <span class="m b">answer</span>。</p>
       <p class="kicker">而这两封信之间的那段路，<b>WebRTC 故意留空</b>——库负责写信和读信，把信送到对面是你的事。</p>
       <div class="hero-meta">
-        <span>RFC 4566 · SDP</span><span>RFC 3264 · OFFER/ANSWER</span><span>RFC 8829 · JSEP</span>
+        <span>RFC 8866 · SDP</span><span>RFC 3264 · OFFER/ANSWER</span><span>RFC 9429 · JSEP</span>
       </div>
     </div>
 
@@ -938,7 +938,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
   <div class="wrap">
     <p class="eyebrow">五 · 会出错的地方</p>
     <h2 class="h">两边同时开口，谈判就卡死了</h2>
-    <p class="lede">状态机不允许一端在 <span class="m">have-local-offer</span> 时接收另一个 offer。双方同时 <span class="m">CreateOffer</span> 时（术语叫 <strong>glare</strong>），必须有一方撤回自己的提案——这就是 <span class="m">SdpType::kRollback</span> 存在的理由。</p>
+    <p class="lede">状态机不允许一端在 <span class="m">have-local-offer</span> 时接收另一个 offer。双方同时 <span class="m">CreateOffer</span> 时（术语叫 <strong>glare</strong>），必须有一方撤回自己的提案——这就是 <span class="m">SdpType::kRollback</span> 存在的理由。浏览器里礼貌方直接 <span class="m">setRemoteDescription(offer)</span> 就会<b>隐式回滚</b>（perfect negotiation 的写法）；libwebrtc 原生端要在配置里打开 <span class="m">enable_implicit_rollback</span>，否则得自己先发一个 rollback。</p>
 
     <div class="glare">
       <div class="gp a" id="gpA">
@@ -969,7 +969,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
       </div>
       <div class="pit-i">
         <span class="pit-k">fmtp 不匹配</span>
-        <p class="pit-b"><b>协商成功但画面全黑，八成是 H.264 的 fmtp 对不上</b>两端都写了 <span class="m">H264</span>，但 <span class="m">profile-level-id</span> 或 <span class="m">packetization-mode</span> 不一致时，协商照样通过，解码却出不来图。排查时先 diff 两端的 <span class="m">a=fmtp</span> 行。</p>
+        <p class="pit-b"><b>都写了 H264，视频却没协商出来，多半是 fmtp 对不上</b>libwebrtc 把 <span class="m">profile-level-id</span> 里的 profile 和 <span class="m">packetization-mode</span> 当成编码身份的一部分：任一项不同，就算两种编码，会被排除在交集之外；如果没有别的共同编码，整个 m=video 会被端口 0 拒绝——不报错，但视频永远不会来。排查时先 diff 两端的 <span class="m">a=fmtp</span> 行。</p>
       </div>
       <div class="pit-i">
         <span class="pit-k">信令必须可信</span>
@@ -984,7 +984,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
   <div class="wrap">
     <p class="eyebrow">六 · 落到这个 checkout 上</p>
     <h2 class="h">每个概念对应的文件</h2>
-    <p class="lede">路径相对本页所在的 <code>Learning/</code> 目录，用浏览器直接点开即可。</p>
+    <p class="lede">每个路径都链接到 WebRTC 官方仓库 main 分支的对应文件，点开即可在线阅读。</p>
 
     <table class="map">
       <thead><tr><th>概念</th><th>文件</th><th>看什么</th></tr></thead>
@@ -1071,11 +1071,11 @@ const LINES = [
   {t:'a=ice-options:trickle', c:'ice', h:'trickle ICE', d:'声明支持 <b>trickle</b>：candidate 可以在 offer 发出之后再陆续送达，不必等收集完再发。这就是为什么建连能比「先收集完再发」快好几百毫秒。'},
   {t:'a=fingerprint:sha-256 4A:AD:B9:B1:3F:82:18:3B:…', c:'dtls', h:'RFC 8122', d:'本端 DTLS 证书的哈希。握手时拿到的证书必须和这一行对得上。<b>整个 WebRTC 的端到端加密，信任根就是这一行</b>——而它的可信度完全来自信令通道，所以信令必须走 HTTPS/WSS。'},
   {t:'a=setup:actpass', c:'dtls', h:'RFC 4145', d:'DTLS 角色协商。offer 写 <b>actpass</b>（客户端服务端都行），answer 必须明确选 <b>active</b> 或 <b>passive</b>。选 active 的一方主动发起握手。'},
-  {t:'a=mid:0', c:'mux', h:'RFC 9143', d:'这个 m-section 的标识。BUNDLE 生效后，一条通道上的所有包靠 RTP 扩展头里携带的 <b>mid</b> 判断属于哪一路。也是 <b>transceiver.mid</b> 的来源。'},
+  {t:'a=mid:0', c:'mux', h:'RFC 9143', d:'这个 m-section 的标识。BUNDLE 生效后，一条通道上的包优先靠 RTP 扩展头里携带的 <b>mid</b> 判断属于哪一路；没带 mid 时再按 SSRC、payload type 匹配。也是 <b>transceiver.mid</b> 的来源。'},
   {t:'a=sendrecv', c:'media', h:'direction', d:'方向：<b>我既发也收</b>。站在写这份 SDP 的人的视角。另外三个取值是 sendonly / recvonly / inactive。'},
   {t:'a=rtcp-mux', c:'mux', h:'RFC 5761', d:'RTP 和 RTCP <b>共用一个端口</b>。省一半的端口和一半的 ICE 检查。现代 WebRTC 默认开启。'},
-  {t:'a=rtpmap:111 opus/48000/2', c:'codec', h:'rtpmap', d:'payload type <b>111 = Opus</b>，48kHz，双声道。注意 111 这个号是<b>本次会话内临时分配的</b>，不是全局常量——换个浏览器可能就变成别的数字。'},
-  {t:'a=fmtp:111 minptime=10;useinbandfec=1', c:'codec', h:'fmtp', d:'给 111 这个编解码的具体参数：最小打包时长 10ms、开启带内 FEC。<b>fmtp 是最容易出「协商成功但没画面／没声音」的地方</b>。'},
+  {t:'a=rtpmap:111 opus/48000/2', c:'codec', h:'rtpmap', d:'payload type <b>111 = Opus</b>，时钟 48kHz。末尾的 <b>/2 不代表双声道</b>：RFC 7587 规定 Opus 一律写成 opus/48000/2，真正要立体声得在 fmtp 里加 stereo=1。注意 111 这个号是<b>本次会话内临时分配的</b>，不是全局常量——换个浏览器可能就变成别的数字。'},
+  {t:'a=fmtp:111 minptime=10;useinbandfec=1', c:'codec', h:'fmtp', d:'给 111 这个编解码的具体参数：最小打包时长 10ms、开启带内 FEC。fmtp 里写的是编码参数的细节，<b>排查互通问题时，常常要从这一行查起</b>。'},
   {t:'a=rtpmap:0 PCMU/8000', c:'codec', h:'static PT', d:'payload type 0 = G.711 μ-law。0~95 是 RFC 3551 定死的静态编号，留作保底。'},
 
   {g:'媒体级 · <b>m=video</b>，第二个 m-section'},
@@ -1085,7 +1085,7 @@ const LINES = [
   {t:'a=sendrecv', c:'media', h:'direction', d:'视频也是双向。'},
   {t:'a=rtpmap:96 VP8/90000', c:'codec', h:'rtpmap', d:'PT 96 = VP8。<b>90000 是视频固定的 RTP 时钟频率</b>，所有视频编码都用它，既不是分辨率也不是帧率。'},
   {t:'a=rtpmap:97 H264/90000', c:'codec', h:'rtpmap', d:'PT 97 = H.264。真正决定能不能互通的不是这一行，而是下面那行 fmtp。'},
-  {t:'a=fmtp:97 profile-level-id=42e01f;packetization-mode=1', c:'codec', h:'fmtp', d:'H.264 的 profile（42e01f = Constrained Baseline 3.1）和打包模式。<b>两端这一行对不上，协商照样通过，但画面出不来</b>——这是最经典的「明明都支持 H264 却黑屏」。'}
+  {t:'a=fmtp:97 profile-level-id=42e01f;packetization-mode=1', c:'codec', h:'fmtp', d:'H.264 的 profile（42e01f = Constrained Baseline 3.1）和打包模式。<b>profile 或 packetization-mode 不同，就被当成两种编码</b>：取交集时会被剔除，而不是「协商通过再黑屏」。level（末两位 1f）可以不同，按较低的一方协商。'}
 ];
 
 (function anatomy(){
@@ -1143,7 +1143,7 @@ const STEPS=[
    d:'A 问自己的 PeerConnection：「我能收发什么？」得到一份 SDP 文本。<b>注意此刻状态没有任何变化</b>——offer 只是一个字符串，还没被采纳，也还没触发 ICE。',
    src:['src/api/peer_connection_interface.h','CreateOffer(observer, options)。示例中的调用见 conductor.cc:232。']},
   {who:'a',t:'A: SetLocalDescription(offer)',s:['have-local-offer','stable'],slots:[1,0,0,0],
-   d:'A 采纳自己的提案，状态进入 <b>have-local-offer</b>。真正的副作用在这里：<b>ICE 开始收集 candidate</b>，DTLS 证书就位。从现在起 A 只接受 answer，再来一个 offer 会被拒绝。',
+   d:'A 采纳自己的提案，状态进入 <b>have-local-offer</b>。真正的副作用在这里：<b>ICE 开始收集 candidate</b>。（DTLS 证书更早就生成好了——offer 里的 a=fingerprint 就是它的哈希。）从现在起 A 只等 answer；再收到对方的 offer，要么报错，要么先回滚自己的 offer（见第五节 glare）。',
    src:['src/pc/sdp_offer_answer.cc','状态迁移与 ICE 启动的入口，SetLocalDescription 的实现主体在此。']},
   {who:'w',t:'信令：A → B  {type:"offer", sdp:"…"}',s:['have-local-offer','stable'],slots:[1,0,0,0],
    d:'跨过虚线的这一步<b>不属于 WebRTC</b>。WebSocket、HTTP、MQTT、二维码、手动复制粘贴都行——库不关心，也不提供。这也是为什么每个 WebRTC 项目都要自己写一个信令服务。',
@@ -1255,7 +1255,7 @@ const STEPS=[
 /* ═══════════════════ §2b SDP × ICE 双轨流水线 ═══════════════════ */
 const PIPE_PHASES=[
   {side:'a',tab:'A 设置本地 Offer',title:'A 采纳 Offer，ICE gathering 从这里启动',
-   desc:'<span class="m">createOffer()</span> 只生成文本；<span class="m">setLocalDescription(offer)</span> 才创建本端 ICE generation、准备 DTLS 证书并开始收集 candidate。Offer 可以立刻发，不必等收集结束。',
+   desc:'<span class="m">createOffer()</span> 只生成文本；<span class="m">setLocalDescription(offer)</span> 才创建本端 ICE generation 并开始收集 candidate（DTLS 证书在 createOffer 之前就已备好，fingerprint 已写进 Offer）。Offer 可以立刻发，不必等收集结束。',
    a:[1,0,2,0],b:[0,0,0,0],as:'正在收集，尚不能检查',bs:'尚未收到 Offer'},
   {side:'b',tab:'B 设置远端 Offer',title:'B 先拿到 A 的 ICE 凭据和 candidate',
    desc:'<span class="m">setRemoteDescription(offer)</span> 让 B 知道 A 的 <b>ufrag / pwd / mid</b>。下面假设 A 的首个 candidate 已经 trickle 到达；B 仍缺自己的 localDescription 和 local candidate，暂时组不成候选对。',
@@ -1327,7 +1327,7 @@ const PIPE_PHASES=[
 
   const COPY={
     on:[['一条通道','音视频共用一组 ICE candidate、一次 DTLS 握手、一个端口。'],
-        ['靠 mid 区分','包到达后，看 RTP 扩展头里的 mid 决定交给哪一路。'],
+        ['靠 mid 区分','包到达后，先看 RTP 扩展头里的 mid 决定交给哪一路；没有 mid 再按 SSRC / payload type 分。'],
         ['代价','两端都必须支持 BUNDLE；协商失败时要能退回多通道。'],
         ['现状','现代浏览器与 libwebrtc 默认开启，你几乎总能看到 a=group:BUNDLE。']],
     off:[['两条通道','音频、视频各自打洞、各自握手，ICE 检查次数翻倍。'],
