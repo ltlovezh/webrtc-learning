@@ -383,6 +383,79 @@ h1{
 .modern-note h3{margin:0 0 5px;font-size:1rem}
 .modern-note p{margin:0;color:var(--wire);font-size:.86rem}
 
+/* ── 两端组合矩阵 ── */
+.combo-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:24px;align-items:start}
+.combo-board{background:var(--paper-2);border:1.5px solid var(--rule);border-radius:12px;box-shadow:var(--sh-m);padding:18px}
+.combo-axis{display:flex;justify-content:space-between;gap:10px;margin:0 0 10px;font:600 .66rem/1.4 var(--mono);letter-spacing:.08em;color:var(--ink-3)}
+.combo-grid{display:grid;grid-template-columns:minmax(52px,.8fr) repeat(4,minmax(0,1fr));gap:6px}
+.cb-h{display:flex;align-items:center;justify-content:center;text-align:center;font:700 .74rem/1.3 var(--sans);color:var(--ink-2);padding:6px 2px;border-radius:7px}
+.cb-h.row{justify-content:flex-start;padding-left:4px}
+.cb-h.on{color:var(--ink);background:var(--paper-3)}
+.cb-corner{font:600 .6rem/1.3 var(--mono);color:var(--ink-3);display:flex;align-items:flex-end;padding:4px}
+.cb-cell{
+  --c:var(--ok);--s:var(--ok-soft);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  min-height:62px;padding:6px 2px;border:1.5px solid transparent;border-radius:8px;
+  background:var(--s);color:var(--c);cursor:pointer;
+  transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease;
+}
+.cb-cell b{font:800 1rem/1 var(--mono)}
+.cb-cell span{font:700 .66rem/1.3 var(--sans);text-align:center}
+.cb-cell:hover{transform:translateY(-1px);box-shadow:var(--sh-s)}
+.cb-cell[aria-pressed="true"]{border-color:var(--c);box-shadow:0 0 0 3px var(--paper-2),0 0 0 4.5px var(--c)}
+.cb-cell.k-both{--c:var(--warn);--s:var(--warn-soft)}
+.cb-cell.k-prflx{--c:var(--wire-ink);--s:var(--wire-soft)}
+.cb-cell.k-relay{--c:var(--err);--s:var(--err-soft)}
+.combo-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:14px;font-size:.74rem;color:var(--ink-2)}
+.combo-legend span{display:inline-flex;align-items:center;gap:6px}
+.combo-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.combo-detail{background:var(--paper-2);border:1.5px solid var(--rule);border-radius:12px;box-shadow:var(--sh-m);padding:20px 22px}
+.cd-k{margin:0 0 8px;font:600 .68rem/1.5 var(--mono);letter-spacing:.06em;color:var(--ink-3)}
+.cd-verdict{display:inline-block;margin-bottom:10px;padding:3px 10px;border-radius:99px;font:800 .78rem/1.6 var(--sans)}
+.cd-verdict.k-direct{color:var(--ok);background:var(--ok-soft)}
+.cd-verdict.k-both{color:var(--warn);background:var(--warn-soft)}
+.cd-verdict.k-prflx{color:var(--wire-ink);background:var(--wire-soft)}
+.cd-verdict.k-relay{color:var(--err);background:var(--err-soft)}
+.combo-detail h3{margin:0 0 8px;font:700 1.25rem/1.35 var(--serif)}
+.combo-detail p{margin:0 0 12px;color:var(--ink-2);font-size:.9rem}
+.cd-pair{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:0;padding:12px 14px;border-radius:9px;background:var(--paper-3);font-size:.8rem}
+.cd-pair dt{font:600 .68rem/1.7 var(--mono);color:var(--ink-3)}
+.cd-pair dd{margin:0;color:var(--ink);font-family:var(--mono)}
+.combo-foot{margin:16px 0 0;color:var(--ink-3);font-size:.8rem}
+
+/* ── ICE 候选 ── */
+.cand-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.cand{--c:var(--b);background:var(--paper-2);border:1.5px solid var(--rule);border-radius:12px;box-shadow:var(--sh-s);padding:18px;display:flex;flex-direction:column;gap:8px}
+.cand.srflx{--c:var(--wire)}
+.cand.prflx{--c:var(--wire-ink)}
+.cand.relay{--c:var(--ink-3)}
+.cand-tag{display:flex;align-items:center;gap:7px;font:700 .72rem/1.4 var(--mono);letter-spacing:.06em;color:var(--c)}
+.cand-tag::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--c)}
+.cand h3{margin:0;font:700 1.08rem/1.35 var(--serif)}
+.cand p{margin:0;color:var(--ink-2);font-size:.84rem}
+.cand code{display:block;padding:8px 10px;border-radius:7px;background:var(--paper-3);font:500 .7rem/1.6 var(--mono);color:var(--ink);word-break:break-all}
+.cand-pref{margin-top:auto;padding-top:6px}
+.cand-pref span{display:flex;justify-content:space-between;font:600 .66rem/1.6 var(--mono);color:var(--ink-3)}
+.cand-pref b{color:var(--ink)}
+.cand-bar{height:6px;border-radius:99px;background:var(--rule-2);overflow:hidden}
+.cand-bar i{display:block;height:100%;border-radius:99px;background:var(--c)}
+.formula{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-top:18px}
+.formula div{padding:16px 18px;border:1.5px dashed var(--rule);border-radius:10px;background:var(--paper-3)}
+.formula h3{margin:0 0 6px;font-size:.92rem}
+.formula code{display:block;margin-bottom:8px;font:600 .78rem/1.6 var(--mono);color:var(--wire-ink);word-break:break-word}
+.formula p{margin:0;color:var(--ink-2);font-size:.82rem}
+.src-list{margin:18px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 20px;font-size:.82rem;color:var(--ink-2)}
+.src-list a{font-family:var(--mono);color:var(--wire-ink);text-decoration:none;border-bottom:1.5px solid var(--rule)}
+.src-list a:hover{border-color:var(--wire)}
+
+/* ── 保活与回环 ── */
+.notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.notes article{background:var(--paper-2);border:1.5px solid var(--rule);border-radius:12px;box-shadow:var(--sh-s);padding:18px 20px}
+.notes .n-k{font:700 .68rem/1.5 var(--mono);letter-spacing:.08em;color:var(--wire-ink)}
+.notes h3{margin:4px 0 8px;font:700 1.08rem/1.35 var(--serif)}
+.notes p{margin:0 0 8px;color:var(--ink-2);font-size:.86rem}
+.notes p:last-child{margin-bottom:0}
+
 footer{padding:0 0 54px;color:var(--ink-2);font-size:.82rem}
 .footer-line{display:flex;justify-content:space-between;gap:20px;padding-top:20px;border-top:1px solid var(--rule)}
 
@@ -393,6 +466,8 @@ footer{padding:0 0 54px;color:var(--ink-2);font-size:.82rem}
   .tab:nth-child(-n+2){border-bottom:1px solid var(--rule)}
   .type-summary,.controls-grid,.result-area{grid-template-columns:1fr}
   .experiment,.observation{border-right:0;border-bottom:1px solid var(--rule)}
+  .combo-layout{grid-template-columns:1fr}
+  .cand-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:640px){
   .wrap{width:min(100% - 24px,1180px)}
@@ -405,6 +480,13 @@ footer{padding:0 0 54px;color:var(--ink-2);font-size:.82rem}
   .then{display:none}
   .scroll-hint{display:block}
   .footer-line{flex-direction:column}
+  .combo-board,.combo-detail{padding:14px}
+  .combo-grid{gap:4px;grid-template-columns:54px repeat(4,minmax(0,1fr))}
+  .cb-h{font-size:.64rem;padding:4px 1px;white-space:nowrap}
+  .cb-h.row{padding-left:2px}
+  .cb-cell{min-height:56px}
+  .cb-cell span{font-size:.6rem}
+  .cand-grid,.formula,.notes,.src-list{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}
@@ -659,6 +741,111 @@ footer{padding:0 0 54px;color:var(--ink-2);font-size:.82rem}
         <p>现代标准把映射与过滤拆开描述：EIM = 端点无关映射，EIF = 端点无关过滤，ADF = 地址相关过滤，APDF = 地址和端口相关过滤，APDM = 地址和端口相关映射。真实设备可能出现混合行为。一次 STUN 得到一个 <span class="mono">srflx</span> 只代表观察到一个公网映射，不能单独判定 NAT 类型。</p>
       </div>
     </aside>
+  </section>
+
+  <section class="lesson" aria-labelledby="combo-title">
+    <div class="section-head">
+      <h2 id="combo-title">两端都在 NAT 后面，能不能打通？</h2>
+      <p>真实通话里，两端各自躲在一个 NAT 后面。ICE 的做法是：双方先用 STUN 拿到自己的公网映射（srflx），经信令交换，然后<b>同时</b>朝对方的映射地址发 STUN 检查。能不能打通，取决于两个 NAT 的组合。点任意一格看原因。</p>
+    </div>
+    <div class="combo-layout">
+      <div class="combo-board">
+        <p class="combo-axis" aria-hidden="true"><span>↓ A 端的 NAT</span><span>B 端的 NAT →</span></p>
+        <div class="combo-grid" id="combo-grid" role="group" aria-label="两端 NAT 组合矩阵，可用方向键移动"></div>
+        <div class="combo-legend" aria-hidden="true">
+          <span><i style="background:var(--ok)"></i>直连</span>
+          <span><i style="background:var(--warn)"></i>双方都发包后通</span>
+          <span><i style="background:var(--wire-ink)"></i>靠 prflx 打通</span>
+          <span><i style="background:var(--err)"></i>只能走 TURN</span>
+        </div>
+      </div>
+      <div class="combo-detail" id="combo-detail" aria-live="polite">
+        <p class="cd-k" id="cd-k"></p>
+        <span class="cd-verdict" id="cd-verdict"></span>
+        <h3 id="cd-title"></h3>
+        <p id="cd-text"></p>
+        <dl class="cd-pair"><dt>最终选中</dt><dd id="cd-pair"></dd></dl>
+      </div>
+    </div>
+    <p class="combo-foot">前提：两端都按 ICE（RFC 8445）同时发检查，也都配了 STUN。这是基于传统四类的教学模型，真实设备可能有混合行为；两端在同一个局域网时，host 候选通常最先打通。</p>
+  </section>
+
+  <section class="lesson" aria-labelledby="cand-title">
+    <div class="section-head">
+      <h2 id="cand-title">ICE 手里的四种候选</h2>
+      <p>上面每一格最后选中的「候选对」，就是从这四种候选里配出来的。ICE 把它们都收集起来、两两配对、按优先级逐对检查。<b>relay 永远排在最后</b>：多绕一跳、占服务器带宽，所以只在别的都打不通时才用——但它和其他候选是并行收集的，需要时已经备好。</p>
+    </div>
+    <div class="cand-grid">
+      <article class="cand host">
+        <span class="cand-tag">HOST</span>
+        <h3>本机地址</h3>
+        <p>网卡上的地址，不用问任何人。浏览器出于隐私，常把它换成一个 <span class="mono">xxx.local</span> 的 mDNS 名字。</p>
+        <code>a=candidate:1 1 udp 2130706431 192.168.1.10 5000 typ host</code>
+        <div class="cand-pref"><span>类型偏好 <b>126</b></span><div class="cand-bar"><i style="width:100%"></i></div></div>
+      </article>
+      <article class="cand srflx">
+        <span class="cand-tag">SRFLX</span>
+        <h3>服务器反射地址</h3>
+        <p>向 STUN 服务器发一个 Binding 请求，它告诉你「我看到你来自哪里」——也就是 NAT 给你的公网映射。上面实验里的「公网映射 1」就是它。</p>
+        <code>a=candidate:2 1 udp 1694498815 203.0.113.10 62000 typ srflx raddr 192.168.1.10 rport 5000</code>
+        <div class="cand-pref"><span>类型偏好 <b>100</b></span><div class="cand-bar"><i style="width:79.4%"></i></div></div>
+      </article>
+      <article class="cand prflx">
+        <span class="cand-tag">PRFLX</span>
+        <h3>对端反射地址</h3>
+        <p>不经信令交换，是在连通性检查时<b>现场发现</b>的：收到一个来自陌生地址的检查包，就把这个源地址记成新候选。对称型 NAT 新开的端口，就是这样被找到的。</p>
+        <code>（不出现在 SDP 里）</code>
+        <div class="cand-pref"><span>类型偏好 <b>110</b></span><div class="cand-bar"><i style="width:87.3%"></i></div></div>
+      </article>
+      <article class="cand relay">
+        <span class="cand-tag">RELAY</span>
+        <h3>中继地址</h3>
+        <p>向 TURN 服务器申请（Allocate）一个地址，所有媒体都由服务器转发。TURN 只转发密文，看不到内容；走 TLS 443 的中继连严格的公司防火墙都能穿过。</p>
+        <code>a=candidate:3 1 udp 67108863 198.51.100.50 49152 typ relay raddr 203.0.113.10 rport 62000</code>
+        <div class="cand-pref"><span>类型偏好 <b>0~3</b></span><div class="cand-bar"><i style="width:2.4%"></i></div></div>
+      </article>
+    </div>
+    <div class="formula">
+      <div>
+        <h3>单个候选的优先级</h3>
+        <code>priority = 2²⁴ × 类型偏好 + 2⁸ × 本地偏好 + (256 − 组件 ID)</code>
+        <p>类型偏好占最高的 8 位，所以类型几乎决定了一切。上面例子里本地偏好按 65535、组件 ID 按 1 算。libwebrtc 的取值：host 126、prflx 110、srflx 100、relay 按协议分 UDP 3 / DTLS 2 / TCP 1 / TLS 0。</p>
+      </div>
+      <div>
+        <h3>候选对的优先级</h3>
+        <code>2³² × MIN(G, D) + 2 × MAX(G, D) + (G > D ? 1 : 0)</code>
+        <p>G 是控制方（controlling）的候选优先级，D 是被控方的。取较小值做主导：一对里只要有一个 relay，这对就排到后面。</p>
+      </div>
+    </div>
+    <ul class="src-list">
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/p2p/base/p2p_constants.h">p2p/base/p2p_constants.h</a> · 类型偏好的取值</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/api/candidate.cc">api/candidate.cc</a> · 候选优先级公式</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/p2p/base/connection.cc">p2p/base/connection.cc</a> · 候选对优先级与 prflx 发现</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/p2p/base/p2p_transport_channel.cc">p2p/base/p2p_transport_channel.cc</a> · 检查调度与选路</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/p2p/base/stun_port.cc">p2p/base/stun_port.cc</a> · 收集 srflx</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/p2p/base/turn_port.cc">p2p/base/turn_port.cc</a> · 收集 relay</li>
+    </ul>
+  </section>
+
+  <section class="lesson" aria-labelledby="notes-title" style="padding-top:0">
+    <div class="section-head">
+      <h2 id="notes-title">打通之后，还有两件小事</h2>
+      <p>洞打开了不等于永远开着；两端在同一个 NAT 后面，也不一定更容易。</p>
+    </div>
+    <div class="notes">
+      <article>
+        <span class="n-k">KEEPALIVE · 保活</span>
+        <h3>映射会过期，要定期敲门</h3>
+        <p>NAT 映射一段时间没有流量就会被回收。RFC 4787 要求 UDP 映射至少空闲 2 分钟才过期（建议 5 分钟），但不少家用路由器 30 秒左右就回收了。</p>
+        <p>所以 ICE 会定期发 STUN Binding 保住映射：libwebrtc 默认每 10 秒向 STUN 服务器发一次（<span class="mono">kStunKeepaliveInterval</span>）。连上之后还有 consent freshness（RFC 7675）：大约每 5 秒确认一次对方仍愿意接收，30 秒收不到回应就停止发送。</p>
+      </article>
+      <article>
+        <span class="n-k">HAIRPINNING · 回环</span>
+        <h3>同一个 NAT 后面的两端</h3>
+        <p>两端在同一个局域网时，通常 host 候选最先打通，根本不经过 NAT。</p>
+        <p>如果 host 走不通（比如分属不同子网，或对方解析不了 mDNS 名字），就只剩 srflx 对 srflx：包要发到 NAT 自己的公网地址，再「掉头」回到内网，这叫 hairpinning。RFC 4787 要求 NAT 必须支持，但并非所有设备都做到了；不支持时，又得退到 TURN。</p>
+      </article>
+    </div>
   </section>
 
   <footer>
@@ -1004,6 +1191,122 @@ footer{padding:0 0 54px;color:var(--ink-2);font-size:.82rem}
   $('#reset-lab').addEventListener('click', () => resetLab(true));
 
   selectType('full');
+})();
+</script>
+<script>
+/* ── 两端 NAT 组合矩阵 ── */
+(() => {
+  const NATS = [
+    { id: 'full', name: '完全锥形', short: '完全锥形' },
+    { id: 'address', name: '地址限制锥形', short: '地址限制' },
+    { id: 'port', name: '端口限制锥形', short: '端口限制' },
+    { id: 'symmetric', name: '对称型', short: '对称型' }
+  ];
+  const KINDS = {
+    direct: { mark: '✓', word: '直连', verdict: '✓ 直连' },
+    both: { mark: '✓', word: '发包后通', verdict: '✓ 双方都发包后打通' },
+    prflx: { mark: '✓', word: 'prflx', verdict: '✓ 靠 prflx 打通' },
+    relay: { mark: '×', word: 'TURN', verdict: '× 只能走 TURN 中继' }
+  };
+  // 组合是对称的：键按 NATS 顺序排列
+  const PAIRS = {
+    'full|full': { kind: 'direct', title: '谁先发都能进门',
+      text: '两边的过滤都不设限：任何一方的第一个检查包，只要发到对方的公网映射就能进门，一个来回就打通。',
+      pair: 'srflx ↔ srflx' },
+    'full|address': { kind: 'direct', title: '一方先开门就够',
+      text: '完全锥形一侧来者不拒；地址限制一侧要先向对方的 IP 发过包，才放行对方。ICE 双方同时发检查，地址限制侧的第一个包就把自己的门打开了，随后双向畅通。',
+      pair: 'srflx ↔ srflx' },
+    'full|port': { kind: 'direct', title: '一方先开门就够',
+      text: '端口限制侧要先向对方的「IP + 端口」发过包才放行。完全锥形侧的映射端口和目的地无关，srflx 里写的就是真实端口，所以端口限制侧发出第一个检查，门就精确地打开了。',
+      pair: 'srflx ↔ srflx' },
+    'address|address': { kind: 'both', title: '「打洞」这个名字就是这么来的',
+      text: '两边都要先向对方的 IP 发过包才放行。双方的第一个检查包很可能被对方的 NAT 丢掉——但它们顺手在自己的 NAT 上开了门。ICE 会重传检查，下一个包就进得去了。',
+      pair: 'srflx ↔ srflx' },
+    'address|port': { kind: 'both', title: '双方都先发一次，门就都开了',
+      text: '和两个地址限制锥形一样，先发的包可能被丢，但各自的门已经打开。端口限制侧还要求端口一致：好在对方的映射与目的地无关，srflx 端口就是真实端口。',
+      pair: 'srflx ↔ srflx' },
+    'port|port': { kind: 'both', title: '最严格的锥形组合，照样能通',
+      text: '两边都只放行发过包的「IP + 端口」。关键在于两边的映射都和目的地无关：交换来的 srflx 地址可信，双方同时发检查，各自的过滤规则都会被打开。',
+      pair: 'srflx ↔ srflx' },
+    'full|symmetric': { kind: 'prflx', title: '对称侧换了端口，但对面不在乎',
+      text: '对称型 NAT 朝新目的地发包时会新开一个映射，端口和 STUN 报告的 srflx 不一样。完全锥形侧不看来源，照样收下，并从源地址发现了这个新端口，记成 prflx 候选；回包发到这个新端口，对称侧的映射正好放行。',
+      pair: '完全锥形侧的 srflx ↔ 对称侧的 prflx' },
+    'address|symmetric': { kind: 'prflx', title: '只核对 IP，所以新端口也能进',
+      text: '地址限制侧已经向对称侧的 IP 发过检查，门对这个 IP 的所有端口都开着。对称侧从新端口发来的检查于是能进门，地址限制侧把新端口记成 prflx 候选，再往那里回包。',
+      pair: '地址限制侧的 srflx ↔ 对称侧的 prflx' },
+    'port|symmetric': { kind: 'relay', title: '两边都进不去',
+      text: '端口限制侧只放行它发过包的「IP + 端口」，也就是对称侧 srflx 里的那个端口；可对称侧的检查是从一个新端口发出来的，被拦。反过来，端口限制侧发到 srflx 端口的包，到了对称 NAT 那里，那个映射只属于 STUN 服务器，也被拦。只能请 TURN 中继。',
+      pair: 'relay ↔ srflx（通常一侧用中继就够）' },
+    'symmetric|symmetric': { kind: 'relay', title: '谁也猜不到对方的下一个端口',
+      text: '两边朝新目的地发包都会换端口，交换来的 srflx 地址对彼此都没用，所有检查都落在错误的端口上。直连没有希望，只能走 TURN。端口预测之类的技巧能偶尔成功，但不可靠。',
+      pair: 'relay ↔ relay 或 relay ↔ srflx' }
+  };
+  const pairOf = (a, b) => {
+    const ia = NATS.findIndex(n => n.id === a), ib = NATS.findIndex(n => n.id === b);
+    return PAIRS[ia <= ib ? `${a}|${b}` : `${b}|${a}`];
+  };
+
+  const grid = document.getElementById('combo-grid');
+  if (!grid) return;
+  const cells = [];
+  const corner = document.createElement('div');
+  corner.className = 'cb-corner';
+  corner.textContent = 'A \\ B';
+  grid.appendChild(corner);
+  const colHeads = NATS.map(n => {
+    const h = document.createElement('div');
+    h.className = 'cb-h';
+    h.textContent = n.short;
+    grid.appendChild(h);
+    return h;
+  });
+  const rowHeads = [];
+  NATS.forEach((a, r) => {
+    const h = document.createElement('div');
+    h.className = 'cb-h row';
+    h.textContent = a.short;
+    grid.appendChild(h);
+    rowHeads.push(h);
+    NATS.forEach((b, c) => {
+      const p = pairOf(a.id, b.id);
+      const k = KINDS[p.kind];
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cb-cell k-' + p.kind;
+      btn.setAttribute('aria-pressed', 'false');
+      btn.setAttribute('aria-label', `A 端${a.name}，B 端${b.name}：${k.verdict.slice(2)}`);
+      btn.innerHTML = '<b aria-hidden="true"></b><span aria-hidden="true"></span>';
+      btn.querySelector('b').textContent = k.mark;
+      btn.querySelector('span').textContent = k.word;
+      btn.addEventListener('click', () => select(r, c));
+      btn.addEventListener('keydown', e => {
+        const d = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[e.key];
+        if (!d) return;
+        e.preventDefault();
+        const nr = (r + d[0] + 4) % 4, nc = (c + d[1] + 4) % 4;
+        select(nr, nc);
+        cells[nr][nc].focus();
+      });
+      grid.appendChild(btn);
+      (cells[r] = cells[r] || [])[c] = btn;
+    });
+  });
+
+  function select(r, c) {
+    const a = NATS[r], b = NATS[c], p = pairOf(a.id, b.id), k = KINDS[p.kind];
+    cells.flat().forEach(el => el.setAttribute('aria-pressed', 'false'));
+    cells[r][c].setAttribute('aria-pressed', 'true');
+    rowHeads.forEach((h, i) => h.classList.toggle('on', i === r));
+    colHeads.forEach((h, i) => h.classList.toggle('on', i === c));
+    document.getElementById('cd-k').textContent = `A 端：${a.name} · B 端：${b.name}`;
+    const v = document.getElementById('cd-verdict');
+    v.className = 'cd-verdict k-' + p.kind;
+    v.textContent = k.verdict;
+    document.getElementById('cd-title').textContent = p.title;
+    document.getElementById('cd-text').textContent = p.text;
+    document.getElementById('cd-pair').textContent = p.pair;
+  }
+  select(2, 3);
 })();
 </script>
 </body>
