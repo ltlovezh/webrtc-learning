@@ -418,7 +418,7 @@ a.src-p:hover{border-bottom-color:var(--wire)}
 .pipe-rule b{color:var(--ink)}
 
 /* ─────────────────────────────────────────────────────────────
-   §3 Three.js 分层
+   §3 BUNDLE 分层（Canvas 2D 透视示意）
    ───────────────────────────────────────────────────────────── */
 .layers{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr);gap:clamp(22px,3.4vw,48px);align-items:center;margin-top:32px}
 .scene{
@@ -869,7 +869,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
     <div class="layers">
       <div class="scene bundled" id="scene" role="img" aria-label="立体示意：会话底板之上叠着 audio 与 video 两块 m-section 面板，下方连着传输通道">
         <span class="scene-hint" id="sceneHint">拖动可旋转</span>
-        <div class="scene-fb">3D 视图需要联网加载 Three.js<br>右侧的对照说明不受影响</div>
+        <div class="scene-fb">当前浏览器无法绘制立体示意<br>右侧的对照说明不受影响</div>
       </div>
 
       <div>
@@ -1035,7 +1035,6 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
 
 </main>
 
-<script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
 <script>
 (function(){
 "use strict";
@@ -1321,7 +1320,7 @@ const PIPE_PHASES=[
   paint(0);
 })();
 
-/* ═══════════════════ §3 Three.js 分层 ═══════════════════ */
+/* ═══════════════════ §3 BUNDLE 分层（Canvas 2D，零依赖） ═══════════════════ */
 (function layers(){
   const host=$('#scene'), hint=$('#sceneHint'), tog=$('#togBundle'), txt=$('#togTxt'), box=$('#cmpBox');
   let bundled=true;
@@ -1355,107 +1354,146 @@ const PIPE_PHASES=[
   paintCopy();
 
   let onBundle=null;
-  if(typeof THREE==='undefined'){ host.classList.add('failed'); return; }
+  const cv=document.createElement('canvas');
+  const g=cv.getContext&&cv.getContext('2d');
+  if(!g){ host.classList.add('failed'); return; }
+  cv.setAttribute('aria-hidden','true');
+  host.insertBefore(cv,hint);
 
-  /* ── 场景 ── */
-  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
-  renderer.setSize(host.clientWidth,host.clientHeight);
-  host.insertBefore(renderer.domElement,hint);
-
-  const scene=new THREE.Scene();
-  const camera=new THREE.PerspectiveCamera(32,host.clientWidth/host.clientHeight,0.1,120);
-
-  scene.add(new THREE.AmbientLight(0xFFF7F0,2.2));
-  const key=new THREE.DirectionalLight(0xffffff,1.7); key.position.set(4,8,6); scene.add(key);
-  const fill=new THREE.DirectionalLight(0xF6E2D4,0.9); fill.position.set(-6,3,-4); scene.add(fill);
-
-  const rig=new THREE.Group(); scene.add(rig);
-  const INK=0x3D3128;
+  /* ── 极简透视投影：几块板、几根管子，Canvas 2D 足够，不必引 WebGL 库 ── */
+  const INK='#333D2E', FONT='ui-monospace,"SF Mono",Menlo,"PingFang SC",sans-serif';
   const Y_SESS=0, Y_AUD=0.9, Y_VID=1.8, Y_PIPE=-1.62, Y_CAP=-2.0;
+  const PW=3.3, PD=2.05, PT=0.09;                 // 面板宽 / 深 / 厚
+  const R=9.4, TAN=Math.tan(16*Math.PI/180);      // 垂直视角 32°
+  const PANELS=[
+    {y:Y_SESS, top:'#E3E8D8', side:'#C3CCB2'},
+    {y:Y_AUD,  top:'#EEC3A2', side:'#D39A70'},
+    {y:Y_VID,  top:'#A9C8AE', side:'#7FA587'}
+  ];
+  let W=0,H=0,DPR=1,F=1;
+  let P=[0,0,R], Rt=[1,0,0], Up=[0,1,0], Fw=[0,0,-1];
 
-  function panel(y,color){
-    const g=new THREE.BoxGeometry(3.3,0.09,2.05);
-    const mesh=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:color,roughness:.95,metalness:0}));
-    mesh.position.y=y;
-    mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(g),
-      new THREE.LineBasicMaterial({color:INK,transparent:true,opacity:.6})));
-    rig.add(mesh); return mesh;
+  function cross(a,b){ return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]; }
+  function dot(a,b){ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+  function unit(a){ const l=Math.hypot(a[0],a[1],a[2])||1; return [a[0]/l,a[1]/l,a[2]/l]; }
+  function setCam(theta,phi){
+    P=[R*Math.sin(phi)*Math.sin(theta), R*Math.cos(phi), R*Math.sin(phi)*Math.cos(theta)];
+    Fw=unit([-P[0],-P[1],-P[2]]); Rt=unit(cross(Fw,[0,1,0])); Up=cross(Rt,Fw);
   }
-  panel(Y_SESS,0xE3DACF); panel(Y_AUD,0xE9A183); panel(Y_VID,0x93BCA8);
-
-  /* 接触阴影 */
-  (function(){
-    const c=document.createElement('canvas'); c.width=c.height=128;
-    const g=c.getContext('2d');
-    const rg=g.createRadialGradient(64,64,4,64,64,62);
-    rg.addColorStop(0,'rgba(150,134,118,.5)'); rg.addColorStop(1,'rgba(150,134,118,0)');
-    g.fillStyle=rg; g.fillRect(0,0,128,128);
-    const m=new THREE.Mesh(new THREE.PlaneGeometry(5.4,3.6),
-      new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false}));
-    m.rotation.x=-Math.PI/2; m.position.y=Y_PIPE-0.2; rig.add(m);
-  })();
-
-  /* 标签：画成一张纸质小标牌，保证在任何底色上都读得清 */
-  function label(text,dot,h){
-    const fs=44, padX=20, padY=13, dotW=dot?34:0;
-    const font='600 '+fs+'px ui-monospace,"SF Mono",Menlo,"PingFang SC",sans-serif';
-    const c=document.createElement('canvas'); let g=c.getContext('2d');
-    g.font=font;
-    const tw=Math.ceil(g.measureText(text).width);
-    c.width=tw+padX*2+dotW+8; c.height=fs+padY*2+8;
-    g=c.getContext('2d'); g.font=font; g.textBaseline='middle';
-    const r=(c.height-8)/2, x0=4, y0=4, w=c.width-8, hh=c.height-8;
-    g.beginPath();
-    if(g.roundRect) g.roundRect(x0,y0,w,hh,r); else g.rect(x0,y0,w,hh);
-    g.fillStyle='#FBFCF7'; g.fill();
-    g.lineWidth=4; g.strokeStyle='#333D2E'; g.stroke();
-    if(dot){ g.beginPath(); g.arc(x0+padX+7,c.height/2,10,0,Math.PI*2); g.fillStyle=dot; g.fill(); }
-    g.fillStyle='#333D2E'; g.fillText(text,x0+padX+dotW,c.height/2+2);
-    const tex=new THREE.CanvasTexture(c); tex.anisotropy=4;
-    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false,depthWrite:false}));
-    const s=h||0.26;
-    sp.scale.set(s*c.width/c.height,s,1);
-    sp.renderOrder=10;
-    return sp;
+  function proj(x,y,z){
+    const d=[x-P[0],y-P[1],z-P[2]], zc=dot(d,Fw);
+    return {x:W/2+dot(d,Rt)*F/zc, y:H/2-dot(d,Up)*F/zc, z:zc};
   }
-  function place(sp,y){ sp.position.set(-1.66+sp.scale.x/2,y,-0.86); rig.add(sp); return sp; }
-  place(label('会话级  a=group:BUNDLE 0 1',null,.25),Y_SESS+0.3);
-  place(label('m=audio  mid:0  opus/48000/2','#C97B4A',.25),Y_AUD+0.3);
-  place(label('m=video  mid:1  VP8/90000','#4A7856',.25),Y_VID+0.3);
+  function rgb(hex){ const n=parseInt(hex.slice(1),16); return [n>>16,(n>>8)&255,n&255]; }
+  function mix(a,b,t){ const A=rgb(a),B=rgb(b); return 'rgb('+A.map(function(v,i){ return Math.round(v+(B[i]-v)*t); }).join(',')+')'; }
+  function hexMix(a,b,t){ const A=rgb(a),B=rgb(b); return '#'+A.map(function(v,i){ return ('0'+Math.round(v+(B[i]-v)*t).toString(16)).slice(-2); }).join(''); }
+  function poly(pts){ g.beginPath(); pts.forEach(function(p,i){ i?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y); }); g.closePath(); }
 
-  /* 管道与引线：统一用「两点之间的圆柱」表达 */
-  function tube(color,r){
-    const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,1,16),
-      new THREE.MeshStandardMaterial({color:color,roughness:.9,metalness:0,transparent:true}));
-    rig.add(m); return m;
+  /* 薄板：先画朝向镜头的侧面，再画顶面；镜头始终在最高一层之上，所以自下而上画就是正确遮挡 */
+  function panel(p){
+    const hx=PW/2, hz=PD/2, y1=p.y+PT/2, y0=p.y-PT/2;
+    const ring=[[-hx,-hz],[hx,-hz],[hx,hz],[-hx,hz]];
+    const top=ring.map(function(c){ return proj(c[0],y1,c[1]); });
+    const bot=ring.map(function(c){ return proj(c[0],y0,c[1]); });
+    g.lineJoin='round'; g.lineWidth=1; g.strokeStyle='rgba(51,61,46,.6)';
+    for(let i=0;i<4;i++){
+      const j=(i+1)%4, mx=(ring[i][0]+ring[j][0])/2, mz=(ring[i][1]+ring[j][1])/2;
+      if(mx*(P[0]-mx)+mz*(P[2]-mz)<=0) continue;           // 背向镜头
+      poly([top[i],top[j],bot[j],bot[i]]); g.fillStyle=p.side; g.fill(); g.stroke();
+    }
+    poly(top); g.fillStyle=p.top; g.fill(); g.stroke();
   }
-  const UP=new THREE.Vector3(0,1,0);
-  const vA=new THREE.Vector3(), vB=new THREE.Vector3(), vD=new THREE.Vector3(), vM=new THREE.Vector3();
-  function link(mesh,x1,y1,z1,x2,y2,z2){
-    vA.set(x1,y1,z1); vB.set(x2,y2,z2);
-    vD.subVectors(vB,vA); const len=vD.length()||0.0001;
-    vM.addVectors(vA,vB).multiplyScalar(.5);
-    mesh.position.copy(vM);
-    mesh.scale.set(1,len,1);
-    mesh.quaternion.setFromUnitVectors(UP,vD.normalize());
-  }
-  const pipeA=tube(0xC9502B,.1), pipeB=tube(0x2F7A5F,.1);
-  const leadA=tube(0xC9502B,.038), leadB=tube(0x2F7A5F,.038);
-  const SHARED=new THREE.Color(0x7E959E), COL_A=new THREE.Color(0xC9502B);
 
-  const capOne=label('一条共用通道 · ICE + DTLS',null,.23);
-  const capA=label('通道 1 · audio','#C97B4A',.23);
-  const capB=label('通道 2 · video','#4A7856',.23);
-  [capOne,capA,capB].forEach(function(s){ s.center.set(.5,.5); rig.add(s); });
+  /* 管道 / 引线：两点之间的圆柱，用横向渐变做一点体积感 */
+  function tube(a,b,r,color,alpha){
+    if(alpha<=0.01) return;
+    const A=proj(a[0],a[1],a[2]), B=proj(b[0],b[1],b[2]);
+    const w=2*r*F/((A.z+B.z)/2);
+    let nx=-(B.y-A.y), ny=B.x-A.x; const l=Math.hypot(nx,ny)||1; nx/=l; ny/=l;
+    const mx=(A.x+B.x)/2, my=(A.y+B.y)/2;
+    const gr=g.createLinearGradient(mx-nx*w/2,my-ny*w/2,mx+nx*w/2,my+ny*w/2);
+    gr.addColorStop(0,mix(color,'#FFFFFF',.38)); gr.addColorStop(.42,color); gr.addColorStop(1,mix(color,INK,.32));
+    g.globalAlpha=alpha; g.strokeStyle=gr; g.lineWidth=w; g.lineCap='round';
+    g.beginPath(); g.moveTo(A.x,A.y); g.lineTo(B.x,B.y); g.stroke();
+    g.globalAlpha=1;
+  }
+  /* 截取线段在 [lo,hi] 高度区间内的部分（引线会穿过面板，按层分段画） */
+  function clipY(a,b,lo,hi){
+    const ya=a[1], yb=b[1]; if(ya===yb) return (ya>=lo&&ya<=hi)?[a,b]:null;
+    const t0=Math.max(0,Math.min((lo-ya)/(yb-ya),(hi-ya)/(yb-ya)));
+    const t1=Math.min(1,Math.max((lo-ya)/(yb-ya),(hi-ya)/(yb-ya)));
+    if(t0>=t1) return null;
+    const at=function(t){ return [a[0]+(b[0]-a[0])*t,ya+(yb-ya)*t,a[2]+(b[2]-a[2])*t]; };
+    return [at(t0),at(t1)];
+  }
+
+  /* 纸质小标牌：始终正对镜头，保证在任何底色上都读得清 */
+  function mkLabel(text,dot,s){
+    g.font='600 44px '+FONT;
+    const cw=Math.ceil(g.measureText(text).width)+40+(dot?34:0)+8;   // 参考尺寸：字号 44，牌高 70
+    return {text:text,dot:dot,s:s,ww:s*cw/78};                        // ww：世界坐标下的宽度
+  }
+  function label(L,x,y,z){
+    const c=proj(x,y,z), k=L.s*F/c.z/78;                             // 每个参考像素对应的屏幕像素
+    g.font='600 '+(44*k)+'px '+FONT;
+    const tw=g.measureText(L.text).width, dotW=L.dot?34*k:0;
+    const w=tw+40*k+dotW, h=62*k, x0=c.x-w/2, y0=c.y-h/2;
+    g.beginPath(); if(g.roundRect) g.roundRect(x0,y0,w,h,h/2); else g.rect(x0,y0,w,h);
+    g.fillStyle='#FBFCF7'; g.fill(); g.lineWidth=Math.max(1,3.5*k); g.strokeStyle=INK; g.stroke();
+    if(L.dot){ g.beginPath(); g.arc(x0+20*k+7*k,c.y,10*k,0,Math.PI*2); g.fillStyle=L.dot; g.fill(); }
+    g.fillStyle=INK; g.textBaseline='middle'; g.fillText(L.text,x0+20*k+dotW,c.y+1.5*k);
+  }
+  const L_SESS=mkLabel('会话级  a=group:BUNDLE 0 1',null,.25);
+  const L_AUD=mkLabel('m=audio  mid:0  opus/48000/2','#C97B4A',.25);
+  const L_VID=mkLabel('m=video  mid:1  VP8/90000','#4A7856',.25);
+  const capOne=mkLabel('一条共用通道 · ICE + DTLS',null,.23);
+  const capA=mkLabel('通道 1 · audio','#C97B4A',.23);
+  const capB=mkLabel('通道 2 · video','#4A7856',.23);
+  function place(L,y){ label(L,-1.66+L.ww/2,y,-0.86); }
+
+  function shadow(){
+    const y=Y_PIPE-0.2, o=proj(0,y,0), ex=proj(2.7,y,0), ez=proj(0,y,1.8);
+    g.save();
+    g.transform(ex.x-o.x,ex.y-o.y,ez.x-o.x,ez.y-o.y,o.x,o.y);
+    const rg=g.createRadialGradient(0,0,0.06,0,0,0.97);
+    rg.addColorStop(0,'rgba(74,120,86,.28)'); rg.addColorStop(1,'rgba(74,120,86,0)');
+    g.fillStyle=rg; g.fillRect(-1,-1,2,2);
+    g.restore();
+  }
+
+  const SHARED='#4E8378', COL_A='#C97B4A', COL_B='#4A7856';
+  function draw(cur){
+    const t=Math.min(1,cur/0.95);              // 0 = 合并，1 = 分离
+    g.setTransform(DPR,0,0,DPR,0,0);
+    g.clearRect(0,0,W,H);
+    shadow();
+
+    /* 第 0 层：会话底板之下的传输管道。合并时只剩一根溪青色粗管，两条引线一起插进去 */
+    const pipes=[
+      {a:[-cur,-0.05,0],b:[-cur,Y_PIPE,0],r:.1*(1+(1-t)*.45),c:hexMix(SHARED,COL_A,t),al:1},
+      {a:[ cur,-0.05,0],b:[ cur,Y_PIPE,0],r:.1,c:COL_B,al:t}
+    ];
+    pipes.sort(function(p,q){ return proj(q.a[0],-.8,0).z-proj(p.a[0],-.8,0).z; });
+    pipes.forEach(function(p){ tube(p.a,p.b,p.r,p.c,p.al); });
+
+    const leadA=[[0,Y_AUD-0.05,.1],[-cur,-0.02,.1]], leadB=[[0,Y_VID-0.05,-.1],[cur,-0.02,-.1]];
+    const bot2=Y_AUD-PT/2, top2=Y_AUD+PT/2;
+
+    panel(PANELS[0]);
+    tube(leadA[0],leadA[1],.038,COL_A,1);
+    const lowB=clipY(leadB[0],leadB[1],-1,bot2); if(lowB) tube(lowB[0],lowB[1],.038,COL_B,1);
+    panel(PANELS[1]);
+    const upB=clipY(leadB[0],leadB[1],top2,9); if(upB) tube(upB[0],upB[1],.038,COL_B,1);
+    panel(PANELS[2]);
+
+    /* 标牌永远画在最上层 */
+    place(L_SESS,Y_SESS+0.3); place(L_AUD,Y_AUD+0.3); place(L_VID,Y_VID+0.3);
+    if(t<0.4) label(capOne,0,Y_CAP,0);
+    else { label(capA,-cur,Y_CAP,0); label(capB,cur,Y_CAP,0); }
+  }
 
   /* ── 交互 ── */
-  let theta=-0.62, phi=1.02, target=0, cur=0, dragged=false, dragging=false, lx=0, ly=0;
-  const R=9.4;
-  function cam(){
-    camera.position.set(R*Math.sin(phi)*Math.sin(theta), R*Math.cos(phi), R*Math.sin(phi)*Math.cos(theta));
-    camera.lookAt(0,0,0);
-  }
+  let theta=-0.62, phi=1.02, target=0, cur=0, dragged=false, dragging=false, lx=0, ly=0, dirty=true;
   host.addEventListener('pointerdown',function(e){
     dragging=true; dragged=true; lx=e.clientX; ly=e.clientY;
     host.setPointerCapture(e.pointerId); hint.style.opacity='0';
@@ -1463,50 +1501,38 @@ const PIPE_PHASES=[
   host.addEventListener('pointermove',function(e){
     if(!dragging) return;
     theta-=(e.clientX-lx)*0.006;
-    phi=Math.max(0.34,Math.min(1.42,phi-(e.clientY-ly)*0.005));
-    lx=e.clientX; ly=e.clientY;
+    phi=Math.max(0.34,Math.min(1.3,phi-(e.clientY-ly)*0.005));   // 镜头不低于最高一层面板
+    lx=e.clientX; ly=e.clientY; dirty=true;
   });
   ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
     host.addEventListener(ev,function(){ dragging=false; });
   });
 
-  onBundle=function(on){ target=on?0:0.95; };
-  target=0;
+  onBundle=function(on){ target=on?0:0.95; dirty=true; };
 
-  const ro=new ResizeObserver(function(){
-    const w=host.clientWidth,h=host.clientHeight;
-    if(!w||!h) return;
-    renderer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix();
-  });
-  ro.observe(host);
+  function resize(){
+    W=host.clientWidth; H=host.clientHeight;
+    if(!W||!H) return;
+    DPR=Math.min(window.devicePixelRatio||1,2);
+    cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR);
+    F=(H/2)/TAN; dirty=true;
+  }
+  new ResizeObserver(resize).observe(host);
+  resize();
 
   let visible=true;
-  new IntersectionObserver(function(es){ visible=es[0].isIntersecting; },{threshold:0}).observe(host);
+  new IntersectionObserver(function(es){ visible=es[0].isIntersecting; if(visible) dirty=true; },{threshold:0}).observe(host);
 
   (function loop(){
     requestAnimationFrame(loop);
-    if(!visible) return;
-    if(!dragging && !dragged && !reduced) theta+=0.0022;
-    cur+=(target-cur)*(reduced?1:0.09);
-    const t=Math.min(1,cur/0.95);              // 0 = 合并，1 = 分离
-
-    link(pipeA,-cur,-0.05,0,-cur,Y_PIPE,0);
-    link(pipeB, cur,-0.05,0, cur,Y_PIPE,0);
-    link(leadA,0,Y_AUD-0.05,.1,-cur,-0.02,.1);
-    link(leadB,0,Y_VID-0.05,-.1, cur,-0.02,-.1);
-
-    /* 合并时只剩一根中性色管道，两条引线一起插进去 */
-    pipeA.material.color.copy(SHARED).lerp(COL_A,t);
-    pipeA.scale.x=pipeA.scale.z=1+(1-t)*0.45;
-    pipeB.material.opacity=t;
-    pipeB.visible=t>0.03;
-
-    capOne.position.set(0,Y_CAP,0); capOne.visible=t<0.4;
-    capA.position.set(-cur,Y_CAP,0); capA.visible=t>=0.4;
-    capB.position.set( cur,Y_CAP,0); capB.visible=t>=0.4;
-
-    cam();
-    renderer.render(scene,camera);
+    if(!visible||!W) return;
+    if(!dragging && !dragged && !reduced){ theta+=0.0022; dirty=true; }
+    if(Math.abs(target-cur)>0.0005){ cur+=(target-cur)*(reduced?1:0.09); dirty=true; }
+    else cur=target;
+    if(!dirty) return;
+    dirty=false;
+    setCam(theta,phi);
+    draw(cur);
   })();
 })();
 

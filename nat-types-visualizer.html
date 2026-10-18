@@ -211,21 +211,21 @@ h1{
 .svg-small{font:11px var(--mono);fill:var(--ink-2)}
 .node{fill:var(--paper-2);stroke:var(--ink);stroke-width:2}
 .node-soft{fill:var(--wire-soft);stroke:var(--wire);stroke-width:2}
-.nat-body{fill:var(--ink);stroke:var(--ink);stroke-width:2}
-.nat-label{font:800 17px var(--mono);fill:var(--paper-2)}
-.nat-sub{font:11px var(--mono);fill:#DBE2CD}
+.nat-body{fill:var(--a-soft);stroke:var(--a);stroke-width:1.5}
+.nat-title{font:800 14px var(--sans);fill:var(--ink)}
+.nat-kind{font:700 8.5px var(--mono);letter-spacing:.6px;fill:var(--a-ink)}
 .port-pill{fill:var(--paper);stroke:var(--rule);stroke-width:1.5}
 .role-index{font:800 15px var(--mono);fill:var(--paper-2)}
 .role-title{font:800 14px var(--sans);fill:var(--ink)}
 .role-caption{font:700 10px var(--mono);letter-spacing:1.2px;fill:var(--ink-3)}
 .role-address{font:750 13px var(--mono);fill:var(--ink)}
 .role-hint{font:11px var(--sans);fill:var(--ink-2)}
-.map-count{font:700 10px var(--mono);fill:#EDC59F}
-.svg-map-row{fill:#38402F;stroke:#5C6650;stroke-width:1}
-.svg-map-name{font:800 8.5px var(--mono);fill:#EDC59F}
-.svg-map-address{font:750 10.5px var(--mono);fill:#FEFEFB}
-.svg-map-target{font:750 8.5px var(--mono);fill:#EDC59F}
-.svg-map-empty{font:700 12px var(--mono);fill:#B2BCA3}
+.map-count{font:700 10px var(--mono);fill:var(--ink-2)}
+.svg-map-row{fill:var(--paper-2);stroke:#DBA97F;stroke-width:1.5}
+.svg-map-name{font:800 8.5px var(--mono);fill:var(--a-ink)}
+.svg-map-address{font:750 10.5px var(--mono);fill:var(--ink)}
+.svg-map-target{font:750 8.5px var(--mono);fill:var(--ink-2)}
+.svg-map-empty{font:700 12px var(--mono);fill:var(--ink-3)}
 .packet{filter:drop-shadow(0 2px 2px rgba(48,39,31,.24))}
 .gate-pulse{fill:none;stroke-width:4;opacity:0}
 .gate-pulse.allow{stroke:var(--ok)}
@@ -338,17 +338,19 @@ h1{
   margin:0;
   padding:12px 14px;
   border-radius:9px;
-  background:#2D3529;
-  color:#EAEEDC;
+  border:1.5px solid var(--rule);
+  background:var(--paper);
+  color:var(--ink);
   font:500 .72rem/1.75 var(--mono);
   list-style:none;
 }
-.log li{display:grid;grid-template-columns:28px 64px 1fr;gap:8px;border-bottom:1px solid rgba(255,255,255,.07);padding:5px 0}
+.log li{display:grid;grid-template-columns:28px 52px 1fr;gap:8px;align-items:baseline;border-bottom:1px dashed var(--rule-2);padding:5px 0}
 .log li:last-child{border-bottom:0}
-.log-n{color:#A3AE92}
-.log-ok{color:#8cd0ae}
-.log-no{color:#ee978d}
-.log-info{color:#A3CFC0}
+.log-n{color:var(--ink-3)}
+.log-ok,.log-no,.log-info{justify-self:start;padding:0 7px;border-radius:5px;font-weight:700;font-size:.66rem;letter-spacing:.06em;line-height:1.7}
+.log-ok{color:var(--ok);background:var(--ok-soft)}
+.log-no{color:var(--err);background:var(--err-soft)}
+.log-info{color:var(--wire-ink);background:var(--wire-soft)}
 
 .lesson{padding:clamp(54px,8vw,90px) 0}
 .section-head{display:grid;grid-template-columns:.75fr 1.25fr;gap:34px;align-items:start;margin-bottom:26px}
@@ -509,8 +511,8 @@ footer{padding:0 0 54px;color:var(--ink-2);font-size:.82rem}
             <rect class="nat-body" x="350" y="88" width="245" height="156" rx="12"/>
             <circle cx="382" cy="119" r="17" fill="#C97B4A"/>
             <text class="role-index" x="382" y="124" text-anchor="middle">映</text>
-            <text x="410" y="123" font-family="-apple-system,sans-serif" font-size="14" font-weight="800" fill="#FEFEFB">公网映射</text>
-            <text id="nat-kind" x="572" y="122" text-anchor="end" font-family="ui-monospace,Menlo,monospace" font-size="8.5" font-weight="700" fill="#B2BCA3">FULL CONE</text>
+            <text class="nat-title" x="410" y="123">公网映射</text>
+            <text id="nat-kind" class="nat-kind" x="572" y="122" text-anchor="end">FULL CONE</text>
             <text id="mapping-count" class="map-count" x="572" y="143" text-anchor="end">0 条映射</text>
             <g id="svg-mapping-empty">
               <text class="svg-map-empty" x="472" y="190" text-anchor="middle">尚未建立公网映射</text>
