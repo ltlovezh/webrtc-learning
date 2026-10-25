@@ -699,6 +699,9 @@ TIMELINE.forEach(ch => ch.cues.forEach(c => { ps[pi++].textContent = c.sub; }));
 if (embedded && window.parent !== window) {
   const post = () => window.parent.postMessage({ type: 'overview-height', h: Math.ceil(document.body.getBoundingClientRect().height) + 2 }, '*');
   new ResizeObserver(post).observe(document.body); post();
+  window.addEventListener('load', post);
+  window.addEventListener('resize', post);
+  if (document.fonts) document.fonts.ready.then(post);
 }
 
 if (TIMELINE.length) { renderChapters(); setScene(TIMELINE[0].cues[0]); tick(); }
