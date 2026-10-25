@@ -7,8 +7,9 @@
 - SDP 协商：`webrtc-sdp-exchange.html`
 - NAT 类型可视化：`nat-types-visualizer.html`
 - 规模化拓扑（SFU / MCU）：`webrtc-topology.html`
+- RTP 封装（H.264 / H.265）：`webrtc-rtp.html`
 
-每个专题页都是单文件 HTML。新增专题时，在 `index.html` 的 `TOPICS` 数组末尾追加一条，首页卡片与地图会自动联动。视觉与工程规范见 [`AGENTS.md`](AGENTS.md)。
+每个专题页都是单文件 HTML，需要更好的演示效果时可以引入固定版本的第三方库（如 Three.js）。新增专题时，在 `index.html` 的 `TOPICS` 数组末尾追加一条，首页卡片与地图会自动联动。视觉与工程规范见 [`AGENTS.md`](AGENTS.md)。
 
 ## 视频工程
 

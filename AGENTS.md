@@ -55,7 +55,11 @@
 
 ## 工程约定
 
-- 每个专题页是零依赖单文件 HTML（内联 CSS/JS），移动端可用，动效尊重 `prefers-reduced-motion`，交互元素有 `:focus-visible` 与 aria 标注。
+- 每个专题页是单文件 HTML（页面自己的 CSS/JS 内联），移动端可用，动效尊重 `prefers-reduced-motion`，交互元素有 `:focus-visible` 与 aria 标注。
+- **演示效果优先，不强求零依赖**：晦涩的概念值得用更好的可视化时，可以引入第三方库（例如用 Three.js 做真 3D）。引入时：
+  - 从 CDN 加载并**锁定具体版本**（优先 cdnjs，例如 `three.js/r128`），不要用 `latest` 或不带版本的地址；
+  - 只在需要它的页面引入，能动态加载就动态加载，不拖慢首屏；
+  - **加载失败或浏览器不支持时要降级**（如退回 CSS 3D / 静态图），页面其余部分照常可用。
 - 源码引用统一指向 `https://webrtc.googlesource.com/src/+/refs/heads/main/...`，不要本地 `../src` 相对路径。
 - 页脚保留「基于本地 checkout src@<commit>」的溯源信息。
 - 视频渲染产物、缓存、凭据不入库（见 `.gitignore`）。
