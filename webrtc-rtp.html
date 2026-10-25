@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RTP 封装 · 一帧视频怎么变成一串包</title>
+<title>RTP 与 RTCP · 一帧视频怎么上路</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
 <link rel="shortcut icon" href="/favicon.ico">
@@ -312,6 +312,45 @@ h3.h3{font-family:var(--serif);font-weight:700;font-size:1.15rem;margin:30px 0 1
 .src a{font-family:var(--mono);font-size:.78rem;color:var(--wire-ink);text-decoration:none;border-bottom:1.5px solid var(--rule)}
 .src a:hover{border-color:var(--wire)}
 
+/* ── 章节导航 ── */
+.toc{display:flex;flex-direction:column;gap:8px;padding:14px 18px;margin-top:4px;background:var(--paper-2);border:1.5px solid var(--rule);border-radius:var(--r);box-shadow:var(--sh-s)}
+.toc div{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.toc-k{font:700 .66rem/1.6 var(--mono);letter-spacing:.1em;color:var(--paper-2);background:var(--wire);border-radius:5px;padding:1px 8px;margin-right:4px}
+.toc a{font:500 .76rem/1.6 var(--mono);color:var(--ink-2);text-decoration:none;padding:2px 8px;border-radius:6px;border:1.5px solid transparent}
+.toc a:hover{border-color:var(--rule);color:var(--ink);background:var(--paper-3)}
+
+/* ── 八 · 复合包 ── */
+.dgram{display:flex;gap:3px;border:1.5px dashed var(--rule);border-radius:9px;padding:5px;background:var(--paper)}
+.dgram span{display:flex;flex-direction:column;justify-content:center;min-height:44px;padding:4px 10px;border-radius:5px;font:700 .74rem/1.3 var(--mono);color:var(--ink);overflow:hidden;white-space:nowrap}
+.dgram small{font-weight:500;font-size:.62rem;color:var(--ink-2)}
+.dg-sr{background:var(--wire-soft)}
+.dg-sdes{background:var(--b-soft)}
+.dg-fb{background:var(--a-soft)}
+.dg-empty{flex:1;background:transparent!important}
+.tbl td.mono{font-family:var(--mono);font-size:.76rem}
+pre.sdp{margin:12px 0 0;padding:12px 16px;border-radius:9px;background:var(--paper-2);border:1.5px solid var(--rule);font:500 .78rem/1.7 var(--mono);color:var(--wire-ink);overflow-x:auto}
+
+/* ── 九～十一 · 交互图 ── */
+.rtt-out{font-size:.9rem;color:var(--ink-2);padding:10px 14px;border-radius:9px;background:var(--paper-3)}
+.rtt-out b{color:var(--ink)}
+.rtt-out .eq{display:block;margin-top:4px;font:600 .8rem/1.7 var(--mono);color:var(--wire-ink)}
+.nackgrid{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:4px}
+.nk{padding:7px 2px;border-radius:6px;border:1.5px solid #BFD3BF;background:var(--b-soft);font:600 .66rem/1.2 var(--mono);color:var(--b-ink);text-align:center}
+.nk[aria-pressed="true"]{background:var(--err-soft);border-color:var(--err);color:var(--err)}
+.nk.pid{box-shadow:0 0 0 2px var(--paper-2),0 0 0 3.5px var(--a)}
+.fci{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+.fci-row{padding:10px 12px;border-radius:9px;background:var(--paper-3)}
+.fci-row .t{font:700 .74rem/1.5 var(--mono);color:var(--ink);margin-bottom:6px}
+.rtx{display:flex;flex-direction:column;gap:8px}
+.rtx-row{display:flex;gap:3px;align-items:stretch}
+.rtx-k{flex:0 0 64px;font:700 .72rem/1.3 var(--mono);color:var(--ink-2);display:flex;align-items:center}
+.rtx-c{display:flex;align-items:center;padding:8px 10px;border-radius:5px;font:600 .68rem/1.35 var(--mono);color:var(--ink)}
+@media (max-width:640px){
+  .nackgrid{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .rtx-row{flex-wrap:wrap}
+  .rtx-k{flex-basis:100%}
+}
+
 footer{border-top:1.5px solid var(--rule);margin-top:30px}
 .fin{padding:26px 0 40px}
 .fin p{max-width:76ch;color:var(--ink-2);font-size:.92rem}
@@ -351,11 +390,11 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
 <header class="hero">
   <div class="wrap hero-grid">
     <div>
-      <h1><span class="k">RTP · REAL-TIME TRANSPORT PROTOCOL</span>RTP 封装：一帧视频怎么变成一串包</h1>
+      <h1><span class="k">RTP · RTCP · REAL-TIME TRANSPORT</span>RTP 与 RTCP：一帧视频怎么上路，又怎么报平安</h1>
       <p class="hero-lede">编码器吐出来的是一条连续的 H.264 / H.265 码流；网络上跑的却是一个个不超过 1200 字节、可能丢、可能乱序的 UDP 包。RTP 就是两者之间的那层「打包规矩」。</p>
-      <p class="kicker">这一页只做一件事：<b>看清一帧画面怎样被切开、装箱、编号，又怎样在对面被一字节不差地拼回去</b>。RTCP 另起一篇。</p>
+      <p class="kicker">前半页看 RTP：<b>一帧画面怎样被切开、装箱、编号，又怎样在对面被一字节不差地拼回去</b>。后半页看 RTCP：报告怎么写、RTT 怎么算、音画怎么对齐、丢了包怎么喊。所有细节都以 libwebrtc 源码为准。</p>
       <div class="hero-meta">
-        <span class="chip">RFC 3550 · RTP</span><span class="chip">RFC 6184 · H.264 over RTP</span><span class="chip">RFC 7798 · H.265 over RTP</span>
+        <span class="chip">RFC 3550 · RTP</span><span class="chip">RFC 6184 · H.264 over RTP</span><span class="chip">RFC 7798 · H.265 over RTP</span><span class="chip">RFC 4585 · RTCP 反馈</span>
       </div>
     </div>
     <figure class="hero-fig" style="margin:0">
@@ -401,6 +440,11 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
     </figure>
   </div>
 </header>
+
+<nav class="wrap toc" aria-label="本页章节">
+  <div><span class="toc-k">RTP</span><a href="#s1">一 · 两兄弟</a><a href="#s2">二 · RTP 包</a><a href="#s3">三 · NAL</a><a href="#s4">四 · 封装</a><a href="#s5">五 · 解封装</a><a href="#s6">六 · 坑</a><a href="#s7">七 · 对照</a></div>
+  <div><span class="toc-k">RTCP</span><a href="#s8">八 · 包头</a><a href="#s9">九 · SR / RR</a><a href="#s10">十 · 音画同步</a><a href="#s11">十一 · 反馈</a><a href="#s12">十二 · 源码</a></div>
+</nav>
 
 <!-- ══════════ 一 · RTP 与 RTCP ══════════ -->
 <section aria-labelledby="s1">
@@ -455,14 +499,14 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
             <tr><th>职责</th><td><span class="rtp">运送媒体</span>：把编码后的音视频切成包送到对面</td><td><span class="rtcp">汇报与控制</span>：报告传输质量、对齐时钟、提出重传 / 关键帧请求</td></tr>
             <tr><th>包里装什么</th><td>编码数据 + 序号、时间戳、SSRC、载荷类型、Marker</td><td>发送 / 接收统计（丢包率、抖动、往返时延）、NTP↔RTP 时钟对照、NACK、PLI 等反馈</td></tr>
             <tr><th>方向</th><td>发送端 → 接收端，每路流（音频、视频、simulcast 的每一层）各一条</td><td>双向：发送端发报告，接收端回反馈</td></tr>
-            <tr><th>节奏</th><td>跟着媒体走，视频每秒几十到几百个包</td><td>周期性的秒级报告，出事时（丢包、要关键帧）立刻发</td></tr>
+            <tr><th>节奏</th><td>跟着媒体走，视频每秒几十到几百个包</td><td>libwebrtc 默认视频每 1 秒、音频每 5 秒发一份报告；要重传、要关键帧时立刻发</td></tr>
             <tr><th>占多少带宽</th><td>几乎全部</td><td>RFC 3550 建议控制在会话带宽的 5% 以内</td></tr>
             <tr><th>丢了会怎样</th><td>少一块画面或一段声音，需要重传、纠错或请求关键帧</td><td>影响很小，下一份报告照样会来</td></tr>
-            <tr><th>端口</th><td colspan="2">早期各用一个端口；现代 WebRTC 用 <span class="m">rtcp-mux</span> 共用同一个端口，靠包头第 2 个字节区分：落在 192–223 的是 RTCP（RFC 5761）。两者都加密：SRTP / SRTCP。</td></tr>
+            <tr><th>端口</th><td colspan="2">早期各用一个端口；现代 WebRTC 用 <span class="m">rtcp-mux</span> 共用同一个端口。libwebrtc 的 <span class="m">IsRtcpPacket()</span> 看包头第 2 个字节：去掉最高位后落在 64–95，就当作 RTCP（RTCP 的类型号 200–207 正好落在这里），所以 RTP 不能用 64–95 的载荷类型。两者都加密：SRTP / SRTCP。</td></tr>
           </tbody>
         </table>
       </div>
-      <p class="callout">一句话记住：<b>RTP 是货车，RTCP 是调度电话</b>。货车没有电话也能跑，但跑得好不好、哪里出了事，全靠电话里那几句话。这一页先把货车拆开看，电话的内容留到下一篇。</p>
+      <p class="callout">一句话记住：<b>RTP 是货车，RTCP 是调度电话</b>。货车没有电话也能跑，但跑得好不好、哪里出了事，全靠电话里那几句话。前七节先把货车拆开看，第八节起再拆电话。</p>
     </div>
   </div>
 </section>
@@ -518,7 +562,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
         <div class="frames" id="frames"></div>
         <div class="seqmsg" id="seqMsg" aria-live="polite"></div>
       </div>
-      <p class="callout">两把尺子的起点都是<b>随机</b>的（RFC 3550 这样要求，让加密更难被猜）。音频也一样，只是时钟不同：Opus 按 48 kHz 计，20 ms 一包，每包时间戳 +960。</p>
+      <p class="callout">两把尺子的起点都是<b>随机</b>的：libwebrtc 的序号起点在 1～32767 里随机取，源码注释说避开上半段是为了防止 SRTP 刚启动就回绕出错（<span class="m">packet_sequencer.cc</span>）；时间戳偏移也是一个随机数（<span class="m">rtp_sender.cc</span>）。音频同理，只是时钟不同：libwebrtc 的 Opus 时钟固定 48 kHz，默认 20 ms 一包（<span class="m">kOpusDefaultPTime</span>），所以每包时间戳 +960。</p>
     </div>
   </div>
 </section>
@@ -624,7 +668,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
   <div class="wrap">
     <div class="sec-k"><span>五 · 拆箱</span></div>
     <h2 class="h" id="s5">解封装：把包拼回解码器认识的码流</h2>
-    <p class="lede">接收端拿到的是上面模拟器发出的那串包——但网络会打乱顺序，偶尔还会丢一个。下面一步步走一遍接收端要做的事。改上面的参数，这里会跟着变。</p>
+    <p class="lede">接收端拿到的是上面模拟器发出的那串包——但网络会打乱顺序，偶尔还会丢一个。下面按 libwebrtc 的实际顺序走一遍接收端要做的事：<b>先逐包解析，再排队、凑帧</b>。改上面的参数，这里会跟着变。</p>
     <div class="panel">
       <div class="depk-ctl">
         <label class="chk"><input type="checkbox" id="dkShuffle" checked> 网络乱序</label>
@@ -646,20 +690,20 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
     <div class="sec-k"><span>六 · 解封装的坑</span></div>
     <h2 class="h" id="s6">拼回去之前，这几件事必须做对</h2>
     <div class="pits">
-      <article class="pit"><span class="k">帧边界</span><h4>一帧在哪里结束？</h4><p>同一帧的包时间戳相同；<b>Marker 位为 1 的包是这一帧的最后一片</b>。时间戳一变，就是新的一帧开始了。libwebrtc 的 <span class="m">PacketBuffer</span> 就靠这两条判断一帧是否收齐。</p></article>
-      <article class="pit"><span class="k">丢片</span><h4>少一片，整个 NAL 作废</h4><p>分片之间是连续的字节流，缺了中间一段，后面的数据就对不上了，不能「只解前半截」。接收端先用 NACK 请求重传；等不到就发 PLI 请求关键帧，从头再来。</p></article>
-      <article class="pit"><span class="k">参数集</span><h4>SPS / PPS 必须先到</h4><p>没有参数集，IDR 片解不了。它们要么在关键帧前带内发送（通常聚合在一个包里），要么写在 SDP 的 <span class="m">sprop-parameter-sets</span>（H.265 是 sprop-vps / sps / pps）。libwebrtc 用 <span class="m">H264SpsPpsTracker</span> 在关键帧前补齐。</p></article>
+      <article class="pit"><span class="k">帧边界</span><h4>一帧从哪开始、到哪结束？</h4><p><b>Marker 位为 1 的包是一帧的最后一个包。</b>H.264 包里没有可靠的「帧开始」标志，libwebrtc 就从 Marker 包往回找：序号连续、时间戳相同的都算这一帧，直到遇上时间戳不同的包或空缺（<span class="m">PacketBuffer::FindFrames</span>，源码注释引用 webrtc:7106；H.265 走的 <span class="m">H26xPacketBuffer</span> 也是同样的找法）。</p></article>
+      <article class="pit"><span class="k">丢包</span><h4>少一个包，整帧都出不去</h4><p>包缓冲区只交出序号连续、首尾齐全的帧，缺一个包，这一帧就一直留在缓冲区里。接收端发 NACK 请求重传（<span class="m">NackRequester</span>）；如果迟迟没有可解码的帧——等关键帧时 200 ms、平时 3 s（<span class="m">kMaxWaitForKeyFrame</span> / <span class="m">kMaxWaitForFrame</span>）——就请求关键帧。</p></article>
+      <article class="pit"><span class="k">参数集</span><h4>SPS / PPS 必须先到</h4><p>没有参数集，IDR 片解不了。libwebrtc 自己生成的 SDP 不带 sprop 参数（RFC 7742 不允许），所以参数集基本靠带内发送。H.264 收到对端 SDP 里的 <span class="m">sprop-parameter-sets</span> 时会存进 <span class="m">H264SpsPpsTracker</span>，在 IDR 前补上；IDR 到了却找不到对应的 SPS / PPS，就直接请求关键帧。H.265 的 sprop 参数 libwebrtc 不处理（<span class="m">media_constants.h</span> 注释）。</p></article>
       <article class="pit"><span class="k">防竞争字节</span><h4>不要「顺手」删掉 03</h4><p>NAL 里的 <span class="m">00 00 03</span> 是码流的一部分，打包、解包都原样保留，交给解码器处理。删了会让解码器读错位。</p></article>
-      <article class="pit"><span class="k">打包模式</span><h4>packetization-mode=0 不能分片</h4><p>H.264 模式 0 只允许单 NAL 包，大 NAL 无处可去，编码器必须把画面切成多个小片。WebRTC 一般协商模式 1（单 NAL + STAP-A + FU-A）；模式 2（交错）WebRTC 不用。</p></article>
-      <article class="pit"><span class="k">H.265 专属</span><h4>DONL 字段：WebRTC 里没有</h4><p>RFC 7798 规定，当 SDP 里 <span class="m">sprop-max-don-diff</span> 大于 0 时，AP 和 FU 里会多出 2 字节的解码顺序号（DONL）。WebRTC 不用这个特性，所以本页的包里都没有它。</p></article>
+      <article class="pit"><span class="k">打包模式</span><h4>packetization-mode=0 不能分片</h4><p>H.264 模式 0 只允许单 NAL 包，大 NAL 无处可去，libwebrtc 会直接报错打包失败，编码器必须把画面切成多个小片。libwebrtc 只实现了模式 0 和模式 1（<span class="m">H264PacketizationMode</span> 只有 SingleNalUnit、NonInterleaved 两个值），模式 2（交错）不支持。</p></article>
+      <article class="pit"><span class="k">H.265 专属</span><h4>DONL 字段：WebRTC 里没有</h4><p>RFC 7798 规定，当 SDP 里 <span class="m">sprop-max-don-diff</span> 大于 0 时，AP 和 FU 里会多出 2 字节的解码顺序号（DONL）。libwebrtc 的 H.265 打包器在单 NAL、AP、FU 三处都注明不支持 DONL，所以本页的包里都没有它；PACI 包的解析也还没实现（源码里是 TODO）。</p></article>
     </div>
   </div>
 </section>
 
-<!-- ══════════ 七 · 对照与源码 ══════════ -->
+<!-- ══════════ 七 · 两种编码对照 ══════════ -->
 <section aria-labelledby="s7">
   <div class="wrap">
-    <div class="sec-k"><span>七 · 对照与源码</span></div>
+    <div class="sec-k"><span>七 · 两种编码对照</span></div>
     <h2 class="h" id="s7">H.264 和 H.265，放在一张表里</h2>
     <div class="tbl-wrap">
       <table class="tbl">
@@ -673,24 +717,237 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
           <tr><th>分片包</th><td>FU-A，类型 28：FU 指示 1 字节 + FU 头 1 字节</td><td>FU，类型 49：载荷头 2 字节 + FU 头 1 字节</td></tr>
           <tr><th>FU 头</th><td>S · E · R · 原类型(5 位)</td><td>S · E · 原类型(6 位)</td></tr>
           <tr><th>还原 NAL 头</th><td class="mono">(FU指示 &amp; 0xE0) | (FU头 &amp; 0x1F)</td><td class="mono">[(载荷头[0] &amp; 0x81) | (FuType &lt;&lt; 1), 载荷头[1]]</td></tr>
-          <tr><th>在 WebRTC 里</th><td>必须支持（RFC 7742）</td><td>可选，通常依赖硬件编解码</td></tr>
+          <tr><th>在 WebRTC 里</th><td>必须支持（RFC 7742）；libwebrtc 内置的软件编解码用 OpenH264（编译开关 <span class="m">WEBRTC_USE_H264</span>）</td><td>可选；libwebrtc 有打包、解包实现，但内置编解码器工厂里没有 H.265，编解码器要由平台或应用提供</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h3 class="h3">去 libwebrtc 里读</h3>
+  </div>
+</section>
+<!-- ══════════ 八 · RTCP 骨架 ══════════ -->
+<section aria-labelledby="s8" id="rtcp">
+  <div class="wrap">
+    <div class="sec-k"><span>八 · RTCP 包的骨架</span></div>
+    <h2 class="h" id="s8">RTCP：同一副包头，八种用途</h2>
+    <p class="lede">从这一节起拆「调度电话」。所有 RTCP 包都以同一个 4 字节公共头开头，<b>第 2 个字节（PT）决定这是哪一种包</b>；对反馈类的包，第 1 个字节的低 5 位（FMT）再细分是哪一种反馈。下面是 libwebrtc 解析公共头时用的格式（<span class="m">rtcp_packet/common_header.cc</span>），例子是一个发送报告（SR）的开头。</p>
+    <div class="panel">
+      <div class="panel-bd">
+        <div class="bitgrid" id="rcIx" aria-hidden="true"></div>
+        <div class="bitgrid" id="rcGrid" role="group" aria-label="RTCP 公共头字段，逐个可点" style="margin-top:4px"></div>
+        <div class="hex" id="rcHex" aria-hidden="true"></div>
+        <div class="fdetail" id="rcDet" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <h3 class="h3">PT 一览：libwebrtc 里每种包对应一个类</h3>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>PT</th><th>FMT</th><th>名字</th><th>libwebrtc 类</th><th>干什么</th></tr></thead>
+        <tbody>
+          <tr><th>200</th><td>—</td><td>SR 发送报告</td><td class="mono">SenderReport</td><td>发送端报告发了多少、此刻的墙上时钟和 RTP 时间戳</td></tr>
+          <tr><th>201</th><td>—</td><td>RR 接收报告</td><td class="mono">ReceiverReport</td><td>只收不发的一端报告接收质量</td></tr>
+          <tr><th>202</th><td>—</td><td>SDES 源描述</td><td class="mono">Sdes</td><td>告诉对方 SSRC 属于哪个 CNAME</td></tr>
+          <tr><th>203</th><td>—</td><td>BYE</td><td class="mono">Bye</td><td>这路流结束了</td></tr>
+          <tr><th>204</th><td>—</td><td>APP</td><td class="mono">App</td><td>应用自定义</td></tr>
+          <tr><th>205</th><td>1 / 15</td><td>传输层反馈 RTPFB</td><td class="mono">Nack / TransportFeedback</td><td>FMT 1：重传请求；FMT 15：transport-cc 到达时间</td></tr>
+          <tr><th>206</th><td>1 / 4 / 15</td><td>载荷相关反馈 PSFB</td><td class="mono">Pli / Fir / Remb</td><td>FMT 1、4：请求关键帧；FMT 15：REMB 码率建议</td></tr>
+          <tr><th>207</th><td>—</td><td>XR 扩展报告</td><td class="mono">ExtendedReports</td><td>不发媒体的一端也能测 RTT（RRTR / DLRR）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="h3">一个 UDP 包里装几个 RTCP？</h3>
+    <p class="lede">RTCP 包可以首尾相接，装进同一个 UDP 包，叫<b>复合包</b>。libwebrtc 有两种模式（<span class="m">RtcpMode</span>）：</p>
+    <div class="panel">
+      <div class="panel-bd">
+        <p class="sim-lb">复合模式 kCompound：每次发 RTCP 都带一份报告 + SDES</p>
+        <div class="dgram" aria-label="复合包：SR 52 字节，加 SDES 28 字节">
+          <span class="dg-sr" style="flex:52">SR · 52 B<small>含 1 个报告块</small></span><span class="dg-sdes" style="flex:28">SDES · 28 B<small>CNAME</small></span>
+        </div>
+        <p class="sim-lb" style="margin-top:16px">精简模式 kReducedSize（RFC 5506）：反馈可以单独发</p>
+        <div class="dgram" aria-label="精简包：只有一个 NACK，16 字节">
+          <span class="dg-fb" style="flex:0 0 120px">NACK · 16 B</span><span class="dg-empty"></span>
+        </div>
+        <p class="lede" style="margin:14px 0 0;font-size:.9rem">libwebrtc 生成 offer 时默认带 <span class="m">a=rtcp-rsize</span>（<span class="m">media_session.cc</span>），answer 跟随 offer；协商成功就用精简模式：报告按周期发，NACK、PLI 这类急事可以只发一个小包。复合模式还有个约束：自己是发送方、却还没发出过任何媒体时，算不出 SR 里的 RTP 时间戳，这时连 SR 带其他 RTCP 都发不出去（<span class="m">RTCPSender</span> 的注释：Not allowed to send any RTCP packet without sender report）。</p>
+      </div>
+      <p class="callout">RTCP 也要加密。SRTCP 比明文多出 <b>4 字节</b>（E 标志 + SRTCP 序号）再加一个认证标签——libwebrtc 给 SRTCP 预留的空间正是「原长 + 4 + 标签长度」（<span class="m">srtp_session.cc</span>）。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 九 · SR / RR ══════════ -->
+<section aria-labelledby="s9">
+  <div class="wrap">
+    <div class="sec-k"><span>九 · 定期报平安</span></div>
+    <h2 class="h" id="s9">SR 与 RR：一份报告里写了什么</h2>
+    <p class="lede">正在发媒体的一端发 <b>SR</b>，只收不发的一端发 <b>RR</b>（<span class="m">RTCPSender::PrepareReport</span>：<span class="m">sending_ ? kRtcpSr : kRtcpRr</span>）。SR 比 RR 多一段「发送者信息」；两者后面都可以挂若干个 24 字节的<b>报告块</b>，每块汇报自己收到的一路流。下面是一份带 1 个报告块的 SR，共 52 字节，每一格都能点。</p>
+    <div class="panel">
+      <div class="panel-bd">
+        <div class="bitgrid" id="srIx" aria-hidden="true"></div>
+        <div class="bitgrid" id="srGrid" role="group" aria-label="SR 包字段，逐个可点" style="margin-top:4px"></div>
+        <div class="hex" id="srHex" aria-hidden="true"></div>
+        <div class="fdetail" id="srDet" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <h3 class="h3">RTT：两端的钟不用对准也能算</h3>
+    <p class="lede">A 发出 SR，B 记下「收到的那份 SR 的时间」作为 LSR，过一会儿在报告块里写上 LSR 和「我压了多久才回」（DLSR）。A 收到后用自己的钟算：<b>RTT = 收到时刻 − DLSR − LSR</b>。B 的钟只用来量一段时长，所以两边的时钟不需要同步。这就是 <span class="m">RTCPReceiver</span> 里的那一行：<span class="m">rtt_ntp = receive_time_ntp - delay_ntp - send_time_ntp</span>。</p>
+    <div class="panel">
+      <div class="ctl">
+        <label>A→B 去程 <input type="range" id="rttD1" min="10" max="300" step="5" value="40"> <output id="rttD1o">40 ms</output></label>
+        <label>B→A 回程 <input type="range" id="rttD2" min="10" max="300" step="5" value="70"> <output id="rttD2o">70 ms</output></label>
+        <label>B 等多久才回报 <input type="range" id="rttHold" min="0" max="1000" step="10" value="500"> <output id="rttHoldo">500 ms</output></label>
+      </div>
+      <div class="scroll-x"><svg id="rttSvg" viewBox="0 0 760 300" role="img" aria-label="RTT 计算时序图：A 发出 SR，B 收到后等待一段时间再发回接收报告"></svg></div>
+      <div class="panel-bd" style="padding-top:6px"><div class="rtt-out" id="rttOut" aria-live="polite"></div></div>
+      <p class="callout">时间都用「压缩 NTP」表示：取 64 位 NTP 时间的中间 32 位，单位是 1/65536 秒。LSR 为 0 表示 B 还没收到过 SR，libwebrtc 这时不算 RTT。只收不发的一端发不了 SR，就用 RTCP XR 里的 RRTR / DLRR 做同样的计算（<span class="m">GetAndResetXrRrRtt</span>）。</p>
+    </div>
+
+    <h3 class="h3">抖动：时间戳间隔和到达间隔差了多少</h3>
+    <p class="lede">报告块里的「到达间隔抖动」不是一次测量，而是一个平滑过的估计。libwebrtc 每收到一个包就算一次：<b>D = 到达间隔（换算成 RTP 刻度）− 时间戳间隔</b>，再用 <span class="m">J += (|D| − J) / 16</span> 慢慢逼近（<span class="m">receive_statistics_impl.cc</span>，用 Q4 定点数避免浮点）。拖动滑块看网络越抖，J 怎么跟着变。</p>
+    <div class="panel">
+      <div class="ctl">
+        <label>网络时延的抖动幅度 <input type="range" id="jitAmp" min="0" max="80" step="2" value="24"> <output id="jitAmpo">24 ms</output></label>
+        <button class="btn" id="jitReroll" type="button">换一批包</button>
+      </div>
+      <div class="scroll-x"><svg id="jitSvg" viewBox="0 0 760 240" role="img" aria-label="抖动示意图：每个包的单程时延散点，以及平滑后的抖动估计曲线"></svg></div>
+      <div class="panel-bd" style="padding-top:6px"><div class="rtt-out" id="jitOut" aria-live="polite"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 十 · 音画同步 ══════════ -->
+<section aria-labelledby="s10">
+  <div class="wrap">
+    <div class="sec-k"><span>十 · 音画同步</span></div>
+    <h2 class="h" id="s10">SR 里那一对时间戳，是嘴型对上声音的关键</h2>
+    <p class="lede">音频和视频是两路独立的 RTP 流：SSRC 不同、时钟不同（Opus 48 kHz，视频 90 kHz）、起点都是随机数。<b>只看 RTP 时间戳，根本不知道哪个声音包和哪一帧画面是同一时刻采的。</b>SR 里那一对「NTP 墙上时钟 + RTP 时间戳」，就是把各自的 RTP 时间戳换算到同一块表上的换算表。</p>
+    <div class="panel">
+      <div class="ctl">
+        <span class="lb">接收端手里有</span>
+        <div class="seg" role="group" aria-label="是否用 SR 换算" id="syncMode">
+          <button type="button" data-v="sr" aria-pressed="true">两路的 SR</button>
+          <button type="button" data-v="raw" aria-pressed="false">只有 RTP 时间戳</button>
+        </div>
+        <label>选一帧画面 <input type="range" id="syncFrame" min="0" max="20" step="1" value="6"> <output id="syncFrameo">#6</output></label>
+      </div>
+      <div class="scroll-x"><svg id="syncSvg" viewBox="0 0 760 250" role="img" aria-label="音画同步示意：上面是视频帧，下面是音频包，竖线标出与所选画面同一时刻的音频"></svg></div>
+      <div class="panel-bd" style="padding-top:6px"><div class="rtt-out" id="syncOut" aria-live="polite"></div></div>
+      <p class="callout">libwebrtc 的做法分两步。<b>换算</b>：每路流用最近最多 20 份 SR 的（RTP, NTP）对做线性回归（<span class="m">RtpToNtpEstimator</span>，<span class="m">kNumRtcpReportsToUse = 20</span>）。<b>对齐</b>：<span class="m">StreamSynchronization</span> 算出两路的相对延迟 =（视频到达时间 − 音频到达时间）−（视频采集时间 − 音频采集时间），先做平滑（每次新值只占 1/4，kFilterLength = 4）；差距不到 30 ms 就不动，否则每次只调差值的一半、最多 80 ms，一点点拉齐。哪路音频和哪路视频算一组，看 SDP 里 msid 的流 ID（<span class="m">sync_group</span>）。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 十一 · 反馈 ══════════ -->
+<section aria-labelledby="s11">
+  <div class="wrap">
+    <div class="sec-k"><span>十一 · 出事时立刻喊</span></div>
+    <h2 class="h" id="s11">反馈：NACK、PLI、FIR、transport-cc</h2>
+    <p class="lede">报告是定期的，反馈是即时的（RFC 4585）。能不能用某种反馈，要在 SDP 里用 <span class="m">a=rtcp-fb</span> 协商。libwebrtc 给每个视频编码默认加上这五行（<span class="m">AddDefaultFeedbackParams</span>，<span class="m">media/base/codec.cc</span>）：</p>
+    <pre class="sdp" aria-label="libwebrtc 默认的 rtcp-fb 属性">a=rtcp-fb:96 goog-remb
+a=rtcp-fb:96 transport-cc
+a=rtcp-fb:96 ccm fir
+a=rtcp-fb:96 nack
+a=rtcp-fb:96 nack pli</pre>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>反馈</th><th>PT / FMT</th><th>rtcp-fb</th><th>意思</th><th>libwebrtc 什么时候发</th></tr></thead>
+        <tbody>
+          <tr><th>NACK</th><td>205 / 1</td><td class="mono">nack</td><td>这几个序号的包没收到，重发一下</td><td><span class="m">NackRequester</span> 发现序号缺口时立刻发；过一个 RTT 还没到就再发，最多 100 次</td></tr>
+          <tr><th>PLI</th><td>206 / 1</td><td class="mono">nack pli</td><td>画面坏了，给我一个关键帧</td><td>需要关键帧时的<b>默认方式</b>（<span class="m">KeyFrameReqMethod::kPliRtcp</span>）</td></tr>
+          <tr><th>FIR</th><td>206 / 4</td><td class="mono">ccm fir</td><td>同样是要关键帧，带一个请求序号</td><td>收发都支持；接收端只有被配置成 <span class="m">kFirRtcp</span> 时才发</td></tr>
+          <tr><th>REMB</th><td>206 / 15</td><td class="mono">goog-remb</td><td>接收端估出来的最大码率</td><td>老方案（draft-alvestrand-rmcat-remb），包里有 ASCII 标识 <span class="m">REMB</span></td></tr>
+          <tr><th>transport-cc</th><td>205 / 15</td><td class="mono">transport-cc</td><td>每个包是什么时候到的，交给发送端估带宽</td><td>默认每 100 ms 发一次，在 50–250 ms 之间调整（<span class="m">TransportSequenceNumberFeedbackGenerator</span>）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="h3">NACK 怎么用 4 个字节说清 17 个包</h3>
+    <p class="lede">NACK 的每个条目是 <b>PID + BLP</b>：PID 是第一个丢的序号，BLP 是一个 16 位掩码，第 i 位为 1 表示 PID+i+1 也丢了。所以一个 4 字节条目最多能报 17 个包。点下面的格子标记丢包，看 libwebrtc 的 <span class="m">Nack::Pack()</span> 会怎么打包。</p>
+    <div class="panel">
+      <div class="panel-bd">
+        <div class="nackgrid" id="nackGrid" role="group" aria-label="序号格子，点击标记丢包"></div>
+        <div id="nackOut" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <h3 class="h3">重传包走的是另一路流：RTX</h3>
+    <p class="lede">libwebrtc 收到 NACK 后，不是把原包原样再发一次，而是包成 <b>RTX 包</b>（RFC 4588）发出去（<span class="m">RTPSender::BuildRtxPacket</span>）：</p>
+    <div class="panel">
+      <div class="panel-bd">
+        <div class="rtx" aria-label="RTX 包结构：RTP 头换成 RTX 的 SSRC 和载荷类型，载荷前 2 字节是原序号，后面是原载荷">
+          <div class="rtx-row"><span class="rtx-k">原包</span><span class="s-rtp rtx-c">RTP 头 · SSRC 1A2B3C4D · PT 96 · 序号 23458</span><span class="s-key rtx-c" style="flex:1">原载荷</span></div>
+          <div class="rtx-row"><span class="rtx-k">RTX 包</span><span class="s-rtp rtx-c">RTP 头 · SSRC 换成 RTX 的 · PT 换成 97 · 序号走 RTX 自己的</span><span class="s-ph rtx-c">OSN 23458</span><span class="s-key rtx-c" style="flex:1">原载荷（不变）</span></div>
+        </div>
+        <pre class="sdp" style="margin-top:14px">a=rtpmap:97 rtx/90000
+a=fmtp:97 apt=96
+a=ssrc-group:FID 1A2B3C4D 5C6D7E8F</pre>
+        <p class="lede" style="margin:10px 0 0;font-size:.9rem">载荷类型和 SSRC 都换成 RTX 的，头扩展照抄，<b>载荷前面加 2 字节原序号（OSN）</b>（<span class="m">kRtxHeaderSize = 2</span>）。重传流有自己的 SSRC 和序号空间；SDP 里 <span class="m">apt=96</span> 说明它是谁的重传流，<span class="m">FID</span> 分组把两个 SSRC 绑在一起。simulcast 时，RTX 包用 RRID（RepairedRtpStreamId）扩展而不是 RID 标明自己修补的是哪一层（源码注释）。</p>
+      </div>
+    </div>
+
+    <h3 class="h3">等重传，还是要关键帧？</h3>
+    <p class="lede">libwebrtc 里没有「超过多少毫秒就放弃重传」这一个开关，而是几条规则叠在一起（<span class="m">nack_requester.cc</span>、<span class="m">video_receive_stream2.cc</span>）。调一调 RTT 和「重传包又丢了几次」，看这一帧最后靠什么救回来。</p>
+    <div class="panel">
+      <div class="ctl">
+        <label>RTT <input type="range" id="recRtt" min="20" max="800" step="10" value="120"> <output id="recRtto">120 ms</output></label>
+        <label>重传包又丢了几次 <input type="range" id="recLost" min="0" max="30" step="1" value="1"> <output id="recLosto">1 次</output></label>
+      </div>
+      <div class="scroll-x"><svg id="recSvg" viewBox="0 0 760 210" role="img" aria-label="丢包恢复时间线：NACK 每隔一个 RTT 重发一次，直到重传包到达或超过 3 秒改为请求关键帧"></svg></div>
+      <div class="panel-bd" style="padding-top:6px"><div class="rtt-out" id="recOut" aria-live="polite"></div></div>
+      <div class="tbl-wrap" style="margin:0;border:none;border-top:1.5px dashed var(--rule);border-radius:0;box-shadow:none">
+        <table class="tbl">
+          <thead><tr><th>规则</th><th>源码里的常量</th><th>结果</th></tr></thead>
+          <tbody>
+            <tr><th>NACK 过一个 RTT 没回音就再发</th><td class="mono">rtt_（默认 100 ms）</td><td>同一个包最多 NACK 100 次（kMaxNackRetries）</td></tr>
+            <tr><th>太老的包不再追</th><td class="mono">kMaxPacketAge = 10000</td><td>比最新序号落后 1 万以上的从 NACK 列表删掉</td></tr>
+            <tr><th>缺得太多</th><td class="mono">kMaxNackPackets = 1000</td><td>清空 NACK 列表，直接请求关键帧</td></tr>
+            <tr><th>迟迟没有可解码的帧</th><td class="mono">kMaxWaitForFrame = 3 s / kMaxWaitForKeyFrame = 200 ms</td><td>请求关键帧（等关键帧期间用 200 ms）</td></tr>
+            <tr><th>H.264 的 IDR 缺参数集</th><td class="mono">H264SpsPpsTracker</td><td>立即请求关键帧</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="lede" style="margin-top:16px">transport-cc 回报的到达时间，最终喂给发送端的拥塞控制（GCC）去估带宽——那是「拥塞控制与带宽估计」专题的内容。</p>
+  </div>
+</section>
+
+<!-- ══════════ 十二 · 源码 ══════════ -->
+<section aria-labelledby="s12">
+  <div class="wrap">
+    <div class="sec-k"><span>十二 · 源码地图</span></div>
+    <h2 class="h" id="s12">本页每个细节，去 libwebrtc 哪里找</h2>
+    <h3 class="h3">RTP 与 H.264 / H.265 封装</h3>
     <ul class="src">
-      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtp_packet.h">modules/rtp_rtcp/source/rtp_packet.h</a> · RTP 包头的读写</li>
-      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtp_header_extensions.h">modules/rtp_rtcp/source/rtp_header_extensions.h</a> · 各种头扩展</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtp_packet.cc">modules/rtp_rtcp/source/rtp_packet.cc</a> · RTP 头读写，0xBEDE / 0x1000 扩展格式</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/packet_sequencer.cc">modules/rtp_rtcp/source/packet_sequencer.cc</a> · 序号随机起点</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtp_util.cc">modules/rtp_rtcp/source/rtp_util.cc</a> · IsRtpPacket / IsRtcpPacket</li>
       <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtp_format_h264.cc">modules/rtp_rtcp/source/rtp_format_h264.cc</a> · H.264 打包：单 NAL / STAP-A / FU-A</li>
       <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtp_packetizer_h265.cc">modules/rtp_rtcp/source/rtp_packetizer_h265.cc</a> · H.265 打包：AP / FU</li>
-      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/video_rtp_depacketizer_h264.cc">modules/rtp_rtcp/source/video_rtp_depacketizer_h264.cc</a> · H.264 解包</li>
-      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/video_rtp_depacketizer_h265.cc">modules/rtp_rtcp/source/video_rtp_depacketizer_h265.cc</a> · H.265 解包（含补起始码）</li>
-      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/common_video/h264/h264_common.h">common_video/h264/h264_common.h</a> · H.264 NAL 类型枚举</li>
-      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/common_video/h265/h265_common.h">common_video/h265/h265_common.h</a> · H.265 NAL 类型枚举</li>
-      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/video_coding/h264_sps_pps_tracker.cc">modules/video_coding/h264_sps_pps_tracker.cc</a> · 补参数集、补起始码</li>
-      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/video_coding/packet_buffer.cc">modules/video_coding/packet_buffer.cc</a> · 按序号排队、判断一帧收齐</li>
-      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/media/base/media_constants.h">media/base/media_constants.h</a> · kVideoMtu = 1200</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/video_rtp_depacketizer_h264.cc">modules/rtp_rtcp/source/video_rtp_depacketizer_h264.cc</a> · H.264 逐包解析</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/video_rtp_depacketizer_h265.cc">modules/rtp_rtcp/source/video_rtp_depacketizer_h265.cc</a> · H.265 逐包解析（含补起始码）</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/video_coding/h264_sps_pps_tracker.cc">modules/video_coding/h264_sps_pps_tracker.cc</a> · H.264 补参数集、补起始码</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/video_coding/packet_buffer.cc">modules/video_coding/packet_buffer.cc</a> · 排队、找帧边界</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/video_coding/h26x_packet_buffer.cc">modules/video_coding/h26x_packet_buffer.cc</a> · H.265 用的包缓冲区</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/media/base/media_constants.h">media/base/media_constants.h</a> · kVideoMtu、sprop 说明</li>
+    </ul>
+    <h3 class="h3">RTCP</h3>
+    <ul class="src">
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtcp_packet/common_header.cc">rtcp_packet/common_header.cc</a> · 公共头</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtcp_packet/sender_report.cc">rtcp_packet/sender_report.cc</a> · SR</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtcp_packet/report_block.cc">rtcp_packet/report_block.cc</a> · 报告块</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtcp_packet/nack.cc">rtcp_packet/nack.cc</a> · NACK 的 PID / BLP 打包</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtcp_sender.cc">modules/rtp_rtcp/source/rtcp_sender.cc</a> · 何时发、复合 / 精简模式</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtcp_receiver.cc">modules/rtp_rtcp/source/rtcp_receiver.cc</a> · 解析报告、算 RTT</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/receive_statistics_impl.cc">modules/rtp_rtcp/source/receive_statistics_impl.cc</a> · 丢包率、抖动</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtp_rtcp_impl2.cc">modules/rtp_rtcp/source/rtp_rtcp_impl2.cc</a> · 报告周期：视频 1 s、音频 5 s</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/video_coding/nack_requester.cc">modules/video_coding/nack_requester.cc</a> · 何时发 NACK、何时放弃</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/rtp_rtcp/source/rtp_sender.cc">modules/rtp_rtcp/source/rtp_sender.cc</a> · RTX 重传包</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/video/video_receive_stream2.cc">video/video_receive_stream2.cc</a> · 何时请求关键帧</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/rtc_base/rtp_to_ntp_estimator.cc">rtc_base/rtp_to_ntp_estimator.cc</a> · RTP→NTP 线性回归</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/video/stream_synchronization.cc">video/stream_synchronization.cc</a> · 音画同步的调整策略</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/media/base/codec.cc">media/base/codec.cc</a> · 默认 rtcp-fb</li>
+      <li><a href="https://webrtc.googlesource.com/src/+/refs/heads/main/modules/remote_bitrate_estimator/transport_sequence_number_feedback_generator.cc">remote_bitrate_estimator/transport_sequence_number_feedback_generator.cc</a> · transport-cc 反馈周期</li>
     </ul>
   </div>
 </section>
@@ -699,8 +956,8 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
 <footer>
   <div class="wrap">
     <div class="fin">
-      <p>读代码的顺序建议：先读 <code>rtp_format_h264.cc</code>，对照本页第四节的模拟器看三种装法的分支；再读 <code>video_rtp_depacketizer_h264.cc</code> 和 <code>packet_buffer.cc</code>，对照第五节看一帧怎么被拼齐。RTCP（报告、NACK、PLI）在下一篇展开。</p>
-      <p class="fm">WebRTC 学习笔记 · RTP 封装 · 基于本地 checkout src@6af87f3957</p>
+      <p>读代码的顺序建议：先读 <code>rtp_format_h264.cc</code>，对照本页第四节的模拟器看三种装法的分支；再读 <code>video_rtp_depacketizer_h264.cc</code> 和 <code>packet_buffer.cc</code>，对照第五节看一帧怎么被拼齐。RTCP 部分建议从 <code>rtcp_sender.cc</code>（什么时候发、发什么）和 <code>rtcp_receiver.cc</code>（收到后怎么算 RTT）读起，再看 <code>nack_requester.cc</code>。</p>
+      <p class="fm">WebRTC 学习笔记 · RTP 与 RTCP · 基于本地 checkout src@6af87f3957 · 实现细节对照 webrtc.googlesource.com main 分支源码</p>
     </div>
   </div>
 </footer>
@@ -742,7 +999,7 @@ const SEG = {
     { k: 'ext', n: 'RTP 头扩展',    b: 8,    t: 9,  u: .18, g: '#CFDCD3', c: '#F0F2E4', e: '#C3CCB0', d: '按需携带的附加信息，比如 mid、transport-wide 序号、音量。ID 的含义由 SDP 的 <span class="m">a=extmap</span> 约定。' },
     { k: 'fu',  n: 'FU-A 头',      b: 2,    t: 7,  u: .12, g: '#D99A6C', c: '#ECCFB7', e: '#C99872', enc: 1, d: 'FU 指示 + FU 头，共 2 字节：告诉接收端「这是一个 NAL 的第几片、是不是最后一片」，原 NAL 头也藏在这里。' },
     { k: 'nal', n: 'NAL 分片',      b: 1178, t: 40, u: 1.05, g: '#E8BE98', c: '#F5E6D8', e: '#D9A982', enc: 1, d: '视频数据本体：IDR 片去掉 NAL 头后的第一段。<b>它占了整个包的 95% 以上</b>，前面所有的头加起来不到 60 字节。' },
-    { k: 'tag', n: 'SRTP 认证标签', b: 10,   t: 8,  u: .18, g: '#DCCB86', c: '#F1EAC9', e: '#C9B26B', d: '附在包尾的认证码，用来发现篡改。常见套件是 10 字节（HMAC-SHA1-80）；用 AES-GCM 时是 16 字节。' }
+    { k: 'tag', n: 'SRTP 认证标签', b: 10,   t: 8,  u: .18, g: '#DCCB86', c: '#F1EAC9', e: '#C9B26B', d: '附在包尾的认证码，用来发现篡改。libwebrtc 支持的套件里，AES_CM_128_HMAC_SHA1_80 的标签是 80 位（10 字节）；AEAD_AES_128_GCM / 256_GCM 是 16 字节（套件名见 <span class="m">ssl_stream_adapter.cc</span>）。' }
   ];
   const stage = $('#p3dStage'), legend = $('#legend3d'), note = $('#legend3dNote'), tog = $('#p3dToggle');
   let exploded = true, active = 5;
@@ -1008,7 +1265,7 @@ const SEG = {
     { id: 'p',   n: 'P',      w: 1,  cls: 'hdr', v: '0',          by: [0], t: '填充位 · 1 位', d: '为 1 时包尾有填充字节，最后一个字节写着一共填了多少。带宽探测发的「填充包」会用到它。' },
     { id: 'x',   n: 'X',      w: 1,  cls: 'hdr', v: '1',          by: [0], t: '扩展位 · 1 位', d: '为 1 表示固定头后面跟着头扩展。WebRTC 里几乎总是 1：mid、transport-wide 序号、音量等都放在扩展里。' },
     { id: 'cc',  n: 'CC',     w: 4,  cls: 'hdr', v: '0',          by: [0], t: 'CSRC 个数 · 4 位', d: '混音器把多路合成一路时，在固定头后列出贡献者的 SSRC（最多 15 个）。点对点和 SFU 转发都不混流，所以是 0。' },
-    { id: 'm',   n: 'M',      w: 1,  cls: 'hdr', v: '0',          by: [1], t: 'Marker · 1 位', d: '视频里表示<b>「这是这一帧的最后一个包」</b>，接收端靠它知道一帧收齐了。本例是一帧的第一片，所以是 0。音频里它的含义不同：标记一段说话的开始。' },
+    { id: 'm',   n: 'M',      w: 1,  cls: 'hdr', v: '0',          by: [1], t: 'Marker · 1 位', d: '视频里表示<b>「这是这一帧的最后一个包」</b>，接收端靠它知道一帧收齐了。本例是一帧的第一片，所以是 0。音频里含义不同：libwebrtc 在一段讲话开始的第一个包上置 1（<span class="m">RTPSenderAudio::MarkerBit</span>）。' },
     { id: 'pt',  n: 'PT',     w: 7,  cls: 'hdr', v: '96',         by: [1], t: '载荷类型 · 7 位', d: '96 不是全球统一的「H.264」，而是这次会话里 SDP 用 <span class="m">a=rtpmap:96</span> 约定的编号，换个会话可能是别的数。' },
     { id: 'seq', n: '序号',    w: 16, cls: 'hdr', v: '23456',      by: [2,3], t: '序号 · 16 位', d: '每发一个包加 1，到 65535 后回绕到 0。接收端靠它<b>发现丢包和乱序</b>。起始值随机。' },
     { id: 'ts',  n: '时间戳',  w: 32, cls: 'hdr', v: '1500000',    by: [4,5,6,7], t: '时间戳 · 32 位', d: '这一帧的采样时刻，视频按 90 kHz 计：30 fps 每帧加 3000。<b>同一帧的所有包时间戳相同</b>。它表示「该什么时候播」，不是「什么时候发的」。' },
@@ -1020,16 +1277,21 @@ const SEG = {
     { id: 'fuh', n: 'FU 头',  w: 8,  cls: 'pl',  v: '0x85',       by: [21], t: '载荷第 2 字节 · FU 头', d: 'S=1 表示第一片，E=0 表示还没完，低 5 位 = 5 是原 NAL 的类型（IDR）。接收端用这两个字节拼回原 NAL 头 0x65。第四节会详细演示。' },
     { id: 'nal', n: 'NAL 分片…', w: 16, cls: 'nal', v: '88 84 00 33 …', by: [22,23,24,25], t: 'NAL 分片', d: '原 NAL 去掉头字节后的数据，按顺序切成若干段，这是第一段的开头。' }
   ];
-  const ix = $('#bitIx');
+  makeBitGrid({ ix: '#bitIx', grid: '#bitGrid', hex: '#hexDump', det: '#fDetail', bytes: BYTES, fields: F, def: 6, more: true });
+})();
+
+/* 通用位图：RTP 头、RTCP 公共头、SR 共用 */
+function makeBitGrid(o){
+  const ix = $(o.ix);
   for (let i = 0; i < 32; i++) {
     const s = document.createElement('span'); s.className = 'bit-ix';
     s.textContent = (i % 8 === 0 || i === 31) ? i : '';
     ix.appendChild(s);
   }
-  const grid = $('#bitGrid'), hex = $('#hexDump'), det = $('#fDetail');
-  BYTES.forEach((b, i) => { const s = document.createElement('span'); s.textContent = hx(b); s.dataset.i = i; hex.appendChild(s); });
-  const more = document.createElement('span'); more.textContent = '…'; hex.appendChild(more);
-  const btns = F.map(f => {
+  const grid = $(o.grid), hex = $(o.hex), det = $(o.det);
+  o.bytes.forEach((b, i) => { const s = document.createElement('span'); s.textContent = hx(b); s.dataset.i = i; hex.appendChild(s); });
+  if (o.more) { const m = document.createElement('span'); m.textContent = '…'; hex.appendChild(m); }
+  const btns = o.fields.map(f => {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'fld ' + f.cls; b.style.gridColumn = 'span ' + f.w;
     b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', f.t + '，本例 ' + f.v);
@@ -1044,8 +1306,8 @@ const SEG = {
     $$('span', hex).forEach(s => s.classList.toggle('on', f.by.includes(+s.dataset.i)));
     det.innerHTML = '<h4>' + esc(f.t) + '</h4><div class="meta">本例取值：' + esc(f.v) + ' · 字节 ' + f.by.map(i => '#' + i).join(' ') + '</div><p>' + f.d + '</p>';
   }
-  sel(F[6], btns[6]);
-})();
+  sel(o.fields[o.def], btns[o.def]);
+}
 
 /* ════════ 二 · 序号与时间戳 ════════ */
 (function(){
@@ -1174,7 +1436,7 @@ function payloadHeaders(p){
   if (p.kind === 'single') return [{ t: 'NAL 头（原样放在载荷开头）', b: p.nal.h, s: h264 ? SEG.h264nal : SEG.h265nal }];
   if (p.kind === 'agg') {
     let hdr;
-    if (h264) { const nri = Math.max(...p.nals.map(n => (n.h[0] >> 5) & 3)); hdr = { t: 'STAP-A 头（类型 24）', b: [(nri << 5) | 24], s: SEG.h264nal }; }
+    if (h264) { hdr = { t: 'STAP-A 头（类型 24）', b: [(p.nals[0].h[0] & 0xE0) | 24], s: SEG.h264nal }; }
     else { const tid = Math.min(...p.nals.map(n => n.h[1] & 7)); hdr = { t: 'AP 载荷头（类型 48）', b: [48 << 1, tid], s: SEG.h265nal }; }
     const r = [hdr];
     p.nals.slice(0, 2).forEach(n => { r.push({ t: n.n + ' 的长度 = ' + n.z, b: [n.z >> 8, n.z & 255], s: SEG.len16 }); });
@@ -1243,7 +1505,7 @@ function renderDetail(){
   h += '</div>';
   let txt;
   if (p.kind === 'single') txt = '载荷就是完整的 NAL，第一个字节就是 NAL 头。接收端看到类型在 1～23（H.265 是 0～47）之间，就知道这是单 NAL 包，<b>前面补上起始码直接交给解码器</b>。';
-  else if (p.kind === 'agg') txt = '聚合头的类型是 ' + (h264 ? '24' : '48') + '，后面每个 NAL 前面都有 2 字节长度。接收端按长度逐个切出来：' + p.nals.map(n => n.n + '（' + n.z + ' B）').join('、') + '。' + (h264 ? 'STAP-A 头的 NRI 取这几个 NAL 里最大的那个。' : 'AP 头的 TID 取这几个 NAL 里最小的那个。');
+  else if (p.kind === 'agg') txt = '聚合头的类型是 ' + (h264 ? '24' : '48') + '，后面每个 NAL 前面都有 2 字节长度。接收端按长度逐个切出来：' + p.nals.map(n => n.n + '（' + n.z + ' B）').join('、') + '。' + (h264 ? 'STAP-A 头的 F 和 NRI，libwebrtc 直接沿用第一个 NAL 的（<span class="m">NextAggregatePacket</span>）。' : 'AP 载荷头的 F 位为 0，LayerId 和 TID 取所有 NAL 里的最小值（<span class="m">rtp_packetizer_h265.cc</span>）。');
   else {
     const fu = hs[1].b[0];
     if (h264) {
@@ -1268,7 +1530,7 @@ function renderDetail(){
 
 /* ════════ 五 · 解封装演示 ════════ */
 const dk = { step: 0, timer: null };
-const STEPS = ['① 包陆续到达', '② 按序号排队', '③ 认出载荷类型', '④ 拼回 NAL', '⑤ 补起始码交给解码器'];
+const STEPS = ['① 包陆续到达', '② 逐包解析', '③ 按序号排队', '④ 找出一帧', '⑤ 拼好交给解码器'];
 function dkScenario(){
   const pk = sim.packets.slice();
   let lostSeq = null;
@@ -1285,6 +1547,19 @@ function dkScenario(){
 function chip(p, cls){
   return '<span class="dchip ' + (cls || '') + '">#' + p.seq + (p.m ? ' · M' : '') + '<small>' + kindLabel(p) + ' · ' + p.size + 'B</small></span>';
 }
+const kcls = p => p.kind === 'fu' ? 'fu' : p.kind === 'agg' ? 'agg' : '';
+/* 逐包解析：照 libwebrtc 的 depacketizer 写出每个包变成了什么 */
+function parseText(p){
+  const h264 = sim.codec === 'h264', hs = payloadHeaders(p);
+  const t = h264 ? hs[0].b[0] & 31 : (hs[0].b[0] >> 1) & 63;
+  if (p.kind === 'single') return '类型 ' + t + ' → 单 NAL：前面补 00 00 00 01';
+  if (p.kind === 'agg') return '类型 ' + t + ' → ' + (h264 ? 'STAP-A' : 'AP') + '：按长度拆成 ' + p.nals.length + ' 个 NAL，各补起始码';
+  if (p.idx === 0) {
+    if (h264) { const ind = hs[0].b[0], fu = hs[1].b[0]; return '类型 28，S=1 → 去掉 FU 指示，把 FU 头改写成原 NAL 头 0x' + hx((ind & 0xE0) | (fu & 31)) + '，再补起始码'; }
+    const ph = hs[0].b, ft = hs[1].b[0] & 63; return '类型 49，S=1 → 去掉 FU 头，载荷头改写回原 NAL 头 ' + hx((ph[0] & 0x81) | (ft << 1)) + ' ' + hx(ph[1]) + '，再补起始码';
+  }
+  return '类型 ' + t + '，S=0 → 只去掉 ' + (h264 ? 2 : 3) + ' 字节分片头，数据原样接在后面';
+}
 function renderDepk(){
   const sc = dkScenario(), h264 = sim.codec === 'h264', st = dk.step;
   const steps = $('#dkSteps');
@@ -1299,46 +1574,46 @@ function renderDepk(){
   });
   $('#dkPrev').disabled = st === 0;
   $('#dkNext').disabled = st === STEPS.length - 1;
+  const lostPk = sc.lostSeq != null ? sc.pk.find(p => p.seq === sc.lostSeq) : null;
+  const bufName = h264 ? '<span class="m">PacketBuffer</span>' : '<span class="m">H26xPacketBuffer</span>';
   let h = '';
-  const brokenNal = sc.lostSeq != null ? (sc.pk.find(p => p.seq === sc.lostSeq)) : null;
   if (st === 0) {
-    h = '<h4>包按网络给的顺序到达</h4><p class="why">接收端看不到「帧」，只看到一个个包。' + ($('#dkShuffle').checked ? '它们经过不同的路由器，<b>先发的不一定先到</b>。' : '这次网络很守规矩，顺序没乱。') + (sc.lostSeq != null ? '而且有一个包根本没来——但此刻接收端还不知道。' : '') + '</p><div class="row">' +
-      sc.arrival.map(p => chip(p, p.kind === 'fu' ? 'fu' : p.kind === 'agg' ? 'agg' : '')).join('') + '</div>';
+    h = '<h4>包按网络给的顺序到达</h4><p class="why">接收端看不到「帧」，只看到一个个包。' + ($('#dkShuffle').checked ? '它们经过不同的路由器，<b>先发的不一定先到</b>。' : '这次网络很守规矩，顺序没乱。') + (lostPk ? '而且有一个包根本没来——但此刻接收端还不知道。' : '') + '</p><div class="row">' +
+      sc.arrival.map(p => chip(p, kcls(p))).join('') + '</div>';
   } else if (st === 1) {
-    h = '<h4>放进缓冲区，按序号排好</h4><p class="why">抖动缓冲（jitter buffer）把包按序号排队，顺手检查有没有断档。' + (sc.lostSeq != null ? '<b>#' + sc.lostSeq + ' 的位置空着</b>：接收端会马上发 RTCP NACK 请求重传，并稍等一会儿。' : '序号从 #' + SEQ0 + ' 一路连续到 #' + (SEQ0 + sc.pk.length - 1) + '，一个不缺。') + '</p><div class="row">' +
-      sc.pk.map(p => p.seq === sc.lostSeq ? '<span class="dchip gap">#' + p.seq + '<small>没到 · 发 NACK</small></span>' : chip(p, p.kind === 'fu' ? 'fu' : p.kind === 'agg' ? 'agg' : '')).join('') + '</div>';
+    h = '<h4>每个包一到，先单独解析</h4><p class="why">libwebrtc 不等凑齐再拆，而是<b>每收到一个包就立刻解析</b>：看载荷第一个字节的类型号（' + (h264 ? '1～23 单 NAL、24 STAP-A、28 FU-A' : '0～47 单 NAL、48 AP、49 FU') + '），去掉 RTP 专用的头，并在每个 NAL 的开头补上起始码。' +
+      (h264 ? '去 FU 头、还原 NAL 头在 <span class="m">VideoRtpDepacketizerH264</span>，补起始码在 <span class="m">H264SpsPpsTracker</span>。' : '这些都在 <span class="m">VideoRtpDepacketizerH265</span> 里完成。') + '</p><div class="nalrow">' +
+      sc.arrival.map(p => '<div class="nalbox"><div class="t">#' + p.seq + ' <span class="tag">· ' + kindLabel(p) + '</span></div><div class="f">' + esc(parseText(p)) + '</div></div>').join('') + '</div>';
   } else if (st === 2) {
-    h = '<h4>看载荷第一个字节，认出是哪种包</h4><p class="why">去掉 12 字节 RTP 头后，载荷开头的类型号说明怎么拆：' + (h264 ? '1～23 是单 NAL，24 是 STAP-A，28 是 FU-A。' : '0～47 是单 NAL，48 是 AP，49 是 FU。') + 'FU 包再看 S、E 两位，知道是开始、中间还是结束。</p><div class="row">' +
-      sc.recv.map(p => {
-        const hs = payloadHeaders(p), first = hs[0].b, t = h264 ? first[0] & 31 : (first[0] >> 1) & 63;
-        return '<span class="dchip ' + (p.kind === 'fu' ? 'fu' : p.kind === 'agg' ? 'agg' : '') + '">#' + p.seq + '<small>类型 ' + t + ' → ' + kindLabel(p) + '</small></span>';
-      }).join('') + '</div>';
+    h = '<h4>放进包缓冲区，按序号排好</h4><p class="why">解析后的包进入 ' + bufName + '，按序号排队。同时 <span class="m">NackRequester</span> 盯着序号：' +
+      (lostPk ? '收到 #' + (sc.lostSeq + 1) + ' 时发现 <b>#' + sc.lostSeq + ' 没来</b>，马上发 RTCP NACK 请求重传；如果过了一个 RTT 还没到，会再发，最多重试 100 次（<span class="m">kMaxNackRetries</span>）。' : '序号从 #' + SEQ0 + ' 一路连续到 #' + (SEQ0 + sc.pk.length - 1) + '，一个不缺，不用发 NACK。') + '</p><div class="row">' +
+      sc.pk.map(p => p.seq === sc.lostSeq ? '<span class="dchip gap">#' + p.seq + '<small>没到 · 发 NACK</small></span>' : chip(p, kcls(p))).join('') + '</div>';
   } else if (st === 3) {
-    h = '<h4>把分片接起来，把聚合包拆开</h4><p class="why">FU 分片按序号首尾相接，再在最前面补回原 NAL 头；聚合包按长度字段一个个切出来。单 NAL 包什么都不用做。</p><div class="nalrow">';
-    sim.au.forEach(n => {
-      const pks = sc.pk.filter(p => (p.nal === n) || (p.nals && p.nals.includes(n)));
-      const broken = brokenNal && pks.includes(brokenNal);
-      let f = '';
-      if (pks[0].kind === 'fu') {
-        const hs = payloadHeaders(pks[0]);
-        if (h264) { const ind = hs[0].b[0], fu = hs[1].b[0]; f = '原 NAL 头 = (0x' + hx(ind) + ' & 0xE0) | (0x' + hx(fu) + ' & 0x1F) = 0x' + hx((ind & 0xE0) | (fu & 31)); }
-        else { const ph = hs[0].b, ft = hs[1].b[0] & 63; f = '原 NAL 头 = [(0x' + hx(ph[0]) + ' & 0x81) | (' + ft + ' << 1), 0x' + hx(ph[1]) + '] = ' + hx((ph[0] & 0x81) | (ft << 1)) + ' ' + hx(ph[1]); }
-      } else if (pks[0].kind === 'agg') f = '从 ' + (h264 ? 'STAP-A' : 'AP') + ' #' + pks[0].seq + ' 里按长度 ' + n.z + ' 切出';
-      else f = '单 NAL 包 #' + pks[0].seq + '，原样取出';
-      let pieces = '<span class="h">' + n.h.map(hx).join(' ') + '</span>';
-      if (pks[0].kind === 'fu') pks.forEach(p => { pieces += p.seq === sc.lostSeq ? '<span class="miss">#' + p.seq + ' 缺</span>' : '<span>#' + p.seq + ' · ' + p.data + 'B</span>'; });
-      else pieces += '<span>' + (n.z - n.h.length) + 'B</span>';
-      h += '<div class="nalbox' + (broken ? ' broken' : '') + '"><div class="t">' + esc(n.n) + ' <span class="tag">· ' + n.z + ' B</span></div><div class="pieces">' + pieces + '</div><div class="f">' +
-        (broken ? '缺了 #' + sc.lostSeq + ' 这一段，后面的字节全部错位——<b>整个 NAL 作废</b>' : esc(f)) + '</div></div>';
-    });
+    const last = sc.pk[sc.pk.length - 1];
+    h = '<h4>从带 Marker 的包往回找，凑出一帧</h4><p class="why">#' + last.seq + ' 的 Marker 位是 1，说明它是这一帧的最后一个包。' + bufName + ' 从它往回走：序号连续、时间戳都是 ' + TS0 + ' 的包都属于这一帧，遇到空缺或时间戳变化就停。' +
+      (lostPk ? '<b>走到 #' + (sc.lostSeq + 1) + ' 时前面断了</b>，这一帧凑不齐，只能继续留在缓冲区里等。' : '一路走回 #' + SEQ0 + '，整帧齐了。') + '</p><div class="row">';
+    for (let i = sc.pk.length - 1; i >= 0; i--) {
+      const p = sc.pk[i];
+      if (p.seq === sc.lostSeq) { h += '<span class="dchip gap">#' + p.seq + '<small>断在这里</small></span>'; break; }
+      h += chip(p, kcls(p));
+    }
     h += '</div>';
   } else {
     const broken = new Set();
-    if (brokenNal) sim.au.forEach(n => { if (brokenNal.nal === n || (brokenNal.nals && brokenNal.nals.includes(n))) broken.add(n); });
-    h = '<h4>每个 NAL 前补上 00 00 00 01，交给解码器</h4><p class="why">RTP 里省掉的起始码在这里加回来。' + (broken.size ? '可这一次，标红的 NAL 缺了一段，拼出来的码流和发送端的不一样了。' : '这样就得到了和发送端编码器输出一模一样的 Annex B 码流。') + 'libwebrtc 的 H.264 在 <span class="m">H264SpsPpsTracker</span> 里补起始码，H.265 在解包器里直接补。</p><div class="bstream">' + streamHTML(sim.au, { broken }) + '</div>';
+    if (lostPk) sim.au.forEach(n => { if (lostPk.nal === n || (lostPk.nals && lostPk.nals.includes(n))) broken.add(n); });
+    h = '<h4>按序号把载荷拼起来，交给解码器</h4><p class="why">每个包在第 ② 步已经变成「起始码 + NAL」或「NAL 的后续数据」，按序号首尾相接，就是解码器要的 Annex B 码流。</p><div class="nalrow">';
+    sim.au.forEach(n => {
+      const pks = sc.pk.filter(p => (p.nal === n) || (p.nals && p.nals.includes(n)));
+      const bad = broken.has(n);
+      let pieces = '<span class="h">00 00 00 01</span><span class="h">' + n.h.map(hx).join(' ') + '</span>';
+      if (pks[0].kind === 'fu') pks.forEach(p => { pieces += p.seq === sc.lostSeq ? '<span class="miss">#' + p.seq + ' 缺</span>' : '<span>#' + p.seq + ' · ' + p.data + 'B</span>'; });
+      else pieces += '<span>' + (n.z - n.h.length) + 'B</span>';
+      h += '<div class="nalbox' + (bad ? ' broken' : '') + '"><div class="t">' + esc(n.n) + ' <span class="tag">· ' + n.z + ' B</span></div><div class="pieces">' + pieces + '</div></div>';
+    });
+    h += '</div><div class="bstream" style="margin-top:12px">' + streamHTML(sim.au, { broken }) + '</div>';
     h += broken.size
-      ? '<div class="verdict bad"><b>这一帧交不出去。</b>缺片的 NAL 解不了；如果 NACK 重传及时赶到，就回到第 ④ 步重拼。等不到的话，接收端发 <b>PLI</b> 请求一个新的关键帧——在此之前，画面会停住或出现花屏。</div>'
-      : '<div class="verdict ok"><b>与发送端逐字节一致。</b>' + sc.pk.length + ' 个包拼回 ' + sim.au.length + ' 个 NAL，共 ' + sim.au.reduce((a, n) => a + n.z + 4, 0) + ' 字节（含起始码）。Marker 位告诉我们这一帧已经完整，可以送进解码器了。</div>';
+      ? '<div class="verdict bad"><b>这一帧交不出去。</b>缓冲区只交出完整的帧，这一帧要等 NACK 重传的包补上缺口。如果迟迟没有可解码的帧（等关键帧时 200 ms、平时 3 s），<span class="m">VideoReceiveStream2</span> 就请求关键帧——libwebrtc 默认发 <b>PLI</b>。在那之前，画面会停在上一帧。</div>'
+      : '<div class="verdict ok"><b>与发送端逐字节一致。</b>' + sc.pk.length + ' 个包拼回 ' + sim.au.length + ' 个 NAL，共 ' + sim.au.reduce((a, n) => a + n.z + 4, 0) + ' 字节（含起始码），这一帧可以送进解码器了。</div>';
   }
   $('#dkBody').innerHTML = h;
 }
@@ -1352,6 +1627,220 @@ $('#dkPlay').addEventListener('click', () => {
   dk.timer = setInterval(() => { if (dk.step >= STEPS.length - 1) { stopPlay(); return; } dk.step++; renderDepk(); }, reduce ? 2400 : 1800);
 });
 ['dkShuffle', 'dkLoss'].forEach(id => $('#' + id).addEventListener('change', renderDepk));
+
+/* ════════ 八 · RTCP 公共头 ════════ */
+const u32 = v => [(v >>> 24) & 255, (v >>> 16) & 255, (v >>> 8) & 255, v & 255];
+const SR_NTP_SEC = 3970000000, SR_NTP_FRAC = 0x40000000;
+const RC_FIELDS = [
+  { n: 'V', w: 2, cls: 'hdr', v: '2', by: [0], t: '版本号 · 2 位', d: '和 RTP 一样永远是 2。libwebrtc 区分 RTP / RTCP 时也先看它（<span class="m">HasCorrectRtpVersion</span>）。' },
+  { n: 'P', w: 1, cls: 'hdr', v: '0', by: [0], t: '填充位 · 1 位', d: '为 1 时包尾有填充，最后一个字节写着填了多少。' },
+  { n: 'RC/FMT', w: 5, cls: 'hdr', v: '1', by: [0], t: '计数 / 格式 · 5 位', d: '同样 5 位，三种用法：SR、RR 里是<b>报告块个数</b>（RC）；SDES、BYE 里是条目个数；反馈包（PT 205、206）里是 <b>FMT</b>，区分具体是哪种反馈。libwebrtc 解析时只把它读成 <span class="m">count_or_format_</span>，交给具体的包类去解释。本例 SR 带 1 个报告块。' },
+  { n: 'PT', w: 8, cls: 'hdr', v: '200', by: [1], t: '包类型 · 8 位', d: '200 = SR。libwebrtc 每个 RTCP 包类都有一个 <span class="m">kPacketType</span> 常量（SenderReport 是 200），收到后按它分派给对应的解析代码。' },
+  { n: '长度', w: 16, cls: 'hdr', v: '12', by: [2, 3], t: '长度 · 16 位', d: '以 4 字节为单位，<b>不含</b>这 4 字节公共头。libwebrtc 解析时直接乘 4 得到后面还有多少字节（<span class="m">payload_size_ = length × 4</span>）：12 × 4 = 48，加上公共头，这个 SR 一共 52 字节。' },
+  { n: '发送者 SSRC', w: 32, cls: 'ext', v: '0x1A2B3C4D', by: [4, 5, 6, 7], t: '发送者 SSRC · 32 位', d: '<b>发这个 RTCP 的人自己的 SSRC</b>，不是被报告的那一路流。反馈包在它后面还会再跟一个「媒体源 SSRC」，指明反馈针对哪路流。' }
+];
+const SR_BYTES = [0x81, 0xC8, 0x00, 0x0C, ...u32(0x1A2B3C4D), ...u32(SR_NTP_SEC), ...u32(SR_NTP_FRAC), ...u32(1500000), ...u32(2400), ...u32(2700000),
+  ...u32(0x5E6F7081), 0x0D, 0x00, 0x00, 0x25, ...u32(0x00015BCC), ...u32(45), ...u32(0xCE7FA000), ...u32(0x00008000)];
+const SR_FIELDS = RC_FIELDS.slice(0, 5).map(f => Object.assign({}, f)).concat([
+  { n: '发送者 SSRC', w: 32, cls: 'hdr', v: '0x1A2B3C4D', by: [4, 5, 6, 7], t: '发送者 SSRC', d: '发这份 SR 的一端自己的 SSRC。' },
+  { n: 'NTP 秒', w: 32, cls: 'ext', v: String(SR_NTP_SEC), by: [8, 9, 10, 11], t: 'NTP 时间 · 高 32 位', d: '发这份 SR 时的<b>墙上时钟</b>：从 1900 年 1 月 1 日起的整秒数。libwebrtc 用的是本机时钟换算出的 NTP 时间（<span class="m">ConvertTimestampToNtpTime</span>）。' },
+  { n: 'NTP 小数', w: 32, cls: 'ext', v: '0x40000000', by: [12, 13, 14, 15], t: 'NTP 时间 · 低 32 位', d: '秒的小数部分，单位 1/2³²：0x40000000 = 0.25 秒。高 32 位的后 16 位 + 低 32 位的前 16 位拼成的「中间 32 位」，就是对方回报里的 LSR。' },
+  { n: 'RTP 时间戳', w: 32, cls: 'ext', v: '1500000', by: [16, 17, 18, 19], t: 'RTP 时间戳 · 32 位', d: '和上面那个 NTP 时刻对应的 RTP 时间戳。libwebrtc 按「最近一帧的时间戳 + 距那一帧采集过去的时长 × 时钟频率」外推（<span class="m">RTCPSender::BuildSR</span>）；还没发过媒体就算不出来，也就不发 SR。这一对（NTP, RTP）是第十节音画同步的原料。' },
+  { n: '发送包数', w: 32, cls: 'ext', v: '2400', by: [20, 21, 22, 23], t: '累计发送包数', d: '从开始到现在发了多少个 RTP 包（<span class="m">packets_sent</span>）。' },
+  { n: '发送字节数', w: 32, cls: 'ext', v: '2700000', by: [24, 25, 26, 27], t: '累计发送字节数', d: '累计发送的媒体载荷字节数（<span class="m">media_bytes_sent</span>），不含 RTP 头。' },
+  { n: 'SSRC_1', w: 32, cls: 'pl', v: '0x5E6F7081', by: [28, 29, 30, 31], t: '报告块 · 被报告的流', d: '从这里开始是 24 字节的<b>报告块</b>。SSRC_1 说明这一块汇报的是哪一路流——A 收到的 B 的那一路。一份报告最多挂 31 块（RC 只有 5 位，<span class="m">kMaxNumberOfReportBlocks = 0x1f</span>）。' },
+  { n: '丢包率', w: 8, cls: 'pl', v: '13', by: [32], t: '丢包率 · 8 位', d: '上次报告以来丢了多大比例。libwebrtc 按 <b>255 × 本期丢包数 ÷ 本期应收包数</b> 计算，255 表示 100%（<span class="m">receive_statistics_impl.cc</span>）：13 ≈ 5.1%。' },
+  { n: '累计丢包', w: 24, cls: 'pl', v: '37', by: [33, 34, 35], t: '累计丢包 · 24 位', d: '从开始到现在累计丢了多少个包，有符号数。收到重复包时可能算成负数，libwebrtc 会把负值修正后再填。' },
+  { n: '扩展最高序号', w: 32, cls: 'pl', v: '0x00015BCC', by: [36, 37, 38, 39], t: '扩展最高序号 · 32 位', d: '高 16 位是序号回绕的圈数，低 16 位是收到过的最大序号：0x0001 / 0x5BCC = 第 1 圈、序号 23500。' },
+  { n: '抖动', w: 32, cls: 'pl', v: '45', by: [40, 41, 42, 43], t: '到达间隔抖动 · 32 位', d: '单位是 RTP 时钟刻度：45 ÷ 90 kHz = 0.5 ms。怎么算出来的，见下面的抖动图。' },
+  { n: 'LSR', w: 32, cls: 'nal', v: '0xCE7FA000', by: [44, 45, 46, 47], t: 'LSR · 最近一份 SR 的时间', d: '最近收到的那份对方 SR 里，NTP 时间的中间 32 位。还没收到过 SR 就填 0——libwebrtc 看到 0 就不算 RTT。' },
+  { n: 'DLSR', w: 32, cls: 'nal', v: '0x00008000', by: [48, 49, 50, 51], t: 'DLSR · 压了多久才回', d: '从收到那份 SR 到发出这份报告隔了多久，单位 1/65536 秒：0x8000 = 0.5 秒。' }
+]);
+SR_FIELDS[5].cls = 'ext';
+makeBitGrid({ ix: '#rcIx', grid: '#rcGrid', hex: '#rcHex', det: '#rcDet', bytes: SR_BYTES.slice(0, 8), fields: RC_FIELDS, def: 3, more: true });
+makeBitGrid({ ix: '#srIx', grid: '#srGrid', hex: '#srHex', det: '#srDet', bytes: SR_BYTES, fields: SR_FIELDS, def: 8 });
+
+/* ════════ 九 · RTT 时序图 ════════ */
+(function(){
+  const svg = $('#rttSvg'), out = $('#rttOut');
+  const d1 = $('#rttD1'), d2 = $('#rttD2'), hold = $('#rttHold');
+  const NS = 'http://www.w3.org/2000/svg';
+  function draw(){
+    const a = +d1.value, b = +d2.value, c = +hold.value;
+    $('#rttD1o').textContent = a + ' ms'; $('#rttD2o').textContent = b + ' ms'; $('#rttHoldo').textContent = c + ' ms';
+    const total = a + b + c, top = 56, H = 200, k = H / Math.max(total, 400);
+    const y = t => top + t * k, XA = 140, XB = 620;
+    const T1 = 0, T2 = a, T3 = a + c, T4 = a + c + b;
+    svg.innerHTML =
+      '<defs><marker id="arR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#4E8378"/></marker></defs>' +
+      '<text x="' + XA + '" y="24" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="700" fill="#A05C2C">A · 发 SR 的一端</text>' +
+      '<text x="' + XB + '" y="24" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="700" fill="#3D6B4C">B · 回报告的一端</text>' +
+      '<line x1="' + XA + '" y1="40" x2="' + XA + '" y2="' + (top + H + 12) + '" stroke="#C9D3B6" stroke-width="3"/>' +
+      '<line x1="' + XB + '" y1="40" x2="' + XB + '" y2="' + (top + H + 12) + '" stroke="#C9D3B6" stroke-width="3"/>' +
+      '<line x1="' + XA + '" y1="' + y(T1) + '" x2="' + XB + '" y2="' + y(T2) + '" stroke="#4E8378" stroke-width="2.5" marker-end="url(#arR)"/>' +
+      '<line x1="' + XB + '" y1="' + y(T3) + '" x2="' + XA + '" y2="' + y(T4) + '" stroke="#4E8378" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#arR)"/>' +
+      '<rect x="' + (XB - 7) + '" y="' + y(T2) + '" width="14" height="' + Math.max(1, y(T3) - y(T2)) + '" rx="4" fill="#F5E6D8" stroke="#C97B4A" stroke-width="1.5"/>' +
+      lab(XA - 12, y(T1), 'end', 'T1 发出 SR') + lab(XB + 14, y(T2), 'start', 'T2 收到，记 LSR') +
+      lab(XB + 14, (y(T2) + y(T3)) / 2, 'start', 'DLSR = ' + c + ' ms', '#A05C2C') + lab(XB + 14, y(T3), 'start', 'T3 发出报告') +
+      lab(XA - 12, y(T4), 'end', 'T4 收到报告') +
+      lab((XA + XB) / 2, (y(T1) + y(T2)) / 2 - 10, 'middle', 'SR · 去程 ' + a + ' ms', '#3F6B60') +
+      lab((XA + XB) / 2, (y(T3) + y(T4)) / 2 + 18, 'middle', 'RR / 报告块 · 回程 ' + b + ' ms', '#3F6B60');
+    const BASE = 10000;
+    out.innerHTML = '按 A 的钟：T1 = ' + BASE + ' ms 发出 SR，B 把它记成 LSR；T4 = ' + (BASE + T4) + ' ms 收到报告。<span class="eq">RTT = T4 − DLSR − LSR = ' + (BASE + T4) + ' − ' + c + ' − ' + BASE + ' = ' + (a + b) + ' ms</span>正好等于去程 + 回程。B 压了多久不影响结果——它自己把这段时间报了上来；LSR 也是 A 自己的时间，所以两边的钟不用对准。';
+  }
+  function lab(x, y, anchor, text, color){
+    return '<text x="' + x + '" y="' + (y + 4) + '" text-anchor="' + anchor + '" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="' + (color || '#66705A') + '">' + esc(text) + '</text>';
+  }
+  [d1, d2, hold].forEach(el => el.addEventListener('input', draw));
+  void NS;
+  draw();
+})();
+
+/* ════════ 九 · 抖动 ════════ */
+(function(){
+  const svg = $('#jitSvg'), out = $('#jitOut'), amp = $('#jitAmp');
+  let seed = 7;
+  function rng(){ let t = seed += 0x6D2B79F5; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+  function draw(){
+    const A = +amp.value; $('#jitAmpo').textContent = A + ' ms';
+    const s0 = seed, N = 48, gap = 1000 / 30, base = 40;
+    const transit = [];
+    for (let i = 0; i < N; i++) transit.push(base + rng() * A);
+    seed = s0;
+    // libwebrtc：Q4 定点，jitter_q4 += ((|D| << 4) - jitter_q4 + 8) >> 4，D 以 90 kHz 刻度计
+    let jq4 = 0; const J = [0];
+    for (let i = 1; i < N; i++) {
+      const recvDiff = Math.round((gap + transit[i] - transit[i - 1]) * 90), tsDiff = 3000;
+      const D = recvDiff - tsDiff;
+      jq4 += ((Math.abs(D) << 4) - jq4 + 8) >> 4;
+      J.push(jq4 >> 4);
+    }
+    const W = 760, L = 54, R = 20, T = 20, Hh = 170, maxY = 130;
+    const x = i => L + i * (W - L - R) / (N - 1), y = ms => T + Hh - Math.min(ms, maxY) / maxY * Hh;
+    let h = '';
+    [0, 40, 80, 120].forEach(v => { h += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="#E6EBDA"/><text x="' + (L - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">' + v + '</text>'; });
+    h += '<text x="' + L + '" y="12" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">ms</text>';
+    transit.forEach((t, i) => { h += '<circle cx="' + x(i) + '" cy="' + y(t) + '" r="3.5" fill="#E8BE98" stroke="#A05C2C" stroke-width="1"/>'; });
+    h += '<polyline fill="none" stroke="#3F6B60" stroke-width="2.5" points="' + J.map((j, i) => x(i) + ',' + y(j / 90)).join(' ') + '"/>';
+    h += '<g font-family="ui-monospace,Menlo,monospace" font-size="11"><circle cx="' + (W - 250) + '" cy="' + (T + Hh + 30) + '" r="4" fill="#E8BE98" stroke="#A05C2C"/><text x="' + (W - 240) + '" y="' + (T + Hh + 34) + '" fill="#66705A">每个包的单程时延</text>' +
+      '<line x1="' + (W - 120) + '" x2="' + (W - 100) + '" y1="' + (T + Hh + 30) + '" y2="' + (T + Hh + 30) + '" stroke="#3F6B60" stroke-width="2.5"/><text x="' + (W - 94) + '" y="' + (T + Hh + 34) + '" fill="#66705A">抖动估计 J</text></g>';
+    svg.setAttribute('viewBox', '0 0 760 ' + (T + Hh + 44));
+    svg.innerHTML = h;
+    const last = J[J.length - 1];
+    out.innerHTML = '30 fps，每帧时间戳 +3000；单程时延在 ' + base + '～' + (base + A) + ' ms 之间随机。报告块里会填 <b>J = ' + last + '</b>（RTP 刻度），换算成 <b>' + (last / 90).toFixed(1) + ' ms</b>。<span class="eq">D = 到达间隔×90 − 3000；J += (|D| − J) / 16</span>每来一个包只修正 1/16，一两个异常包不会让它大起大落。';
+  }
+  amp.addEventListener('input', draw);
+  $('#jitReroll').addEventListener('click', () => { seed = (seed * 31 + 17) | 0; draw(); });
+  draw();
+})();
+
+/* ════════ 十 · 音画同步 ════════ */
+(function(){
+  const svg = $('#syncSvg'), out = $('#syncOut'), fr = $('#syncFrame');
+  // 两路 SR（同一块墙上时钟）：视频 NTP 0 ms ↔ RTP 1,500,000；音频 NTP 20 ms ↔ RTP 960,000
+  const V0 = 1500000, A0 = 960000, A_NTP = 20;
+  let mode = 'sr';
+  function draw(){
+    const k = +fr.value; $('#syncFrameo').textContent = '#' + k;
+    const vts = V0 + k * 3000, tMs = (vts - V0) / 90;              // 视频帧采集时刻（以视频 SR 为 0）
+    const ats = Math.round(A0 + (tMs - A_NTP) * 48);                // 同一时刻对应的音频时间戳
+    const W = 760, L = 70, R = 20, span = 700, x = ms => L + (ms + 30) / span * (W - L - R);
+    const guessShift = 230;                                         // 不用 SR 时的错位（只是示意，真实值不可知）
+    let h = '<text x="12" y="62" font-family="ui-monospace,Menlo,monospace" font-size="12" font-weight="700" fill="#A05C2C">视频</text>' +
+            '<text x="12" y="162" font-family="ui-monospace,Menlo,monospace" font-size="12" font-weight="700" fill="#3D6B4C">音频</text>';
+    for (let i = 0; i <= 20; i++) {
+      const t = i * 1000 / 30, on = i === k;
+      h += '<rect x="' + (x(t) - 9) + '" y="40" width="18" height="34" rx="3" fill="' + (on ? '#E8BE98' : '#F5E6D8') + '" stroke="' + (on ? '#A05C2C' : '#D9A982') + '" stroke-width="' + (on ? 2 : 1.2) + '"/>';
+    }
+    const shift = mode === 'sr' ? 0 : guessShift;
+    for (let j = 0; j < 36; j++) {
+      const t = A_NTP + j * 20 - 40 + shift;
+      if (x(t) < L - 6 || x(t) > W - R) continue;
+      const hit = Math.abs((A_NTP + j * 20 - 40) - tMs) < 10 && mode === 'sr';
+      h += '<rect x="' + (x(t) - 7) + '" y="146" width="14" height="26" rx="3" fill="' + (hit ? '#A9CBBF' : '#E7EFE3') + '" stroke="' + (hit ? '#3F6B60' : '#BFD3BF') + '" stroke-width="' + (hit ? 2 : 1.2) + '"/>';
+    }
+    h += '<line x1="' + x(tMs) + '" x2="' + x(tMs) + '" y1="30" y2="190" stroke="#333D2E" stroke-width="1.5" stroke-dasharray="4 4"/>';
+    h += '<text x="' + Math.min(x(tMs) + 6, W - 150) + '" y="210" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#333D2E">同一时刻 · NTP +' + tMs.toFixed(1) + ' ms</text>';
+    h += '<line x1="' + L + '" x2="' + (W - R) + '" y1="232" y2="232" stroke="#D5DCC6"/><text x="' + L + '" y="246" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">墙上时钟（NTP）→</text>';
+    svg.innerHTML = h;
+    if (mode === 'sr') {
+      out.innerHTML = '视频帧 #' + k + ' 的时间戳 ' + vts + '。用视频 SR 换算：<span class="eq">NTP = 0 + (' + vts + ' − ' + V0 + ') ÷ 90 = ' + tMs.toFixed(1) + ' ms</span>音频 SR 说「NTP 20 ms ↔ RTP ' + A0 + '」，同一时刻的音频时间戳就是<span class="eq">' + A0 + ' + (' + tMs.toFixed(1) + ' − 20) × 48 = ' + ats + '</span>播放时把这两者放在一起，嘴型就对上了。';
+    } else {
+      out.innerHTML = '视频时间戳 ' + vts + ' 和音频时间戳之间<b>没有任何换算关系</b>：起点随机、时钟频率不同。图里的音频行错开了一段，而接收端连错开多少都无从知道——这正是 SR 里那对（NTP, RTP）存在的理由。';
+    }
+  }
+  const mb = $$('#syncMode button');
+  mb.forEach(b => b.addEventListener('click', () => { mode = b.dataset.v; pressGroup(mb, b); draw(); }));
+  fr.addEventListener('input', draw);
+  draw();
+})();
+
+/* ════════ 十一 · NACK 打包器 ════════ */
+(function(){
+  const BASE = 23456, N = 33, grid = $('#nackGrid'), out = $('#nackOut');
+  const lost = new Set([23458, 23460, 23463, 23480]);
+  const cells = [];
+  for (let i = 0; i < N; i++) {
+    const s = BASE + i, b = document.createElement('button');
+    b.type = 'button'; b.className = 'nk'; b.textContent = s;
+    b.addEventListener('click', () => { lost.has(s) ? lost.delete(s) : lost.add(s); render(); });
+    grid.appendChild(b); cells.push(b);
+  }
+  function pack(ids){                                  // 照搬 rtcp::Nack::Pack()
+    const items = []; let i = 0;
+    while (i < ids.length) {
+      const it = { pid: ids[i++], blp: 0 };
+      while (i < ids.length) { const sh = ids[i] - it.pid - 1; if (sh <= 15) { it.blp |= (1 << sh); i++; } else break; }
+      items.push(it);
+    }
+    return items;
+  }
+  function render(){
+    const ids = [...lost].sort((a, b) => a - b), items = pack(ids), pids = new Set(items.map(x => x.pid));
+    cells.forEach((c, i) => { const s = BASE + i; c.setAttribute('aria-pressed', String(lost.has(s))); c.classList.toggle('pid', pids.has(s)); c.setAttribute('aria-label', '序号 ' + s + (lost.has(s) ? '，丢失' : '，已收到') + (pids.has(s) ? '，作为 PID' : '')); });
+    if (!items.length) { out.innerHTML = '<div class="fci"><div class="rtt-out">没有丢包，不用发 NACK。点格子标记几个丢包试试。</div></div>'; return; }
+    const len = 2 + items.length, total = (len + 1) * 4;
+    let h = '<div class="fci">';
+    items.forEach((it, n) => {
+      const covered = [it.pid].concat([...Array(16).keys()].filter(b => it.blp & (1 << b)).map(b => it.pid + b + 1));
+      h += '<div class="fci-row"><div class="t">条目 ' + (n + 1) + ' · PID ' + it.pid + ' · BLP 0x' + it.blp.toString(16).toUpperCase().padStart(4, '0') + ' → 报告 ' + covered.join('、') + '</div>' +
+        bitsHTML([it.blp >> 8, it.blp & 255], [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(o => ({ n: '+' + o, w: 1, c: (it.blp & (1 << (o - 1))) ? 'c2' : 'c0' }))) + '</div>';
+    });
+    h += '<div class="rtt-out">' + ids.length + ' 个丢包打成 <b>' + items.length + ' 个条目</b>。整个 NACK：公共头 <span class="m">81 CD ' + hx(len >> 8) + ' ' + hx(len & 255) + '</span>（FMT 1，PT 205，长度 ' + len + '）+ 发送者 SSRC + 媒体源 SSRC + ' + items.length + ' × 4 字节条目 = <b>' + total + ' 字节</b>。BLP 的最低位对应 PID+1，最高位对应 PID+16；离 PID 超过 16 的丢包，就另起一个条目。</div></div>';
+    out.innerHTML = h;
+  }
+  render();
+})();
+
+/* ════════ 十一 · 等重传还是要关键帧 ════════ */
+(function(){
+  const svg = $('#recSvg'), out = $('#recOut'), rtt = $('#recRtt'), nl = $('#recLost');
+  function draw(){
+    const R = +rtt.value, n = +nl.value;
+    $('#recRtto').textContent = R + ' ms'; $('#recLosto').textContent = n + ' 次';
+    const LIMIT = 3000, arrive = (n + 1) * R, ok = arrive < LIMIT;
+    const W = 760, L = 40, Rr = 30, span = Math.max(LIMIT + 300, Math.min(arrive, 6000) + 300), x = t => L + t / span * (W - L - Rr);
+    let h = '<line x1="' + L + '" x2="' + (W - Rr) + '" y1="120" y2="120" stroke="#C9D3B6" stroke-width="3"/>';
+    h += '<line x1="' + x(LIMIT) + '" x2="' + x(LIMIT) + '" y1="40" y2="150" stroke="#B34238" stroke-width="2" stroke-dasharray="5 5"/><text x="' + (x(LIMIT) - 6) + '" y="34" text-anchor="end" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#B34238">约 3 s 仍无可解码帧 → 请求关键帧</text>';
+    const sends = Math.min(n + 1, Math.floor(LIMIT / R) + 1, 100);
+    for (let i = 0; i < sends; i++) {
+      const t = i * R;
+      if (t > span) break;
+      h += '<line x1="' + x(t) + '" x2="' + x(t) + '" y1="96" y2="120" stroke="#4E8378" stroke-width="2"/><circle cx="' + x(t) + '" cy="92" r="4" fill="#4E8378"/>';
+      if (i < n) h += '<text x="' + x(t + R / 2) + '" y="112" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#B34238">×</text>';
+    }
+    h += '<text x="' + x(0) + '" y="80" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#3F6B60">NACK</text>';
+    if (ok) h += '<rect x="' + (x(arrive) - 7) + '" y="113" width="14" height="14" rx="3" fill="#A9CBBF" stroke="#287158" stroke-width="2"/><text x="' + x(arrive) + '" y="150" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#287158">重传包到了</text>';
+    else h += '<rect x="' + (x(LIMIT) - 8) + '" y="112" width="16" height="16" rx="3" fill="#F2D8D4" stroke="#B34238" stroke-width="2"/><text x="' + x(LIMIT) + '" y="172" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#B34238">发 PLI</text>';
+    h += '<text x="' + L + '" y="196" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">0 ms：发现缺口</text><text x="' + (W - Rr) + '" y="196" text-anchor="end" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">' + span + ' ms</text>';
+    svg.innerHTML = h;
+    out.innerHTML = ok
+      ? 'NACK 在 0 ms 发出，' + (n ? '前 ' + n + ' 次的重传包又丢了，每过一个 RTT 再催一次，' : '') + '第 ' + (n + 1) + ' 次请求的重传包在 <b>' + arrive + ' ms</b> 到达，帧补齐，不用关键帧。'
+      : '重传包要到 ' + arrive + ' ms 才能到，可这一帧和后面依赖它的帧都解不了，<b>约 3 s 没有可解码的帧</b>（kMaxWaitForFrame），<span class="m">VideoReceiveStream2</span> 就请求关键帧（默认 PLI）。NACK 本身还会继续催，直到包到达、超过 100 次或包太老被删掉。';
+  }
+  [rtt, nl].forEach(el => el.addEventListener('input', draw));
+  draw();
+})();
 
 renderSim();
 })();
