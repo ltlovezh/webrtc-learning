@@ -79,6 +79,16 @@ h1{
 .lede{font-size:clamp(1rem,1.6vw,1.14rem);color:var(--ink-2);max-width:60ch;margin:0}
 .lede b{color:var(--ink);font-weight:700}
 
+/* ── 五分钟全貌 ── */
+.overview{padding-top:clamp(22px,3vw,34px)}
+.ov-hd{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px;margin-bottom:12px}
+.ov-hd h2{margin:0;font-family:var(--serif);font-weight:700;font-size:clamp(1.25rem,2.6vw,1.6rem)}
+.ov-hd p{margin:0;color:var(--ink-2);font-size:.92rem}
+.ov-hd a{font-family:var(--mono);font-size:.74rem;color:var(--wire-ink);text-decoration:none;border-bottom:1.5px solid var(--rule)}
+.ov-hd a:hover{border-color:var(--wire)}
+.ov-frame{display:block;width:100%;height:760px;border:0;background:transparent}
+@media (max-width:820px){ .ov-frame{height:1180px} }
+
 /* ── 地图 ── */
 .atlas{padding-block:clamp(28px,4vw,44px) clamp(40px,6vw,64px)}
 .map-frame{
@@ -228,6 +238,17 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
     <p class="lede">一次通话<b>横着走</b>：信令在上面那条虚线里，媒体在下面那根管道里；一台机器<b>竖着拆</b>：从你的代码到系统底层，一共五层。每一块都会长出一个专题——亮点的已经写好，虚圈的还在路上。</p>
   </div>
 </header>
+
+<!-- ══════════════ 五分钟全貌 ══════════════ -->
+<section class="overview" aria-labelledby="ov-title">
+  <div class="wrap">
+    <div class="ov-hd">
+      <div><h2 id="ov-title">先看五分钟全貌</h2><p>跟着一帧画面走完一场四人会议，再挑感兴趣的模块深入。有旁白和字幕。</p></div>
+      <a href="webrtc-overview.html">单独打开 →</a>
+    </div>
+    <iframe class="ov-frame" id="ovFrame" src="webrtc-overview.html?embed=1" title="五分钟全貌：一场多人视频会议" loading="lazy" allow="autoplay"></iframe>
+  </div>
+</section>
 
 <!-- ══════════════ 全景图 ══════════════ -->
 <section class="atlas">
@@ -612,6 +633,13 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
    regions ：地图块的 data-region（可多个，可省略）
    href    ：null = 发芽中
    ═══════════════════════════════════════════════ */
+/* ── 全貌播放器：按内容高度调整 iframe ── */
+window.addEventListener('message', function(e){
+  if (!e.data || e.data.type !== 'overview-height') return;
+  var f = document.getElementById('ovFrame');
+  if (f && e.source === f.contentWindow) f.style.height = Math.ceil(e.data.h) + 'px';
+});
+
 const TOPICS = [
   { id:'first', area:'起步与采集', title:'先跑通一次通话',
     desc:'gn/ninja 构建 examples/peerconnection，亲手把一封 offer 送到对面——再带着问题回来看每一层。',

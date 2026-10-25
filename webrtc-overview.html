@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>五分钟全貌 · 一场多人视频会议</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+<meta name="theme-color" content="#4A7856">
+<style>
+/* tokens — 数字花园 · 与全站同一套（见 AGENTS.md） */
+:root{
+  --paper:#F9FAF4; --paper-2:#FEFEFB; --paper-3:#F0F2E4; --paper-4:#DDE4D2;
+  --ink:#333D2E; --ink-2:#66705A; --ink-3:#8B957D;
+  --rule:#D5DCC6; --rule-2:#E6EBDA;
+  --a:#C97B4A; --a-ink:#A05C2C; --a-soft:#F5E6D8;
+  --b:#4A7856; --b-ink:#3D6B4C; --b-soft:#E7EFE3;
+  --wire:#4E8378; --wire-ink:#3F6B60; --wire-soft:#E4EEE9;
+  --ok:#287158; --ok-soft:#DCEBE3; --err:#B34238; --err-soft:#F2D8D4; --warn:#9C7C25; --warn-soft:#F1EAC9;
+  --sh-s:0 2px 10px rgba(74,120,86,.12);
+  --sh-m:0 6px 18px rgba(74,120,86,.14);
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Helvetica Neue",sans-serif;
+  --serif:"Songti SC","STSong","Noto Serif SC",Georgia,serif;
+  --mono:ui-monospace,"SF Mono",Menlo,"JetBrains Mono",Consolas,monospace;
+  --pad:clamp(16px,5vw,56px);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+body.embedded{background:transparent}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--wire);outline-offset:3px;border-radius:4px}
+.wrap{width:min(1080px,100% - var(--pad)*2);margin-inline:auto}
+body.embedded .wrap{width:100%}
+.m{font-family:var(--mono);font-size:.85em;background:var(--paper-3);padding:1px 6px;border-radius:5px}
+
+.top{display:flex;justify-content:space-between;align-items:center;padding:18px 0 0}
+.top a{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;color:var(--ink-2);text-decoration:none;border-bottom:1.5px solid var(--rule)}
+.top .no{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;color:var(--ink-3)}
+.head{padding:28px 0 18px}
+.head h1{font-family:var(--serif);font-weight:700;font-size:clamp(1.8rem,4.6vw,2.8rem);line-height:1.2;margin:0 0 10px}
+.head h1 .k{display:block;font-family:var(--mono);font-weight:400;font-size:.7rem;letter-spacing:.2em;color:var(--ink-3);margin-bottom:10px}
+.head p{margin:0;color:var(--ink-2);max-width:62ch}
+body.embedded .top,body.embedded .head,body.embedded footer{display:none}
+
+/* ── 播放器 ── */
+.player{background:var(--paper-2);border:1.5px solid var(--rule);border-radius:12px;box-shadow:var(--sh-m);overflow:hidden}
+.stage{position:relative;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);min-height:400px}
+.map{position:relative;background:radial-gradient(ellipse at 55% 55%,var(--b-soft),transparent 70%),var(--paper-2);border-right:1.5px dashed var(--rule)}
+.map svg{display:block;width:100%;height:auto;aspect-ratio:600/480}
+.card{padding:18px 20px;display:flex;flex-direction:column;gap:10px;min-width:0;transition:opacity .35s}
+.card.fade{opacity:0}
+.card .ck{font:700 .66rem/1.4 var(--mono);letter-spacing:.12em;color:var(--wire-ink)}
+.card h3{margin:0;font:700 1.12rem/1.4 var(--serif)}
+.card p{margin:0;font-size:.86rem;color:var(--ink-2)}
+.card .box{border:1.5px solid var(--rule);border-radius:9px;background:var(--paper);padding:10px 12px;font-size:.8rem}
+.card .code{font:500 .74rem/1.75 var(--mono);color:var(--ink);white-space:pre-wrap;word-break:break-all}
+.card .code .c{color:var(--ink-3)}
+.card .code .h{background:var(--a-soft);border-radius:3px;padding:0 3px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 .72rem/1.3 var(--mono);padding:5px 9px;border-radius:7px;background:var(--paper-3);border:1.5px solid var(--rule)}
+.chip.a{background:var(--a-soft);border-color:#E6C3A6;color:var(--a-ink)}
+.chip.b{background:var(--b-soft);border-color:#BFD3BF;color:var(--b-ink)}
+.chip.w{background:var(--wire-soft);border-color:#B9D2C9;color:var(--wire-ink)}
+.chip.ok{background:var(--ok-soft);border-color:#9CC9B3;color:var(--ok)}
+.chip.err{background:var(--err-soft);border-color:#E3B5AE;color:var(--err)}
+.chip.dim{opacity:.45}
+.rows{display:flex;flex-direction:column;gap:6px}
+.row{display:flex;gap:10px;align-items:center;font-size:.82rem;color:var(--ink-2)}
+.row > .chip{flex:none;white-space:nowrap}
+.row > span:last-child{flex:1;min-width:0}
+.row b{color:var(--ink)}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:600 .74rem/1.3 var(--mono)}
+.flow .s{padding:6px 9px;border-radius:7px;background:var(--paper-3);border:1.5px solid var(--rule)}
+.flow .ar{color:var(--ink-3)}
+.bar{display:flex;gap:3px;height:30px}
+.bar span{display:flex;align-items:center;justify-content:center;border-radius:4px;font:600 .64rem/1 var(--mono);color:var(--ink);overflow:hidden;white-space:nowrap}
+.mini-svg{display:block;width:100%;height:auto}
+
+.play-big{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(249,250,244,.55);z-index:3}
+.play-big button{display:flex;align-items:center;gap:12px;padding:14px 26px;white-space:nowrap;border-radius:99px;background:var(--wire);color:var(--paper-2);font:700 1rem/1 var(--sans);box-shadow:var(--sh-m)}
+.play-big button:hover{background:var(--wire-ink)}
+.play-big.off{display:none}
+
+.subs{min-height:4.4em;padding:12px 20px;border-top:1.5px dashed var(--rule);background:var(--paper);font-size:1.02rem;line-height:1.65;color:var(--ink);display:flex;align-items:center}
+.subs.hidden-cc{visibility:hidden}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 16px;border-top:1.5px solid var(--rule-2)}
+.ib{display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:34px;padding:0 10px;border-radius:99px;border:1.5px solid var(--rule);background:var(--paper-2);font:600 .76rem/1 var(--mono);color:var(--ink-2)}
+.ib:hover{border-color:var(--wire);color:var(--ink)}
+.ib.pri{background:var(--wire);border-color:var(--wire);color:var(--paper-2)}
+.ib[aria-pressed="true"]{border-color:var(--wire);color:var(--wire-ink);background:var(--wire-soft)}
+.time{font:600 .74rem/1 var(--mono);color:var(--ink-2);min-width:96px}
+.prog{flex:1 1 220px;position:relative;height:24px;cursor:pointer;display:flex;align-items:center}
+.prog .track{position:absolute;left:0;right:0;height:6px;border-radius:99px;background:var(--rule-2);overflow:hidden}
+.prog .fill{position:absolute;left:0;top:0;bottom:0;background:var(--wire);border-radius:99px}
+.prog .tick{position:absolute;top:4px;width:2px;height:16px;background:var(--paper-2);border-left:1.5px solid var(--ink-3);transform:translateX(-1px)}
+.chs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;padding:10px 16px 14px;border-top:1.5px solid var(--rule-2)}
+.chb{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px 10px;border-radius:9px;border:1.5px solid var(--rule);background:var(--paper);text-align:left;min-width:0}
+.chb .n{font:700 .64rem/1.3 var(--mono);color:var(--ink-3);letter-spacing:.06em}
+.chb .t{font-size:.78rem;font-weight:700;line-height:1.35;color:var(--ink)}
+.chb[aria-current="true"]{border-color:var(--wire);background:var(--wire-soft)}
+.chb[aria-current="true"] .n{color:var(--wire-ink)}
+.more{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:0 16px 14px;font-size:.84rem;color:var(--ink-2)}
+.more a{font-family:var(--mono);font-size:.78rem;color:var(--wire-ink);text-decoration:none;border-bottom:1.5px solid var(--rule)}
+.more a:hover{border-color:var(--wire)}
+.transcript{margin-top:16px;background:var(--paper-2);border:1.5px solid var(--rule);border-radius:10px;padding:4px 18px}
+.transcript summary{cursor:pointer;padding:10px 0;font-weight:700;font-size:.92rem}
+.transcript h4{margin:12px 0 4px;font:700 .95rem/1.4 var(--serif)}
+.transcript p{margin:0 0 6px;font-size:.88rem;color:var(--ink-2)}
+footer{margin-top:28px;border-top:1.5px solid var(--rule)}
+footer p{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:var(--ink-3);padding:18px 0 34px;margin:0}
+
+/* 地图元素 */
+#map .el{transition:opacity .45s}
+#map .el.off{opacity:0}
+#map .el.dim{opacity:.32}
+#map .ln{fill:none;stroke:#C9D3B6;stroke-width:3;stroke-dasharray:6 7;stroke-linecap:round;transition:stroke .4s,stroke-width .4s,opacity .45s}
+#map .ln.live{stroke-dasharray:none;stroke:#B9CDBF;stroke-width:5}
+#map .ln.ok{stroke-dasharray:none;stroke:#7FB59C;stroke-width:6}
+#map .ln.sig{stroke:#8FB5A9;stroke-width:2.5;stroke-dasharray:6 6}
+#map .hl > .halo{opacity:0;transition:opacity .4s}
+#map .hl.hi > .halo{opacity:1}
+
+@media (max-width:820px){
+  .stage{grid-template-columns:1fr}
+  .map{border-right:none;border-bottom:1.5px dashed var(--rule)}
+  .chs{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:520px){
+  .play-big button{padding:12px 20px;font-size:.92rem}
+  .subs{font-size:.94rem;padding:10px 14px}
+  .card{padding:14px}
+  .ctl{padding:10px 12px}
+  .chs{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px 12px 12px}
+}
+@media (prefers-reduced-motion:reduce){
+  .card,#map .el,#map .ln{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap top">
+  <a href="index.html">← 返回学习地图</a>
+  <span class="no">OVERVIEW / 00</span>
+</div>
+<header class="wrap head">
+  <h1><span class="k">WEBRTC IN FIVE MINUTES</span>五分钟全貌：一场多人视频会议</h1>
+  <p>跟着甲的一帧画面，从摄像头一路走到另外三个人的屏幕上：信令、SDP、ICE、DTLS、RTP、SFU、RTCP 依次登场。每章下面都有链接，通往讲这个模块细节的专题。</p>
+</header>
+
+<main class="wrap">
+  <div class="player" id="player">
+    <div class="stage">
+      <div class="map">
+        <svg id="map" viewBox="0 0 600 480" role="img" aria-label="会议地图：甲在左侧，经过 NAT 连到中间的 SFU；乙、丙、丁在右侧；上方是信令服务器，左下是 STUN 与 TURN">
+          <defs>
+            <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7"/></filter>
+          </defs>
+          <!-- 连线 -->
+          <path id="p-sigA" class="ln sig el off" d="M70 214 Q86 64 262 50"/>
+          <path id="p-sigS" class="ln sig el off" d="M320 70 Q346 128 332 192"/>
+          <path id="p-stun" class="ln el off" d="M76 282 Q66 376 112 402"/>
+          <path id="p-turn" class="ln el off" d="M98 284 Q152 396 222 418"/>
+          <path id="p-A" class="ln el off" d="M122 248 L288 248"/>
+          <path id="p-back" class="ln el off" style="stroke-width:2;stroke-dasharray:3 6" d="M288 266 L122 266"/>
+          <path id="p-B" class="ln el off" d="M372 214 Q430 112 482 100"/>
+          <path id="p-C" class="ln el off" d="M372 248 L490 248"/>
+          <path id="p-D" class="ln el off" d="M372 282 Q430 386 482 398"/>
+          <path id="p-Bback" class="ln el off" style="stroke-width:2;stroke-dasharray:3 6" d="M486 118 Q440 142 376 230"/>
+
+          <!-- 信令服务器 -->
+          <g id="m-sig" class="el off hl">
+            <rect class="halo" x="252" y="20" width="96" height="62" rx="14" fill="#B9D2C9" filter="url(#soft)"/>
+            <rect x="268" y="30" width="64" height="40" rx="8" fill="#FEFEFB" stroke="#333D2E" stroke-width="2.2"/>
+            <path d="M276 38 L300 54 L324 38" fill="none" stroke="#3F6B60" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="342" y="47" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#3F6B60">信令服务器</text>
+            <text x="342" y="63" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">业务自己实现</text>
+          </g>
+
+          <!-- STUN / TURN -->
+          <g id="m-stun" class="el off hl">
+            <rect class="halo" x="86" y="392" width="88" height="56" rx="20" fill="#B9D2C9" filter="url(#soft)"/>
+            <ellipse cx="118" cy="420" rx="28" ry="16" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+            <ellipse cx="140" cy="414" rx="22" ry="14" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+            <ellipse cx="130" cy="424" rx="34" ry="12" fill="#FEFEFB" stroke="#FEFEFB" stroke-width="4"/>
+            <text x="130" y="428" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#3F6B60">STUN</text>
+          </g>
+          <g id="m-turn" class="el off hl">
+            <rect class="halo" x="214" y="404" width="76" height="52" rx="14" fill="#B9D2C9" filter="url(#soft)"/>
+            <rect x="226" y="412" width="52" height="32" rx="6" fill="#FEFEFB" stroke="#333D2E" stroke-width="2"/>
+            <text x="252" y="432" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#3F6B60">TURN</text>
+            <text x="252" y="462" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">中继兜底</text>
+          </g>
+
+          <!-- NAT -->
+          <g id="m-nat" class="el off hl">
+            <rect class="halo" x="146" y="220" width="58" height="58" rx="12" fill="#E6C3A6" filter="url(#soft)"/>
+            <rect x="160" y="230" width="30" height="38" rx="5" fill="#DDE4D2" stroke="#333D2E" stroke-width="1.8"/>
+            <text x="175" y="253" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#333D2E">NAT</text>
+          </g>
+
+          <!-- SFU -->
+          <g id="m-sfu" class="el off hl">
+            <rect class="halo" x="276" y="182" width="108" height="140" rx="20" fill="#B9D2C9" filter="url(#soft)"/>
+            <rect x="290" y="194" width="80" height="108" rx="10" fill="#FEFEFB" stroke="#333D2E" stroke-width="2.4"/>
+            <g stroke="#333D2E" stroke-width="2" stroke-linecap="round"><path d="M302 214 H358"/><path d="M302 234 H358"/><path d="M302 254 H358"/></g>
+            <circle cx="350" cy="282" r="4" fill="#4E8378"/>
+            <text x="314" y="287" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="700" fill="#333D2E">SFU</text>
+            <text x="330" y="320" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D">媒体服务器</text>
+          </g>
+
+          <!-- 四个人 -->
+          <g id="m-A" class="el hl" data-x="76" data-y="248">
+            <rect class="halo" x="34" y="208" width="84" height="92" rx="16" fill="#E6C3A6" filter="url(#soft)"/>
+            <rect x="46" y="222" width="60" height="42" rx="7" fill="#F5E6D8" stroke="#333D2E" stroke-width="2.2"/>
+            <circle cx="66" cy="238" r="3.4" fill="#333D2E"/><circle cx="86" cy="238" r="3.4" fill="#333D2E"/>
+            <path d="M68 250 Q76 256 84 250" fill="none" stroke="#333D2E" stroke-width="2" stroke-linecap="round"/>
+            <path d="M40 270 H112 L106 276 H46 Z" fill="#FEFEFB" stroke="#333D2E" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="76" cy="217" r="3" fill="#C97B4A"/>
+            <text x="76" y="296" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="12" font-weight="700" fill="#A05C2C">甲 · 发送</text>
+          </g>
+          <g id="m-B" class="el hl">
+            <rect class="halo" x="470" y="58" width="84" height="88" rx="16" fill="#BFD3BF" filter="url(#soft)"/>
+            <rect x="482" y="70" width="60" height="42" rx="7" fill="#E7EFE3" stroke="#333D2E" stroke-width="2.2"/>
+            <circle cx="502" cy="86" r="3.4" fill="#333D2E"/><circle cx="522" cy="86" r="3.4" fill="#333D2E"/>
+            <path d="M504 98 Q512 104 520 98" fill="none" stroke="#333D2E" stroke-width="2" stroke-linecap="round"/>
+            <path d="M476 118 H548 L542 124 H482 Z" fill="#FEFEFB" stroke="#333D2E" stroke-width="2" stroke-linejoin="round"/>
+            <text x="512" y="142" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="12" font-weight="700" fill="#3D6B4C">乙</text>
+          </g>
+          <g id="m-C" class="el hl">
+            <rect class="halo" x="482" y="208" width="84" height="88" rx="16" fill="#BFD3BF" filter="url(#soft)"/>
+            <rect x="494" y="222" width="60" height="42" rx="7" fill="#E7EFE3" stroke="#333D2E" stroke-width="2.2"/>
+            <circle cx="514" cy="238" r="3.4" fill="#333D2E"/><circle cx="534" cy="238" r="3.4" fill="#333D2E"/>
+            <path d="M516 250 Q524 256 532 250" fill="none" stroke="#333D2E" stroke-width="2" stroke-linecap="round"/>
+            <path d="M488 270 H560 L554 276 H494 Z" fill="#FEFEFB" stroke="#333D2E" stroke-width="2" stroke-linejoin="round"/>
+            <text x="524" y="294" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="12" font-weight="700" fill="#3D6B4C">丙</text>
+          </g>
+          <g id="m-D" class="el hl">
+            <rect class="halo" x="470" y="358" width="84" height="88" rx="16" fill="#BFD3BF" filter="url(#soft)"/>
+            <rect x="482" y="370" width="60" height="42" rx="7" fill="#E7EFE3" stroke="#333D2E" stroke-width="2.2"/>
+            <circle cx="502" cy="386" r="3.4" fill="#333D2E"/><circle cx="522" cy="386" r="3.4" fill="#333D2E"/>
+            <path d="M504 398 Q512 404 520 398" fill="none" stroke="#333D2E" stroke-width="2" stroke-linecap="round"/>
+            <path d="M476 418 H548 L542 424 H482 Z" fill="#FEFEFB" stroke="#333D2E" stroke-width="2" stroke-linejoin="round"/>
+            <text x="512" y="442" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="12" font-weight="700" fill="#3D6B4C">丁</text>
+          </g>
+
+          <!-- 锁与丢包标记 -->
+          <g id="m-lock" class="el off">
+            <rect x="196" y="226" width="20" height="16" rx="3" fill="#F1EAC9" stroke="#9C7C25" stroke-width="1.8"/>
+            <path d="M200 226 V221 Q206 213 212 221 V226" fill="none" stroke="#9C7C25" stroke-width="1.8"/>
+          </g>
+          <g id="m-x" class="el off">
+            <circle cx="430" cy="138" r="13" fill="#F2D8D4" stroke="#B34238" stroke-width="2"/>
+            <path d="M424 132 L436 144 M436 132 L424 144" stroke="#B34238" stroke-width="2.4" stroke-linecap="round"/>
+          </g>
+          <g id="flows"></g>
+        </svg>
+        <div class="play-big" id="playBig"><button type="button" id="playBigBtn" aria-label="播放五分钟全貌">▶ 播放 · <span id="totalLen">约 5 分钟</span></button></div>
+      </div>
+      <div class="card" id="card" aria-live="off"></div>
+    </div>
+    <div class="subs" id="subs"></div>
+    <div class="ctl">
+      <button class="ib pri" id="btnPlay" type="button" aria-label="播放">▶</button>
+      <button class="ib" id="btnPrev" type="button" aria-label="上一章">⏮</button>
+      <button class="ib" id="btnNext" type="button" aria-label="下一章">⏭</button>
+      <span class="time" id="time">0:00 / 0:00</span>
+      <div class="prog" id="prog" role="slider" tabindex="0" aria-label="播放进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="track"><div class="fill" id="progFill"></div></div></div>
+      <button class="ib" id="btnCC" type="button" aria-pressed="true" aria-label="字幕">字幕</button>
+      <button class="ib" id="btnRate" type="button" aria-label="播放速度">1×</button>
+    </div>
+    <div class="chs" id="chs" role="group" aria-label="章节"></div>
+    <div class="more" id="more"></div>
+    <audio id="audio" preload="metadata"></audio>
+  </div>
+
+  <details class="transcript" id="transcript"><summary>文字稿</summary><div id="trBody"></div></details>
+</main>
+
+<footer><div class="wrap"><p>WebRTC 学习笔记 · 五分钟全貌 · 旁白由 MiniMax TTS 合成 · 实现细节对照 webrtc.googlesource.com main 分支源码（基于本地 checkout src@6af87f3957）</p></div></footer>
+
+<script>
+(function(){
+'use strict';
+/*TIMELINE-START*/const TIMELINE = [{"id": "ch1", "title": "进房间：信令与 SDP", "more": [["SDP 协商", "webrtc-sdp-exchange.html"]], "src": "overview/ch1.mp3", "dur": 54.302, "cues": [{"t0": 0.25, "t1": 11.384, "scene": "intro", "sub": "甲、乙、丙、丁四个人开一场视频会议。接下来五分钟，我们跟着甲的一帧画面，从摄像头一路走到另外三个人的屏幕上。"}, {"t0": 11.764, "t1": 21.273, "scene": "sfu", "sub": "多人会议里，大家通常不是两两直连，而是都连到同一台媒体服务器上，它叫 SFU，选择性转发单元。"}, {"t0": 21.653, "t1": 33.46, "scene": "join", "sub": "第一件事是进房间：甲通过信令服务器告诉对方「我要加入」。信令通道 WebRTC 不提供，由业务自己实现，常见的是 WebSocket。"}, {"t0": 33.84, "t1": 47.911, "scene": "sdp", "sub": "接着双方交换 SDP：一份 offer，一份 answer。SDP 不是媒体，而是一份能力说明书：用什么编码、往哪个方向发，还有 ICE 的账号和 DTLS 证书的指纹。"}, {"t0": 48.291, "t1": 53.922, "scene": "nomedia", "sub": "谈妥这些，媒体还一个字节都没发。下一步，得先把路打通。"}]}, {"id": "ch2", "title": "连上 SFU：ICE 与 DTLS", "more": [["ICE 与 NAT 穿透", "nat-types-visualizer.html"]], "src": "overview/ch2.mp3", "dur": 53.489, "cues": [{"t0": 0.25, "t1": 6.856, "scene": "nat", "sub": "甲多半躲在家里路由器的 NAT 后面，而 SFU 一般有公网地址。"}, {"t0": 7.236, "t1": 20.971, "scene": "cands", "sub": "ICE 先收集几种候选地址：本机地址 host，STUN 服务器告诉你的公网映射 srflx，以及 TURN 服务器分配的中继地址 relay。"}, {"t0": 21.351, "t1": 32.102, "scene": "checks", "sub": "候选地址边收集边通过信令发给对方，不用等全部收齐。双方把候选两两配对，发 STUN 检查，看哪条路走得通。"}, {"t0": 32.482, "t1": 41.561, "scene": "selected", "sub": "连 SFU 时，往往直接就能打通；只有在封掉 UDP 的公司网络里，才需要 TURN 走 TLS 兜底。"}, {"t0": 41.941, "t1": 53.109, "scene": "dtls", "sub": "路选好以后，双方在这条路上做 DTLS 握手，核对 SDP 里的指纹，再导出 SRTP 的密钥。加密的管道到这里才算建好。"}]}, {"id": "ch3", "title": "发出去：编码、simulcast、RTP 打包", "more": [["RTP 封装", "webrtc-rtp.html#s2"], ["封装模拟器", "webrtc-rtp.html#s4"]], "src": "overview/ch3.mp3", "dur": 59.213, "cues": [{"t0": 0.25, "t1": 9.968, "scene": "capture", "sub": "现在看甲的这一帧画面。摄像头采到原始图像，交给视频编码器，压成 H.264 或 VP8 这样的码流。"}, {"t0": 10.348, "t1": 19.856, "scene": "simulcast", "sub": "另外三个人的网速各不相同，所以甲通常会开 simulcast：同一个画面同时编出几档清晰度，一起发给 SFU。"}, {"t0": 20.236, "t1": 33.46, "scene": "packetize", "sub": "一帧关键帧可能有好几千字节，而 libwebrtc 默认一个 RTP 包不超过 1200 字节。所以这一帧被切成几片，每片装进一个 RTP 包。"}, {"t0": 33.84, "t1": 49.026, "scene": "header", "sub": "每个包都带着序号、时间戳和 SSRC：序号用来发现丢包，时间戳说明这一帧该什么时候播，SSRC 说明它属于哪一路流。这一帧的最后一个包，还会打上 Marker 标记。"}, {"t0": 49.406, "t1": 58.833, "scene": "srtp", "sub": "发出去之前，载荷用 SRTP 加密。注意加密是逐跳的：SFU 自己就是这条加密连接的另一端。"}]}, {"id": "ch4", "title": "SFU：只转发，不解码", "more": [["规模化拓扑", "webrtc-topology.html"]], "src": "overview/ch4.mp3", "dur": 44.307, "cues": [{"t0": 0.25, "t1": 7.413, "scene": "sfuin", "sub": "SFU 收到甲的几档流。它不解码画面，只做一件事：决定给谁转发哪一档。"}, {"t0": 7.793, "t1": 16.363, "scene": "fanout", "sub": "乙的网络很好，拿到高清；丙在弱网里，拿到低清；丁把甲的窗口缩成了小图，也只需要低清。"}, {"t0": 16.743, "t1": 23.047, "scene": "pause", "sub": "某一档如果没人要，可以通知甲把它停掉，省下编码的计算和上行带宽。"}, {"t0": 23.427, "t1": 33.83, "scene": "uplink", "sub": "不管房间里有几个人，甲都只上传自己这一份，分发的代价落在 SFU 的带宽上。这就是多人会议默认用 SFU 的原因。"}, {"t0": 34.21, "t1": 43.927, "scene": "rewrite", "sub": "转发时，SFU 还会改写序号和时间戳，让每个接收者看到的都是一条连续的流，哪怕中途换了清晰度。"}]}, {"id": "ch5", "title": "收下来：拼帧、解码、音画同步", "more": [["解封装演示", "webrtc-rtp.html#s5"], ["音画同步", "webrtc-rtp.html#s10"]], "src": "overview/ch5.mp3", "dur": 44.364, "cues": [{"t0": 0.25, "t1": 4.081, "scene": "arrive", "sub": "在乙这边，包陆续到达，顺序可能是乱的。"}, {"t0": 4.461, "t1": 14.399, "scene": "parse", "sub": "以 H.264 为例，libwebrtc 每收到一个包就先解析：去掉分片头，还原出原来的 NAL 头，再补上起始码。"}, {"t0": 14.779, "t1": 23.394, "scene": "assemble", "sub": "然后按序号排队。从带 Marker 的那个包往回找，序号连续、时间戳相同的包，拼起来就是完整的一帧。"}, {"t0": 23.774, "t1": 28.592, "scene": "decode", "sub": "拼好的帧交给解码器，还原成图像，画到乙的屏幕上。"}, {"t0": 28.972, "t1": 43.984, "scene": "avsync", "sub": "声音是另一路流，时钟和起点都不一样。接收端靠 RTCP 发送报告里记下的两个时间——墙上时钟和 RTP 时间戳——把两路换算到同一块表上，让嘴型对上声音。"}]}, {"id": "ch6", "title": "出了问题：RTCP 反馈", "more": [["RTCP 反馈", "webrtc-rtp.html#s11"], ["SR 与 RR", "webrtc-rtp.html#s9"]], "src": "overview/ch6.mp3", "dur": 65.723, "cues": [{"t0": 0.25, "t1": 6.264, "scene": "loss", "sub": "网络总会出问题。这时候，RTCP 就是双方之间的调度电话。"}, {"t0": 6.644, "t1": 17.047, "scene": "nack", "sub": "乙发现序号断了，就立刻发 NACK，请求重发那个包。libwebrtc 默认会协商 RTX，重传包走单独的 RTX 流。"}, {"t0": 17.427, "t1": 31.591, "scene": "pli", "sub": "如果迟迟拼不出能解码的帧，接收端就发 PLI：画面坏了，给我一个关键帧。libwebrtc 平时等三秒，正在等关键帧时只等两百毫秒。"}, {"t0": 31.971, "t1": 43.267, "scene": "tcc", "sub": "接收端还会不断回报每个包是什么时候到的，也就是 transport-cc。发送端据此估算带宽，网络变差就降低码率。"}, {"t0": 43.647, "t1": 50.381, "scene": "rr", "sub": "定期的接收报告里，还有丢包率、抖动，以及计算往返时延用的两个时间。"}, {"t0": 50.761, "t1": 65.343, "scene": "summary", "sub": "回顾一下：信令和 SDP 谈规则，ICE 找路，DTLS 建立加密，RTP 运货，SFU 分发，RTCP 打电话。点开每章下面的链接，去看每个模块的细节吧。"}]}];/*TIMELINE-END*/
+
+const $ = s => document.querySelector(s);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const embedded = new URLSearchParams(location.search).has('embed') || window.self !== window.top;
+if (embedded) document.body.classList.add('embedded');
+
+/* ── 颜色 ── */
+const C = { hi: '#A05C2C', mid: '#C97B4A', lo: '#E8BE98', sig: '#4E8378', stun: '#4E8378', fb: '#3F6B60', rtx: '#287158', ok: '#287158' };
+
+/* ── 场景：地图状态 + 右侧卡片 ── */
+const PEOPLE = ['m-A', 'm-B', 'm-C', 'm-D'];
+const LINES4 = ['p-A', 'p-B', 'p-C', 'p-D'];
+const S = {};
+function scene(id, map, card){ S[id] = { map, card }; }
+
+scene('intro', { show: PEOPLE, hi: ['m-A'] }, () => `
+  <span class="ck">一场四人会议</span><h3>我们跟着甲的一帧画面走</h3>
+  <div class="rows">
+    <div class="row"><span class="chip a">甲</span><span><b>发送方</b>：摄像头拍下一帧画面</span></div>
+    <div class="row"><span class="chip b">乙丙丁</span><span><b>接收方</b>：网速、窗口大小各不相同</span></div>
+  </div>
+  <p>六章，大约五分钟：进房间 → 打通路 → 发出去 → SFU 转发 → 收下来 → 出了问题怎么办。</p>`);
+
+scene('sfu', { show: PEOPLE.concat(['m-sfu'], LINES4), hi: ['m-sfu'] }, () => `
+  <span class="ck">拓扑</span><h3>大家都连到 SFU</h3>
+  <div class="box"><svg class="mini-svg" viewBox="0 0 300 110" aria-hidden="true">
+    <g font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#66705A">
+      <text x="62" y="104" text-anchor="middle">两两直连（mesh）</text><text x="228" y="104" text-anchor="middle">SFU</text></g>
+    <g stroke="#C9D3B6" stroke-width="2"><path d="M30 20 L94 20 L94 80 L30 80 Z M30 20 L94 80 M94 20 L30 80"/></g>
+    <g fill="#F5E6D8" stroke="#333D2E" stroke-width="1.6"><circle cx="30" cy="20" r="9"/></g>
+    <g fill="#E7EFE3" stroke="#333D2E" stroke-width="1.6"><circle cx="94" cy="20" r="9"/><circle cx="94" cy="80" r="9"/><circle cx="30" cy="80" r="9"/></g>
+    <g stroke="#B9CDBF" stroke-width="3"><path d="M228 50 L190 18 M228 50 L266 18 M228 50 L266 82 M228 50 L190 82"/></g>
+    <rect x="214" y="38" width="28" height="24" rx="5" fill="#FEFEFB" stroke="#333D2E" stroke-width="1.8"/>
+    <g fill="#F5E6D8" stroke="#333D2E" stroke-width="1.6"><circle cx="190" cy="18" r="9"/></g>
+    <g fill="#E7EFE3" stroke="#333D2E" stroke-width="1.6"><circle cx="266" cy="18" r="9"/><circle cx="266" cy="82" r="9"/><circle cx="190" cy="82" r="9"/></g>
+  </svg></div>
+  <p>两两直连时，甲要给另外三个人各传一份；连 SFU，甲只传一份，由服务器分发。</p>`);
+
+scene('join', { show: PEOPLE.concat(['m-sfu', 'm-sig', 'p-sigA', 'p-sigS'], LINES4), hi: ['m-sig'],
+  flows: [{ p: 'p-sigA', c: C.sig, n: 1, s: .45, shape: 'env' }, { p: 'p-sigS', c: C.sig, n: 1, s: .45, shape: 'env', delay: .5 }] }, () => `
+  <span class="ck">第一步 · 信令</span><h3>「我要加入这个房间」</h3>
+  <div class="box code"><span class="c">// 消息格式由业务自己定，下面只是示意</span>
+{ "type": "join", "room": "weekly-sync" }</div>
+  <p>WebRTC 只规定了要交换什么（SDP、候选地址），<b>没规定怎么送</b>。WebSocket、HTTP 都可以。</p>`);
+
+scene('sdp', { show: PEOPLE.concat(['m-sfu', 'm-sig', 'p-sigA', 'p-sigS'], LINES4), hi: ['m-A', 'm-sfu'],
+  flows: [{ p: 'p-sigA', c: C.mid, n: 1, s: .4, shape: 'env' }, { p: 'p-sigS', c: C.mid, n: 1, s: .4, shape: 'env', delay: .5 }, { p: 'p-sigS', c: C.sig, n: 1, s: .4, shape: 'env', r: true, delay: .25 }, { p: 'p-sigA', c: C.sig, n: 1, s: .4, shape: 'env', r: true, delay: .75 }] }, () => `
+  <span class="ck">第二步 · SDP</span><h3>一份能力说明书，不是媒体</h3>
+  <div class="box code">m=video 9 UDP/TLS/RTP/SAVPF 96 97
+a=rtpmap:96 VP8/90000            <span class="c">← 用什么编码</span>
+a=sendrecv                       <span class="c">← 往哪个方向</span>
+a=ice-ufrag:4ZcD                 <span class="c">← ICE 账号</span>
+a=fingerprint:sha-256 4A:AD:…    <span class="c">← DTLS 指纹</span></div>
+  <p>甲发 <b>offer</b>，对方回 <b>answer</b>。细节见「SDP 协商」专题。</p>`);
+
+scene('nomedia', { show: PEOPLE.concat(['m-sfu', 'm-sig', 'p-sigA', 'p-sigS'], LINES4), hi: ['m-A', 'm-sfu'] }, () => `
+  <span class="ck">现在的进度</span><h3>规则谈好了，路还没通</h3>
+  <div class="rows">
+    <div class="row"><span class="chip ok">✓</span><span>编码、方向、加密参数：<b>已商定</b></span></div>
+    <div class="row"><span class="chip err">✗</span><span>甲到 SFU 的网络路径：<b>还没找</b></span></div>
+    <div class="row"><span class="chip err">✗</span><span>加密通道：<b>还没建</b></span></div>
+  </div>`);
+
+const CH2 = PEOPLE.concat(['m-sfu', 'm-sig', 'm-nat'], LINES4);
+scene('nat', { show: CH2, hi: ['m-nat'] }, () => `
+  <span class="ck">网络</span><h3>甲在 NAT 后面</h3>
+  <div class="flow"><span class="s">192.168.1.10:5000</span><span class="ar">→ NAT →</span><span class="s">203.0.113.10:62000</span></div>
+  <p>甲只知道自己的内网地址；外面看到的，是 NAT 改写后的公网地址和端口。SFU 通常直接有公网地址。</p>
+  <p class="m" style="align-self:flex-start">示例地址取自 RFC 5737 文档保留网段</p>`);
+
+scene('cands', { show: CH2.concat(['m-stun', 'm-turn', 'p-stun', 'p-turn']), hi: ['m-stun', 'm-turn'],
+  flows: [{ p: 'p-stun', c: C.stun, n: 2, s: .5, shape: 'dot', both: true }, { p: 'p-turn', c: C.stun, n: 2, s: .45, shape: 'dot', both: true }] }, () => `
+  <span class="ck">ICE · 收集候选</span><h3>三种候选地址</h3>
+  <div class="rows">
+    <div class="row"><span class="chip b">host</span><span>网卡上的地址，不用问任何人</span></div>
+    <div class="row"><span class="chip w">srflx</span><span>问 STUN：「你看我从哪来？」得到 NAT 的公网映射</span></div>
+    <div class="row"><span class="chip">relay</span><span>向 TURN 申请一个中继地址</span></div>
+  </div>
+  <p>libwebrtc 的类型偏好：host 126 &gt; prflx 110 &gt; srflx 100 &gt; relay 0～3。</p>`);
+
+scene('checks', { show: CH2.concat(['m-stun', 'm-turn', 'p-stun', 'p-turn', 'p-sigA', 'p-sigS']), hi: ['m-A', 'm-sfu'],
+  flows: [{ p: 'p-sigA', c: C.sig, n: 2, s: .5, shape: 'env' }, { p: 'p-A', c: C.stun, n: 3, s: .6, shape: 'dot', both: true }] }, () => `
+  <span class="ck">ICE · 连通性检查</span><h3>边收集，边交换，边检查</h3>
+  <div class="box code">a=candidate:… 203.0.113.10 62000 typ srflx  <span class="c">→ 经信令发出</span>
+a=candidate:… 192.168.1.10 5000 typ host   <span class="c">→ 经信令发出</span></div>
+  <p>候选两两配成对，每对发 <b>STUN Binding 请求</b>试一试；不用等全部收集完再开始（trickle ICE）。</p>`);
+
+scene('selected', { show: CH2.concat(['m-stun', 'm-turn', 'p-stun', 'p-turn']), dim: ['m-turn', 'p-turn', 'm-stun', 'p-stun'], ok: ['p-A'], hi: ['m-A', 'm-sfu'] }, () => `
+  <span class="ck">ICE · 选中路径</span><h3>甲 ⇄ SFU，直接打通</h3>
+  <div class="rows">
+    <div class="row"><span class="chip ok">选中</span><span>甲的公网映射 ⇄ SFU 的公网地址</span></div>
+    <div class="row"><span class="chip dim">TURN</span><span>备用：公司网络封掉 UDP 时，走 TURN over TLS</span></div>
+  </div>
+  <p>两端 NAT 组合不同，能否打通也不同，见「ICE 与 NAT 穿透」里的组合矩阵。</p>`);
+
+scene('dtls', { show: CH2.concat(['m-lock']), ok: ['p-A'], hi: ['m-lock'],
+  flows: [{ p: 'p-A', c: C.warn || '#9C7C25', n: 2, s: .5, shape: 'dot', both: true }] }, () => `
+  <span class="ck">DTLS-SRTP</span><h3>在选中的路上握手、拿密钥</h3>
+  <div class="flow"><span class="s">交换证书</span><span class="ar">→</span><span class="s">核对 SDP 里的指纹</span><span class="ar">→</span><span class="s">导出 SRTP 密钥</span></div>
+  <p>指纹对得上，才能确认对面就是 SDP 里那个人。之后所有媒体都用导出的密钥加密。</p>`);
+
+const CH3 = PEOPLE.concat(['m-sfu', 'm-nat', 'm-lock'], LINES4);
+scene('capture', { show: CH3, ok: ['p-A'], hi: ['m-A'] }, () => `
+  <span class="ck">甲这边 · 采集与编码</span><h3>一帧画面变成码流</h3>
+  <div class="flow"><span class="s">摄像头</span><span class="ar">→</span><span class="s">原始图像</span><span class="ar">→</span><span class="s">编码器</span><span class="ar">→</span><span class="s" style="background:var(--a-soft)">H.264 / VP8 码流</span></div>
+  <p>一帧 1080p 原始图像（YUV 4:2:0）约 3 MB（1920 × 1080 × 1.5 字节）；编码之后通常只剩几 KB 到几十 KB。</p>`);
+
+scene('simulcast', { show: CH3, ok: ['p-A'], hi: ['m-A'],
+  flows: [{ p: 'p-A', c: C.hi, n: 3, s: .32, shape: 'pkt' }, { p: 'p-A', c: C.mid, n: 3, s: .32, shape: 'pkt', delay: .11 }, { p: 'p-A', c: C.lo, n: 3, s: .32, shape: 'pkt', delay: .22 }] }, () => `
+  <span class="ck">simulcast</span><h3>同一个画面，编出几档</h3>
+  <div class="rows">
+    <div class="row"><span class="chip" style="background:${C.hi};color:#FEFEFB;border-color:${C.hi}">高</span><span>例如 1080p</span></div>
+    <div class="row"><span class="chip" style="background:${C.mid};color:#FEFEFB;border-color:${C.mid}">中</span><span>例如 720p</span></div>
+    <div class="row"><span class="chip" style="background:${C.lo};border-color:${C.lo}">低</span><span>例如 360p</span></div>
+  </div>
+  <p>每一档都是一次独立编码、一路独立的 RTP 流（各有自己的 SSRC）。</p>`);
+
+scene('packetize', { show: CH3, ok: ['p-A'], hi: ['m-A'], flows: [{ p: 'p-A', c: C.hi, n: 5, s: .3, shape: 'pkt' }] }, () => `
+  <span class="ck">RTP 打包</span><h3>一帧切成几片</h3>
+  <div class="bar" aria-label="4200 字节的帧被切成 4 个约 1064 字节的 RTP 包">
+    <span style="flex:1;background:var(--a-soft)">IDR 帧 · 4200 B</span></div>
+  <div class="bar">
+    <span style="flex:1;background:var(--wire-soft)">#23456</span><span style="flex:1;background:var(--wire-soft)">#23457</span><span style="flex:1;background:var(--wire-soft)">#23458</span><span style="flex:1;background:var(--wire-soft)">#23459</span></div>
+  <p>libwebrtc 默认每个 RTP 包不超过 <b>1200 字节</b>（<span class="m">kVideoMtu</span>），大帧用 FU-A 分片，各片大小尽量相等。</p>`);
+
+scene('header', { show: CH3, ok: ['p-A'], hi: ['m-A'], flows: [{ p: 'p-A', c: C.hi, n: 4, s: .22, shape: 'pkt' }] }, () => `
+  <span class="ck">RTP 头</span><h3>每个包都带着三样东西</h3>
+  <div class="box code">#23456  ts=1500000  SSRC=1A2B3C4D  M=0
+#23457  ts=1500000  SSRC=1A2B3C4D  M=0
+#23458  ts=1500000  SSRC=1A2B3C4D  M=0
+#23459  ts=1500000  SSRC=1A2B3C4D  <span class="h">M=1</span></div>
+  <p><b>序号</b>每包加 1；<b>时间戳</b>同一帧都相同；<b>SSRC</b>标明是哪路流；最后一片打 <b>Marker</b>。</p>`);
+
+scene('srtp', { show: CH3, ok: ['p-A'], hi: ['m-lock'], flows: [{ p: 'p-A', c: C.hi, n: 5, s: .3, shape: 'pkt' }] }, () => `
+  <span class="ck">SRTP</span><h3>载荷加密，逐跳生效</h3>
+  <div class="bar"><span style="flex:0 0 70px;background:var(--wire-soft)">RTP 头</span><span style="flex:1;background:repeating-linear-gradient(135deg,var(--a-soft) 0 7px,#FEFEFB 7px 10px)">加密的载荷</span><span style="flex:0 0 46px;background:var(--warn-soft)">标签</span></div>
+  <p>SRTP 只加密载荷，RTP 头在线路上看得见。SFU 是这条 DTLS 连接的另一端，所以它<b>能解开</b>：真正的端到端加密要另加 SFrame。</p>`);
+
+const CH4 = PEOPLE.concat(['m-sfu', 'm-nat', 'm-lock'], LINES4);
+const UP3 = [{ p: 'p-A', c: C.hi, n: 3, s: .32, shape: 'pkt' }, { p: 'p-A', c: C.mid, n: 3, s: .32, shape: 'pkt', delay: .11 }, { p: 'p-A', c: C.lo, n: 3, s: .32, shape: 'pkt', delay: .22 }];
+const DOWN = [{ p: 'p-B', c: C.hi, n: 4, s: .32, shape: 'pkt' }, { p: 'p-C', c: C.lo, n: 3, s: .32, shape: 'pkt' }, { p: 'p-D', c: C.lo, n: 3, s: .32, shape: 'pkt' }];
+scene('sfuin', { show: CH4, ok: ['p-A'], hi: ['m-sfu'], flows: UP3 }, () => `
+  <span class="ck">SFU</span><h3>收下几档，不解码</h3>
+  <p>SFU 不碰画面内容，只看包头和自己维护的订阅关系，决定每个包转给谁。所以它的 CPU 压力很小，压力主要在<b>出口带宽</b>。</p>
+  <div class="chips"><span class="chip" style="background:${C.hi};color:#FEFEFB">高</span><span class="chip" style="background:${C.mid};color:#FEFEFB">中</span><span class="chip" style="background:${C.lo}">低</span><span class="chip w">→ 待分配</span></div>`);
+
+scene('fanout', { show: CH4, ok: LINES4, hi: ['m-B', 'm-C', 'm-D'], flows: UP3.concat(DOWN) }, () => `
+  <span class="ck">按人选层</span><h3>每个人拿到合适的一档</h3>
+  <div class="rows">
+    <div class="row"><span class="chip b">乙</span><span>网络很好 → <b>高清</b></span></div>
+    <div class="row"><span class="chip b">丙</span><span>弱网 → <b>低清</b></span></div>
+    <div class="row"><span class="chip b">丁</span><span>窗口很小 → <b>低清</b></span></div>
+  </div>`);
+
+scene('pause', { show: CH4.concat(['p-back']), ok: LINES4, hi: ['m-A'],
+  flows: [{ p: 'p-A', c: C.hi, n: 3, s: .32, shape: 'pkt' }, { p: 'p-A', c: C.lo, n: 3, s: .32, shape: 'pkt', delay: .16 }, { p: 'p-back', c: C.fb, n: 1, s: .35, shape: 'dia' }].concat(DOWN) }, () => `
+  <span class="ck">没人要的那档</span><h3>中档可以停编</h3>
+  <div class="chips"><span class="chip" style="background:${C.hi};color:#FEFEFB">高 · 乙在看</span><span class="chip" style="opacity:.4;text-decoration:line-through">中 · 没人看</span><span class="chip" style="background:${C.lo}">低 · 丙、丁在看</span></div>
+  <p>在甲的客户端上，这对应把那一档 encoding 的 <span class="m">active</span> 设为 false。由谁、通过什么消息通知甲，各家 SFU 的做法不同。</p>`);
+
+scene('uplink', { show: CH4, ok: LINES4, hi: ['m-A', 'm-sfu'], flows: UP3.concat(DOWN) }, () => `
+  <span class="ck">算一笔账</span><h3>上行永远只有自己这一份</h3>
+  <div class="rows">
+    <div class="row"><span class="chip">mesh</span><span>甲上传 <b>3 份</b>，每多一个人就多一份</span></div>
+    <div class="row"><span class="chip w">SFU</span><span>甲上传 <b>1 份</b>（含几档）；SFU 出口 3 份</span></div>
+  </div>
+  <p>手机和家用宽带的上行往往很紧，扇出的成本搬到机房，是花钱就能解决的那种成本。</p>`);
+
+scene('rewrite', { show: CH4, ok: LINES4, hi: ['m-sfu'], flows: UP3.concat(DOWN) }, () => `
+  <span class="ck">改写</span><h3>对接收者来说，流是连续的</h3>
+  <div class="box code"><span class="c">丙收到的（中途从低清切到中清）</span>
+#801 #802 #803 <span class="h">#804</span> #805 …   <span class="c">← 序号不跳</span></div>
+  <p>每一档本来各有自己的 SSRC 和序号。SFU 切换档位时改写 SSRC、序号和时间戳，接收端的解码器察觉不到切换。</p>`);
+
+const CH5 = PEOPLE.concat(['m-sfu', 'm-nat', 'm-lock'], LINES4);
+const TOB = [{ p: 'p-B', c: C.hi, n: 4, s: .3, shape: 'pkt' }];
+scene('arrive', { show: CH5, ok: ['p-A', 'p-B'], dim: ['m-C', 'm-D', 'p-C', 'p-D'], hi: ['m-B'], flows: TOB }, () => `
+  <span class="ck">乙这边</span><h3>包陆续到达，顺序乱了</h3>
+  <div class="chips"><span class="chip w">#23457</span><span class="chip w">#23456</span><span class="chip w">#23459 · M</span><span class="chip w">#23458</span></div>
+  <p>不同的包可能走不同的路由，<b>先发的不一定先到</b>。</p>`);
+
+scene('parse', { show: CH5, ok: ['p-A', 'p-B'], dim: ['m-C', 'm-D', 'p-C', 'p-D'], hi: ['m-B'], flows: TOB }, () => `
+  <span class="ck">逐包解析 · 以 H.264 为例</span><h3>每个包一到就先拆开</h3>
+  <div class="rows">
+    <div class="row"><span class="chip a">FU-A 第一片</span><span>去掉分片头，还原 NAL 头 <span class="m">0x65</span>，补起始码</span></div>
+    <div class="row"><span class="chip a">FU-A 后续片</span><span>去掉 2 字节分片头，数据原样接上</span></div>
+  </div>
+  <p><span class="m">VideoRtpDepacketizerH264</span> 负责拆，<span class="m">H264SpsPpsTracker</span> 负责补起始码 <span class="m">00 00 00 01</span>。</p>`);
+
+scene('assemble', { show: CH5, ok: ['p-A', 'p-B'], dim: ['m-C', 'm-D', 'p-C', 'p-D'], hi: ['m-B'], flows: TOB }, () => `
+  <span class="ck">PacketBuffer</span><h3>排队，然后从 Marker 往回找</h3>
+  <div class="chips"><span class="chip ok">#23456</span><span class="chip ok">#23457</span><span class="chip ok">#23458</span><span class="chip ok">#23459 · M</span></div>
+  <p>序号连续、时间戳都是 1500000 → <b>一帧齐了</b>。缺任何一个包，这一帧就出不去。</p>`);
+
+scene('decode', { show: CH5, ok: ['p-A', 'p-B'], dim: ['m-C', 'm-D', 'p-C', 'p-D'], hi: ['m-B'], flows: TOB }, () => `
+  <span class="ck">解码与渲染</span><h3>码流变回图像</h3>
+  <div class="flow"><span class="s">完整的一帧</span><span class="ar">→</span><span class="s">解码器</span><span class="ar">→</span><span class="s" style="background:var(--b-soft)">乙的屏幕</span></div>
+  <div class="box" style="padding:6px"><svg class="mini-svg" viewBox="0 0 200 70" aria-hidden="true"><rect x="1" y="1" width="198" height="68" rx="6" fill="#F5E6D8"/><circle cx="160" cy="20" r="8" fill="#C97B4A"/><path d="M8 66 L60 24 L96 52 L124 34 L194 66 Z" fill="#E7EFE3" stroke="#3D6B4C" stroke-width="2" stroke-linejoin="round"/></svg></div>`);
+
+scene('avsync', { show: CH5, ok: ['p-A', 'p-B'], dim: ['m-C', 'm-D', 'p-C', 'p-D'], hi: ['m-B'], flows: TOB.concat([{ p: 'p-B', c: '#7FB59C', n: 4, s: .3, shape: 'dot', delay: .12 }]) }, () => `
+  <span class="ck">音画同步</span><h3>两路流，换算到同一块表</h3>
+  <div class="box code">视频 SR：NTP 0 ms   ↔ RTP 1500000  <span class="c">(90 kHz)</span>
+音频 SR：NTP 20 ms  ↔ RTP 960000   <span class="c">(48 kHz)</span></div>
+  <p>libwebrtc 用最近最多 20 份 SR 拟合 RTP→NTP 的换算（<span class="m">RtpToNtpEstimator</span>），再由 <span class="m">StreamSynchronization</span> 慢慢调整两路的播放延迟。</p>`);
+
+const CH6 = PEOPLE.concat(['m-sfu', 'm-nat', 'm-lock'], LINES4);
+scene('loss', { show: CH6.concat(['m-x']), ok: ['p-A', 'p-B'], dim: ['m-C', 'm-D', 'p-C', 'p-D'], hi: ['m-x'], flows: TOB }, () => `
+  <span class="ck">出事了</span><h3>一个包在路上丢了</h3>
+  <div class="chips"><span class="chip ok">#23456</span><span class="chip ok">#23457</span><span class="chip err">#23458 ✗</span><span class="chip ok">#23459 · M</span></div>
+  <p>RTP 只管运货，不管丢没丢。发现问题、喊人补救，靠的是 <b>RTCP</b>。</p>`);
+
+scene('nack', { show: CH6.concat(['m-x', 'p-Bback']), ok: ['p-A', 'p-B'], dim: ['m-C', 'm-D', 'p-C', 'p-D'], hi: ['m-B'],
+  flows: [{ p: 'p-Bback', c: C.fb, n: 1, s: .42, shape: 'dia' }, { p: 'p-B', c: C.rtx, n: 1, s: .3, shape: 'pkt', delay: .4 }] }, () => `
+  <span class="ck">NACK · RTCP 205 / FMT 1</span><h3>「#23458 请重发」</h3>
+  <div class="box code">PID = 23458   BLP = 0x0000   <span class="c">← 4 字节说清 17 个包</span></div>
+  <div class="bar"><span style="flex:0 0 104px;background:var(--wire-soft)">RTX 头 · PT 97</span><span style="flex:0 0 74px;background:#ECCFB7">OSN 23458</span><span style="flex:1;background:var(--a-soft)">原载荷</span></div>
+  <p><span class="m">NackRequester</span> 发现缺口立刻发；过一个 RTT 没收到就再催，最多 100 次。</p>`);
+
+scene('pli', { show: CH6.concat(['p-Bback']), ok: ['p-A', 'p-B'], dim: ['m-C', 'm-D', 'p-C', 'p-D'], hi: ['m-B'],
+  flows: [{ p: 'p-Bback', c: C.err || '#B34238', n: 1, s: .42, shape: 'dia' }] }, () => `
+  <span class="ck">PLI · RTCP 206 / FMT 1</span><h3>「画面坏了，给我关键帧」</h3>
+  <div class="rows">
+    <div class="row"><span class="chip">平时</span><span>3 秒没有可解码的帧（<span class="m">kMaxWaitForFrame</span>）</span></div>
+    <div class="row"><span class="chip">等关键帧时</span><span>200 毫秒（<span class="m">kMaxWaitForKeyFrame</span>）</span></div>
+  </div>
+  <p>超时就由 <span class="m">VideoReceiveStream2</span> 请求关键帧，libwebrtc 默认用 PLI。</p>`);
+
+scene('tcc', { show: CH6.concat(['p-Bback', 'p-back']), ok: ['p-A', 'p-B'], dim: ['m-C', 'm-D', 'p-C', 'p-D'], hi: ['m-A', 'm-B'],
+  flows: [{ p: 'p-Bback', c: C.fb, n: 3, s: .5, shape: 'dia' }, { p: 'p-back', c: C.fb, n: 3, s: .5, shape: 'dia' }] }, () => `
+  <span class="ck">transport-cc · RTCP 205 / FMT 15</span><h3>回报每个包的到达时间</h3>
+  <div class="box" style="padding:6px"><svg class="mini-svg" viewBox="0 0 220 80" aria-hidden="true"><g font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#8B957D"><text x="4" y="12">码率</text><text x="170" y="76">时间 →</text></g><polyline points="10,22 60,22 80,24 100,46 130,52 160,50 210,36" fill="none" stroke="#C97B4A" stroke-width="2.5"/><line x1="96" y1="16" x2="96" y2="66" stroke="#B34238" stroke-dasharray="4 4"/><text x="100" y="64" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#B34238">网络变差</text></svg></div>
+  <p>默认每 100 ms 回报一次（50～250 ms 之间调整）。每一跳各算各的：乙 ⇄ SFU，SFU ⇄ 甲。</p>`);
+
+scene('rr', { show: CH6.concat(['p-Bback', 'p-back']), ok: ['p-A', 'p-B'], dim: ['m-C', 'm-D', 'p-C', 'p-D'], hi: ['m-B'],
+  flows: [{ p: 'p-Bback', c: C.fb, n: 1, s: .3, shape: 'dia' }, { p: 'p-back', c: C.fb, n: 1, s: .3, shape: 'dia', delay: .5 }] }, () => `
+  <span class="ck">接收报告 · 视频每 1 秒一份</span><h3>报告块里写了什么</h3>
+  <div class="rows">
+    <div class="row"><span class="chip w">丢包率</span><span>255 × 本期丢包 ÷ 本期应收</span></div>
+    <div class="row"><span class="chip w">抖动</span><span>到达间隔的波动，平滑后的估计</span></div>
+    <div class="row"><span class="chip w">LSR · DLSR</span><span>对方据此算 RTT = 收到时刻 − DLSR − LSR</span></div>
+  </div>`);
+
+scene('summary', { show: PEOPLE.concat(['m-sfu', 'm-sig', 'm-nat', 'm-lock', 'm-stun', 'm-turn', 'p-sigA', 'p-sigS', 'p-stun', 'p-turn', 'p-Bback', 'p-back'], LINES4), ok: LINES4, dim: ['m-stun', 'm-turn', 'p-stun', 'p-turn'],
+  flows: UP3.concat(DOWN, [{ p: 'p-Bback', c: C.fb, n: 1, s: .3, shape: 'dia' }, { p: 'p-back', c: C.fb, n: 1, s: .3, shape: 'dia' }]) }, () => `
+  <span class="ck">回顾</span><h3>六个角色，一句话各一个</h3>
+  <div class="rows">
+    <div class="row"><span class="chip w">信令 · SDP</span><span>谈规则</span></div>
+    <div class="row"><span class="chip w">ICE</span><span>找路</span></div>
+    <div class="row"><span class="chip w">DTLS</span><span>建立加密</span></div>
+    <div class="row"><span class="chip a">RTP</span><span>运货</span></div>
+    <div class="row"><span class="chip b">SFU</span><span>分发</span></div>
+    <div class="row"><span class="chip w">RTCP</span><span>打电话</span></div>
+  </div>`);
+
+/* ── 地图渲染 ── */
+const svg = $('#map'), flowsG = $('#flows');
+const ALL = Array.from(svg.querySelectorAll('.el')).map(e => e.id).filter(Boolean);
+let flows = [];
+function applyMap(m){
+  const show = new Set(m.show || []), hi = new Set(m.hi || []), dim = new Set(m.dim || []), ok = new Set(m.ok || []);
+  ALL.forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.toggle('off', !show.has(id));
+    el.classList.toggle('dim', dim.has(id));
+    el.classList.toggle('hi', hi.has(id));
+    if (el.classList.contains('ln') && !el.classList.contains('sig')) {
+      el.classList.toggle('ok', ok.has(id));
+      el.classList.toggle('live', !ok.has(id) && !!(m.flows || []).some(f => f.p === id));
+    }
+  });
+  flowsG.innerHTML = '';
+  flows = [];
+  (m.flows || []).forEach(f => {
+    const path = document.getElementById(f.p), len = path.getTotalLength();
+    const dirs = f.both ? [false, true] : [!!f.r];
+    dirs.forEach(rev => {
+      for (let i = 0; i < f.n; i++) {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', f.shape === 'dot' ? 'circle' : f.shape === 'env' ? 'g' : 'rect');
+        if (f.shape === 'dot') { el.setAttribute('r', 4.5); el.setAttribute('fill', f.c); }
+        else if (f.shape === 'env') { el.innerHTML = '<rect x="-10" y="-7" width="20" height="14" rx="2.5" fill="#FEFEFB" stroke="' + f.c + '" stroke-width="2"/><path d="M-8 -5 L0 1.5 L8 -5" fill="none" stroke="' + f.c + '" stroke-width="1.8" stroke-linecap="round"/>'; }
+        else if (f.shape === 'dia') { el.setAttribute('width', 10); el.setAttribute('height', 10); el.setAttribute('x', -5); el.setAttribute('y', -5); el.setAttribute('fill', f.c); el.setAttribute('transform-origin', '0 0'); el.dataset.rot = '45'; }
+        else { el.setAttribute('width', 16); el.setAttribute('height', 11); el.setAttribute('x', -8); el.setAttribute('y', -5.5); el.setAttribute('rx', 2.5); el.setAttribute('fill', f.c); el.setAttribute('stroke', '#333D2E'); el.setAttribute('stroke-width', 1.2); }
+        flowsG.appendChild(el);
+        flows.push({ el, path, len, s: f.s, off: (i / f.n + (f.delay || 0) + (rev ? .5 / f.n : 0)) % 1, rev, rot: el.dataset.rot || 0 });
+      }
+    });
+  });
+  drawFlows(0);
+}
+let phase = 0;
+function drawFlows(dt){
+  if (!reduce) phase += dt;
+  flows.forEach(f => {
+    let u = reduce ? f.off : (phase * f.s + f.off) % 1;
+    if (f.rev) u = 1 - u;
+    const pt = f.path.getPointAtLength(u * f.len);
+    f.el.setAttribute('transform', 'translate(' + pt.x.toFixed(1) + ',' + pt.y.toFixed(1) + ')' + (f.rot ? ' rotate(' + f.rot + ')' : ''));
+    const edge = Math.min(u, 1 - u);
+    f.el.style.opacity = Math.min(1, edge * 8).toFixed(2);
+  });
+}
+
+/* ── 播放控制 ── */
+const audio = $('#audio'), subs = $('#subs'), card = $('#card');
+const offsets = []; let total = 0;
+TIMELINE.forEach(ch => { offsets.push(total); total += ch.dur; });
+let ci = 0, curScene = null, playing = false, cc = true, cardTok = 0;
+const fmt = t => Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0');
+$('#totalLen').textContent = '约 ' + Math.round(total / 60) + ' 分钟';
+
+function cueAt(ch, t){
+  const cs = ch.cues;
+  for (let i = cs.length - 1; i >= 0; i--) if (t >= cs[i].t0 - 0.05) return cs[i];
+  return cs[0];
+}
+function setScene(cue){
+  if (!cue) return;
+  subs.textContent = cue.sub;
+  if (curScene === cue.scene) return;
+  curScene = cue.scene;
+  const sc = S[cue.scene];
+  applyMap(sc.map);
+  const tok = ++cardTok;
+  if (reduce) { card.innerHTML = sc.card(); return; }
+  card.classList.add('fade');
+  setTimeout(() => { if (tok !== cardTok) return; card.innerHTML = sc.card(); card.classList.remove('fade'); }, 180);
+}
+function renderChapters(){
+  const box = $('#chs'); box.innerHTML = '';
+  TIMELINE.forEach((ch, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chb';
+    b.setAttribute('aria-current', String(i === ci));
+    b.innerHTML = '<span class="n">第 ' + (i + 1) + ' 章 · ' + fmt(ch.dur) + '</span><span class="t"></span>';
+    b.querySelector('.t').textContent = ch.title;
+    b.addEventListener('click', () => loadChapter(i, 0, true));
+    box.appendChild(b);
+  });
+  const ch = TIMELINE[ci];
+  $('#more').innerHTML = '<span>深入看：</span>' + ch.more.map(m => '<a href="' + m[1] + '" target="_top">' + m[0] + ' →</a>').join('');
+  const prog = $('#prog');
+  prog.querySelectorAll('.tick').forEach(t => t.remove());
+  offsets.slice(1).forEach(o => { const t = document.createElement('span'); t.className = 'tick'; t.style.left = (o / total * 100) + '%'; prog.appendChild(t); });
+}
+function loadChapter(i, t, autoplay){
+  ci = Math.max(0, Math.min(TIMELINE.length - 1, i));
+  const ch = TIMELINE[ci];
+  if (!audio.src.endsWith(ch.src)) audio.src = ch.src;
+  const go = () => { audio.currentTime = t || 0; if (autoplay) play(); };
+  if (audio.readyState >= 1) go(); else audio.addEventListener('loadedmetadata', go, { once: true });
+  curScene = null;
+  setScene(cueAt(ch, t || 0));
+  renderChapters();
+  tick();
+}
+function play(){
+  $('#playBig').classList.add('off');
+  audio.play().then(() => { playing = true; syncBtn(); }).catch(() => { playing = false; syncBtn(); });
+}
+function pause(){ audio.pause(); playing = false; syncBtn(); }
+function syncBtn(){ const b = $('#btnPlay'); b.textContent = playing ? '❚❚' : '▶'; b.setAttribute('aria-label', playing ? '暂停' : '播放'); }
+function tick(){
+  const g = offsets[ci] + (audio.currentTime || 0);
+  $('#time').textContent = fmt(g) + ' / ' + fmt(total);
+  $('#progFill').style.width = (g / total * 100).toFixed(2) + '%';
+  $('#prog').setAttribute('aria-valuenow', Math.round(g / total * 100));
+}
+audio.addEventListener('timeupdate', () => { setScene(cueAt(TIMELINE[ci], audio.currentTime)); tick(); });
+audio.addEventListener('ended', () => { if (ci < TIMELINE.length - 1) loadChapter(ci + 1, 0, true); else { playing = false; syncBtn(); } });
+audio.addEventListener('pause', () => { if (!audio.ended) { playing = false; syncBtn(); } });
+audio.addEventListener('play', () => { playing = true; syncBtn(); });
+
+$('#playBigBtn').addEventListener('click', () => { loadChapter(ci, audio.currentTime || 0, true); });
+$('#btnPlay').addEventListener('click', () => { if (playing) pause(); else { if (!audio.src) loadChapter(ci, 0, true); else play(); } });
+$('#btnPrev').addEventListener('click', () => loadChapter(audio.currentTime > 3 ? ci : ci - 1, 0, playing));
+$('#btnNext').addEventListener('click', () => loadChapter(ci + 1, 0, playing));
+$('#btnCC').addEventListener('click', e => { cc = !cc; subs.classList.toggle('hidden-cc', !cc); e.currentTarget.setAttribute('aria-pressed', String(cc)); });
+const RATES = [1, 1.25, 1.5];
+$('#btnRate').addEventListener('click', e => { const r = RATES[(RATES.indexOf(audio.playbackRate) + 1) % RATES.length]; audio.playbackRate = r; e.currentTarget.textContent = r + '×'; });
+function seekGlobal(frac){
+  const g = Math.max(0, Math.min(total - 0.1, frac * total));
+  let i = offsets.length - 1; while (i > 0 && offsets[i] > g) i--;
+  loadChapter(i, g - offsets[i], playing);
+}
+$('#prog').addEventListener('click', e => { const r = e.currentTarget.getBoundingClientRect(); seekGlobal((e.clientX - r.left) / r.width); });
+$('#prog').addEventListener('keydown', e => {
+  const g = offsets[ci] + audio.currentTime;
+  if (e.key === 'ArrowRight') { e.preventDefault(); seekGlobal((g + 5) / total); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); seekGlobal((g - 5) / total); }
+});
+document.addEventListener('keydown', e => {
+  if (e.target.closest('button,input,a,[role=slider]')) return;
+  if (e.code === 'Space') { e.preventDefault(); $('#btnPlay').click(); }
+});
+
+/* ── 动画循环：只在播放时推进 ── */
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (playing) drawFlows(dt * (audio.playbackRate || 1));
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ── 文字稿 ── */
+$('#trBody').innerHTML = TIMELINE.map((ch, i) => '<h4>第 ' + (i + 1) + ' 章 · ' + ch.title + '</h4>' + ch.cues.map(c => '<p></p>').join('')).join('');
+let pi = 0; const ps = $('#trBody').querySelectorAll('p');
+TIMELINE.forEach(ch => ch.cues.forEach(c => { ps[pi++].textContent = c.sub; }));
+
+/* ── 嵌入首页时，把高度告诉父页面 ── */
+if (embedded && window.parent !== window) {
+  const post = () => window.parent.postMessage({ type: 'overview-height', h: document.documentElement.scrollHeight }, '*');
+  new ResizeObserver(post).observe(document.body); post();
+}
+
+if (TIMELINE.length) { renderChapters(); setScene(TIMELINE[0].cues[0]); tick(); }
+})();
+</script>
+</body>
+</html>

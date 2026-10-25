@@ -22,3 +22,6 @@
 
 # Agent-specific local instructions (repo-level AGENTS.md is versioned on purpose)
 **/CLAUDE.md
+
+# 全貌讲解的 TTS 缓存
+overview/.tts-cache/

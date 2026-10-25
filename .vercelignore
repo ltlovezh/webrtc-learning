@@ -13,3 +13,8 @@
 # Video projects stay local; the public learning site only ships lightweight HTML
 webrtc-call-flow-video/**
 webrtc-media-data-flow-video/**
+
+# 全貌讲解的生成脚本与缓存不随站点发布
+overview/.tts-cache/**
+overview/build.py
+overview/narration.json

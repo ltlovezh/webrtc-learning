@@ -3,7 +3,8 @@
 面向 WebRTC 学习的交互式网页、可视化示例和视频工程源码。
 
 - 在线网站：https://webrtc-learning.vercel.app
-- 首页：`index.html`（WebRTC 全景图 + 学习路线 + 专题目录）
+- 首页：`index.html`（五分钟全貌讲解 + WebRTC 全景图 + 学习路线 + 专题目录）
+- 五分钟全貌（多人会议讲解，含旁白与字幕）：`webrtc-overview.html`，旁白稿在 `overview/narration.json`，改稿后运行 `python3 overview/build.py` 重新生成语音与时间轴
 - SDP 协商：`webrtc-sdp-exchange.html`
 - NAT 类型可视化：`nat-types-visualizer.html`
 - 规模化拓扑（SFU / MCU）：`webrtc-topology.html`

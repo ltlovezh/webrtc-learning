@@ -532,7 +532,7 @@ footer .fm{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:v
           <p class="legend3d-note" id="legend3dNote" aria-live="polite"></p>
         </div>
       </div>
-      <p class="callout">斜纹的两层（FU-A 头与 NAL 分片）在 SRTP 里是<b>加密</b>的；RTP 头和扩展默认是明文——SFU 要读序号和 SSRC 才能转发。示例：RTP 头 + 扩展 + 载荷 = 1200 字节，正是 libwebrtc 的默认上限 <span class="m">kVideoMtu</span>；再加上 SRTP 标签和 UDP/IP 头约 1238 字节，仍低于以太网的 1500 字节，不会被 IP 分片。</p>
+      <p class="callout">斜纹的两层（FU-A 头与 NAL 分片）在 SRTP 里是<b>加密</b>的；SRTP 只加密载荷，RTP 头和头扩展默认不加密，序号、SSRC 在线路上都看得见。（加密是逐跳的：SFU 本身就是 DTLS 连接的另一端，载荷它也能解开。）示例：RTP 头 + 扩展 + 载荷 = 1200 字节，正是 libwebrtc 的默认上限 <span class="m">kVideoMtu</span>；再加上 SRTP 标签和 UDP/IP 头约 1238 字节，仍低于以太网的 1500 字节，不会被 IP 分片。</p>
     </div>
 
     <h3 class="h3">RTP 头逐位拆开</h3>
