@@ -697,7 +697,7 @@ TIMELINE.forEach(ch => ch.cues.forEach(c => { ps[pi++].textContent = c.sub; }));
 
 /* ── 嵌入首页时，把高度告诉父页面 ── */
 if (embedded && window.parent !== window) {
-  const post = () => window.parent.postMessage({ type: 'overview-height', h: document.documentElement.scrollHeight }, '*');
+  const post = () => window.parent.postMessage({ type: 'overview-height', h: Math.ceil(document.body.getBoundingClientRect().height) + 2 }, '*');
   new ResizeObserver(post).observe(document.body); post();
 }
 
